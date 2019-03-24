@@ -6,6 +6,7 @@ Data structures are implementing an interface.
 Right now they are a bit repetitive, will be improved later.
 """
 
+from config import MAX_NUMBER_OF_DATA
 from text_functions import limit_text, safe_action
 
 class TextData:
@@ -18,6 +19,9 @@ class TextData:
 
     def add_content(self, s):
         self.content.insert(0, s)
+        # Currently only clip data is growing, so delete is handled only here
+        if len(self.content) > MAX_NUMBER_OF_DATA:
+            del self.content[-1]
 
     def get_content(self, n):
         try:

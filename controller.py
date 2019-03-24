@@ -7,13 +7,13 @@ Controller part, driving the GUI and the Data
 import ast
 import queue
 import socket
-import sys
 from threading import Thread
 
+import action_data
+import commands
 import data_struct
 import gui_lines
 import text_data
-import action_data
 from config import SERVER_SUCCESS
 from text_functions import safe_action
 
@@ -91,11 +91,24 @@ class Controller:
     def handle_keyboard_events(self, key):
         """Function to handle commands, main source are GUI keyboard events
         but in the future it will handle command line commands too"""
-        if key in "123456789":
+        if key == 'f' and self.step == MINIMIZED:
+            self.step = TEXT
+            self.app.bring_to_front()
+            self.update_app()
+        elif key in commands.NUM_KEYS:
             n = int(key) - 1
             self.get_next(n)
-        else:
+        elif key == 'b':
             self.get_prev()
+        elif key == '0':
+            self.step = MINIMIZED
+            self.app.minimize()
+        elif key == 'c':
+            gui_lines.set_clip_content(self.selected_text)
+            self.step = MINIMIZED
+            self.app.minimize()
+        else:
+            print("Non-handled key: " + key)
         self.update_app()
 
     def handle_update_request(self, text):
@@ -111,14 +124,7 @@ class Controller:
                 self.update_app()
         while not self.server_queue.empty():
             cmd = self.server_queue.get_nowait()
-            # TODO: In the future sequence of commands can be processed
-            if cmd == "1":
-                if self.step == MINIMIZED:
-                    self.step = TEXT
-                self.app.bring_to_front()
-                self.update_app()
-            elif cmd == "0":
-                sys.exit(0)
+            self.handle_keyboard_events(cmd)
 
     def update_app(self):
         """Function to push updates to GUI
@@ -135,6 +141,7 @@ class Controller:
             pass
 
     def get_next(self, n):
+        """Step to the next state, select the n-th item for that"""
         if self.step == TEXTS:
             self.selected_text_data = self.data.texts.get_child(n)
             self.step = TEXT
@@ -153,6 +160,7 @@ class Controller:
             pass
 
     def get_prev(self):
+        """Step back one state"""
         if self.step == ACTION:
             self.step = ACTIONS
         elif self.step == ACTIONS:
@@ -163,6 +171,7 @@ class Controller:
             pass
 
     def load_data(self):
+        """Load text and action data from the current implementation"""
         for name, data in text_data.defined_texts.items():
             self.data.texts.add_child(data_struct.TextData(name, data))
         for name, data in action_data.defined_functions.items():

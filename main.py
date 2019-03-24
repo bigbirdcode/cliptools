@@ -44,7 +44,7 @@ def _delegate_to_existing_instance(args):
     response = bytes([])
     while len(response) < len(SERVER_SUCCESS):
         new_data = sock.recv(2)
-        if len(new_data) == 0:
+        if not new_data:
             break
         else:
             response += new_data
@@ -60,7 +60,7 @@ def main():
     if delegation_result is True:
         # we're done
         print("Delegated to an existing instance. Exiting now.")
-        return 0
+        return
     if hasattr(delegation_result, "accept"):
         # we have server socket to put in use
         server_socket = delegation_result

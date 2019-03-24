@@ -9,6 +9,7 @@ from itertools import chain, repeat
 
 import wx
 
+import commands
 from config import NUMBER_OF_ROWS
 
 
@@ -140,10 +141,19 @@ class GuiLinesFrame(wx.Frame):
     def on_key_press(self, event):
         """Number key press will select the actual line
         but with delegating the action to the controller"""
-        n = event.GetKeyCode()
-        # print(n)
-        if n in HANDLED_KEYS:
-            self.handle_keyboard_events(HANDLED_KEYS[n])
+
+        # TODO: Alt + F4 is now not handled correctly
+
+        n = event.GetUnicodeKey()
+        if n == wx.WXK_NONE:
+            n = event.GetKeyCode()
+        if n in commands.SPECIAL_KEYS:
+            for c in commands.SPECIAL_KEYS[n]:
+                self.handle_keyboard_events(c)
+        else:
+            c = chr(n).lower()
+            if c in commands.ALL_KEYS:
+                self.handle_keyboard_events(c)
         event.Skip()
 
     def on_button_click(self, event):
