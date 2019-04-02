@@ -22,7 +22,6 @@ TEXTS = 1
 TEXT = 2
 ACTIONS = 3
 ACTION = 4
-MINIMIZED = 5
 
 
 def _handle_socket_request(client_socket, server_queue) -> None:
@@ -92,8 +91,6 @@ class Controller:
         """Function to handle commands, main source are GUI keyboard events
         but in the future it will handle command line commands too"""
         if key == 'f':
-            if self.step == MINIMIZED:
-                self.step = TEXT
             self.app.bring_to_front()
             self.update_app()
         elif key in commands.NUM_KEYS:
@@ -102,11 +99,10 @@ class Controller:
         elif key == 'b':
             self.get_prev()
         elif key == '0':
-            self.step = MINIMIZED
             self.app.minimize()
         elif key == 'c':
             gui_lines.set_clip_content(self.selected_text)
-            self.step = MINIMIZED
+            self.step = TEXT
             self.app.minimize()
         else:
             print("Non-handled key: " + key)
@@ -138,8 +134,6 @@ class Controller:
             self.app.frame.update_data(self.data.actions.get_names())
         elif self.step == ACTION:
             self.app.frame.update_data(self.selected_action_data.get_names(self.selected_text))
-        elif self.step == MINIMIZED:
-            pass
 
     def get_next(self, n):
         """Step to the next state, select the n-th item for that"""
@@ -154,11 +148,9 @@ class Controller:
             self.step = ACTION
         elif self.step == ACTION:
             self.selected_action = self.selected_action_data.get_content(n)
-            self.step = MINIMIZED
+            self.step = TEXT
             gui_lines.set_clip_content(safe_action(self.selected_text, self.selected_action))
             self.app.minimize()
-        elif self. step == MINIMIZED:
-            pass
 
     def get_prev(self):
         """Step back one state"""
@@ -168,7 +160,7 @@ class Controller:
             self.step = TEXT
         elif self.step == TEXT:
             self.step = TEXTS
-        elif self.step == TEXTS or self.step == MINIMIZED:
+        elif self.step == TEXTS:
             pass
 
     def load_data(self):
