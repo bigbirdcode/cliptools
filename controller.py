@@ -91,8 +91,9 @@ class Controller:
     def handle_keyboard_events(self, key):
         """Function to handle commands, main source are GUI keyboard events
         but in the future it will handle command line commands too"""
-        if key == 'f' and self.step == MINIMIZED:
-            self.step = TEXT
+        if key == 'f':
+            if self.step == MINIMIZED:
+                self.step = TEXT
             self.app.bring_to_front()
             self.update_app()
         elif key in commands.NUM_KEYS:
