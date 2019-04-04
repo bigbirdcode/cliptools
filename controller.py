@@ -94,8 +94,11 @@ class Controller:
             self.app.bring_to_front()
             self.update_app()
         elif key in commands.NUM_KEYS:
-            n = int(key) - 1
-            self.get_next(n)
+            number = int(key) - 1
+            try:
+                self.get_next(number)
+            except IndexError:
+                pass # not valid number, just ignore
         elif key == 'b':
             self.get_prev()
         elif key == '0':
@@ -135,19 +138,19 @@ class Controller:
         elif self.step == ACTION:
             self.app.frame.update_data(self.selected_action_data.get_names(self.selected_text))
 
-    def get_next(self, n):
+    def get_next(self, number):
         """Step to the next state, select the n-th item for that"""
         if self.step == TEXTS:
-            self.selected_text_data = self.data.texts.get_child(n)
+            self.selected_text_data = self.data.texts.get_content(number)
             self.step = TEXT
         elif self.step == TEXT:
-            self.selected_text = self.selected_text_data.get_content(n)
+            self.selected_text = self.selected_text_data.get_content(number)
             self.step = ACTIONS
         elif self.step == ACTIONS:
-            self.selected_action_data = self.data.actions.get_child(n)
+            self.selected_action_data = self.data.actions.get_content(number)
             self.step = ACTION
         elif self.step == ACTION:
-            self.selected_action = self.selected_action_data.get_content(n)
+            self.selected_action = self.selected_action_data.get_content(number)
             self.step = TEXT
             gui_lines.set_clip_content(safe_action(self.selected_text, self.selected_action))
             self.app.minimize()
@@ -166,6 +169,6 @@ class Controller:
     def load_data(self):
         """Load text and action data from the current implementation"""
         for name, data in text_data.defined_texts.items():
-            self.data.texts.add_child(data_struct.TextData(name, data))
+            self.data.texts.add_content(data_struct.TextData(name, data))
         for name, data in action_data.defined_functions.items():
-            self.data.actions.add_child(data_struct.ActionData(name, data))
+            self.data.actions.add_content(data_struct.ActionData(name, data))

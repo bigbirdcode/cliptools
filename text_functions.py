@@ -59,3 +59,7 @@ def filename_content(text):
         return "ERROR: not a file"
     with open(text) as f:
         return f.read()
+
+def split_semicolon(text):
+    """Split lines by semicolon"""
+    return text.replace(";", "\n")
