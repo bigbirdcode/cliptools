@@ -6,92 +6,118 @@ Data structures are implementing an interface.
 Right now they are a bit repetitive, will be improved later.
 """
 
-from config import MAX_NUMBER_OF_DATA
-from text_functions import limit_text, safe_action
+from functools import wraps
 
-class TextData:
+from config import MAX_NUMBER_OF_DATA, NUMBER_OF_ROWS
+from utils import limit_text, safe_action
 
-    """Text data storage structure"""
+
+class BaseData:
+
+    """Base of all data storage structure"""
 
     def __init__(self, name, content):
         self.name = name
         self.content = list(content)
+        self.location = 0
 
-    def add_content(self, s):
-        self.content.insert(0, s)
-        # Currently only clip data is growing, so delete is handled only here
-        if len(self.content) > MAX_NUMBER_OF_DATA:
-            del self.content[-1]
+    def add_content(self, content, end=True):
+        """Add an item to the contents and handle size, location"""
+        if end:
+            self.content.append(content)
+            if len(self.content) > MAX_NUMBER_OF_DATA:
+                del self.content[0]
+        else:
+            self.content.insert(0, content)
+            if len(self.content) > MAX_NUMBER_OF_DATA:
+                del self.content[-1]
+            if self.location != 0 and self.location < len(self.content) - 1:
+                self.location += 1
 
-    def get_content(self, n):
-        try:
-            return self.content[n]
-        except IndexError:
-            return self.content[-1]
+    def page_up(self):
+        """Page up in the contents"""
+        self.location -= NUMBER_OF_ROWS
+        if self.location < 0:
+            self.location = 0
 
-    def get_names(self):
+    def page_down(self):
+        """Page down in the contents"""
+        self.location += NUMBER_OF_ROWS
+        if self.location >= len(self.content):
+            # Paging not possible, set it back
+            self.location -= NUMBER_OF_ROWS
+
+    def get_content(self, number):
+        """Get the content taking into account the location"""
+        return self.content[self.location + number]
+
+    def get_name(self, number, text=""):
+        """Get the name to represent the content, default is short version"""
+        return limit_text(self.get_content(number))
+
+    def get_names(self, text=""):
         """Iterator, returning the context"""
-        for name in self.content:
-            yield limit_text(name)
+        for number in range(NUMBER_OF_ROWS):
+            try:
+                yield self.get_name(number, text)
+            except IndexError:
+                break
 
 
-class ActionData:
+class TextData(BaseData):
 
-    """Action, i.e. text processing tools data storage structure"""
+    """Text data storage structure, content is a list of strings"""
 
-    def __init__(self, name, content):
-        self.name = name
-        self.content = list()
-        self.actions = dict()
-        for k, v in content:
-            self.content.append(k)
-            self.actions[k] = v
+    def add_content(self, content):
+        """Add an item to the contents and handle size, location
+        Note: currently only clip data is growing, and new items go to the start"""
+        super().add_content(content, end=False)
+
+
+class ActionData(BaseData):
+
+    """Action, i.e. text processing tools data storage structure
+    Content are (name, action) tuples"""
 
     def add_content(self, name, action):
-        if name in self.content:
+        """Add an item to the contents and handle size, location, avoid duplicates"""
+        if name in (item[0] for item in self.content):
             raise RuntimeError('Redeclaration of ' + name)
-        self.content.append(name)
-        self.actions[name] = action
+        self.content.append((name, action))
 
-    def get_content(self, n):
-        try:
-            name = self.content[n]
-        except IndexError:
-            name = self.content[-1]
-        action = self.actions[name]
-        return action
+    def get_content(self, number):
+        """Get the action from the content taking into account the location"""
+        content = super().get_content(number)
+        return content[1]
 
-    def get_names(self, txt):
-        """Iterator, returning the context"""
-        for name in self.content:
-            action = self.actions[name]
-            result = safe_action(txt, action)
-            result = limit_text(result)
-            result = "{}: {}".format(name, result)
-            yield result
+    def get_name(self, number, txt):
+        """Get the name to represent the content, here applying the action"""
+        content = super().get_content(number)
+        name, action = content
+        result = safe_action(txt, action)
+        result = limit_text(result)
+        result = "{}: {}".format(name, result)
+        return result
 
 
-class DataCollection:
+class DataCollection(BaseData):
 
     """Collection will store multiple data storage instances"""
 
-    def __init__(self):
-        self.children = list()
+    def __init__(self, name):
+        super().__init__(name, [])
 
-    def add_child(self, child):
-        self.children.append(child)
+    def get_name(self, number, text=""):
+        """Get the name to represent the content, here name of the content"""
+        content = super().get_content(number)
+        return content.name
 
-    def get_child(self, n):
-        try:
-            return self.children[n]
-        except IndexError:
-            return self.children[-1]
-
-    def get_names(self):
-        """Iterator, returning the context"""
-        for child in self.children:
-            yield child.name
-
+    def get_content_by_name(self, name):
+        """Find the data structure by the name"""
+        for content in self.content:
+            if content.name == name:
+                return content
+        raise RuntimeError("Name not found: " + name)
 
 class DataCollections:
 
@@ -101,7 +127,26 @@ class DataCollections:
     def __init__(self):
         self.clip = TextData("clips", "")
 
-        self.texts = DataCollection()
-        self.texts.add_child(self.clip)
+        self.texts = DataCollection("texts")
+        self.texts.add_content(self.clip)
 
-        self.actions = DataCollection()
+        self.actions = DataCollection("actions")
+
+
+data_collections = DataCollections()
+
+
+def register_function(action_func):
+    """Decorator, that will store the functions in actions data
+    function name should be <dataname>_<functionname>"""
+    data_name, func_name = action_func.__name__.split('_', 1)
+    try:
+        data = data_collections.actions.get_content_by_name(data_name)
+    except RuntimeError:
+        data = ActionData(data_name, "")
+        data_collections.actions.add_content(data)
+    @wraps(action_func)
+    def wrapper(*args, **kwds):
+        return action_func(*args, **kwds)
+    data.add_content(func_name, wrapper)
+    return wrapper
