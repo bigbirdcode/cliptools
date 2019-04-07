@@ -9,13 +9,13 @@ import queue
 import socket
 from threading import Thread
 
-import action_data
 import commands
 import data_struct
 import gui_lines
 import text_data
+import text_functions
 from config import SERVER_SUCCESS
-from text_functions import safe_action
+from utils import safe_action
 
 # states
 TEXTS = 1
@@ -69,7 +69,7 @@ class Controller:
             self.server_queue.put(item)
         self.last_clip = ""
 
-        self.data = data_struct.DataCollections()
+        self.data = data_struct.data_collections
         self.load_data()
         self.app = gui_lines.GuiLinesApp()
         self.app.register_callbacks(self.handle_keyboard_events, self.handle_update_request)
@@ -170,5 +170,3 @@ class Controller:
         """Load text and action data from the current implementation"""
         for name, data in text_data.defined_texts.items():
             self.data.texts.add_content(data_struct.TextData(name, data))
-        for name, data in action_data.defined_functions.items():
-            self.data.actions.add_content(data_struct.ActionData(name, data))

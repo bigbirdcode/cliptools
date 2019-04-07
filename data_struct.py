@@ -6,8 +6,10 @@ Data structures are implementing an interface.
 Right now they are a bit repetitive, will be improved later.
 """
 
+from functools import wraps
+
 from config import MAX_NUMBER_OF_DATA, NUMBER_OF_ROWS
-from text_functions import limit_text, safe_action
+from utils import limit_text, safe_action
 
 
 class BaseData:
@@ -110,6 +112,12 @@ class DataCollection(BaseData):
         content = super().get_content(number)
         return content.name
 
+    def get_content_by_name(self, name):
+        """Find the data structure by the name"""
+        for content in self.content:
+            if content.name == name:
+                return content
+        raise RuntimeError("Name not found: " + name)
 
 class DataCollections:
 
@@ -123,3 +131,22 @@ class DataCollections:
         self.texts.add_content(self.clip)
 
         self.actions = DataCollection("actions")
+
+
+data_collections = DataCollections()
+
+
+def register_function(action_func):
+    """Decorator, that will store the functions in actions data
+    function name should be <dataname>_<functionname>"""
+    data_name, func_name = action_func.__name__.split('_', 1)
+    try:
+        data = data_collections.actions.get_content_by_name(data_name)
+    except RuntimeError:
+        data = ActionData(data_name, "")
+        data_collections.actions.add_content(data)
+    @wraps(action_func)
+    def wrapper(*args, **kwds):
+        return action_func(*args, **kwds)
+    data.add_content(func_name, wrapper)
+    return wrapper
