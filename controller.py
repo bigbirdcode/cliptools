@@ -13,7 +13,7 @@ import commands
 import data_struct
 import gui_lines
 import text_data
-import text_functions
+import text_functions  # pylint: disable=unused-import
 from config import SERVER_SUCCESS
 from utils import safe_action
 
@@ -77,9 +77,9 @@ class Controller:
         self.step = TEXTS
         self.actual = self.data.texts
         self.selected_text_data = None
-        self.selected_text = None
+        self.selected_text = ""  # default text is empty text
         self.selected_action_data = None
-        self.selected_action = None
+        self.selected_action = str  # default action is string conversion
 
     def start(self):
         """Start the thread for delegation check and the mainloop of the GUI"""

@@ -2,36 +2,54 @@
 with a lines based GUI interface
 
 Key or command line commands
+
+Commands that can be used
+    number: select line
+    0: minimize
+    b: back
+    c: copy immediately
+    f: bring forward, use it in base keyboard shortcut for bringing up the app
+Strings are executed as Key sequence, example: 'f1c'
+
+Key description is modifiers (if any) and basic keydown name
+Examples: '1', 'Shift-1', 'Shift-Ctrl-Alt-1'
 """
 
 import wx
 
-from config import NUMBER_OF_ROWS
-
-# Character keys that can also be used as command line options
-
-NUM_KEYS = "".join(str(i) for i in range(1, NUMBER_OF_ROWS + 1))  # numbers
-CONTROL_KEYS = [
-    '0', # minimize
-    'b', # back
-    'c', # copy immediately
-    'f', # bring forward, use it in base keyboard shortcut for the app
-]
-ALL_KEYS = NUM_KEYS + "".join(CONTROL_KEYS)
-
-
-# Special keys and their meaning, i.e. macro
 
 SPECIAL_KEYS = {
-    wx.WXK_BACK: ['b'],
-    wx.WXK_ESCAPE: ['0'],
-    wx.WXK_F1: ['1', 'c'],
-    wx.WXK_F2: ['2', 'c'],
-    wx.WXK_F3: ['3', 'c'],
-    wx.WXK_F4: ['4', 'c'],
-    wx.WXK_F5: ['5', 'c'],
-    wx.WXK_F6: ['6', 'c'],
-    wx.WXK_F7: ['7', 'c'],
-    wx.WXK_F8: ['8', 'c'],
-    wx.WXK_F9: ['9', 'c'],
+    wx.WXK_BACK: 'Back',
+    wx.WXK_ESCAPE: 'Esc',
+}
+
+# Note: if you change NUMBER_OF_ROWS value change commands accordingly
+
+NUM_KEYS = "123456789"
+
+KEY_COMMANDS = {
+    "1": "1",
+    "2": "2",
+    "3": "3",
+    "4": "4",
+    "5": "5",
+    "6": "6",
+    "7": "7",
+    "8": "8",
+    "9": "9",
+    "0": "0",
+    "b": "b",
+    "c": "c",
+    "f": "f",
+    "Back": "b",
+    "Esc": "0",
+    "Shift-1": "1c",
+    "Shift-2": "2c",
+    "Shift-3": "3c",
+    "Shift-4": "4c",
+    "Shift-5": "5c",
+    "Shift-6": "6c",
+    "Shift-7": "7c",
+    "Shift-8": "8c",
+    "Shift-9": "9c",
 }

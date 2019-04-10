@@ -141,19 +141,25 @@ class GuiLinesFrame(wx.Frame):
     def on_key_press(self, event):
         """Number key press will select the actual line
         but with delegating the action to the controller"""
-
-        # TODO: Alt + F4 is now not handled correctly
-
-        n = event.GetUnicodeKey()
-        if n == wx.WXK_NONE:
-            n = event.GetKeyCode()
-        if n in commands.SPECIAL_KEYS:
-            for c in commands.SPECIAL_KEYS[n]:
-                self.handle_keyboard_events(c)
-        else:
-            c = chr(n).lower()
-            if c in commands.ALL_KEYS:
-                self.handle_keyboard_events(c)
+        cmd_txt = ""
+        # Modifiers
+        for mod, text in [
+                (event.ShiftDown(),   'Shift-'),
+                (event.ControlDown(), 'Ctrl-'),
+                (event.AltDown(),     'Alt-'),
+            ]:
+            if mod:
+                cmd_txt += text
+        # Key name
+        key_code = event.GetKeyCode()
+        key_name = commands.SPECIAL_KEYS.get(key_code, None)
+        if key_name is None:
+            key_name = chr(key_code)
+        cmd_txt += key_name
+        # Command sequence string based on modifiers and name
+        cmd_seq = commands.KEY_COMMANDS.get(cmd_txt, "")
+        for cmd_item in cmd_seq:
+            self.handle_keyboard_events(cmd_item)
         event.Skip()
 
     def on_button_click(self, event):
