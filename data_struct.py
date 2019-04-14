@@ -2,8 +2,6 @@
 with a lines based GUI interface
 
 Definition of data structures used to store text and action data
-Data structures are implementing an interface.
-Right now they are a bit repetitive, will be improved later.
 """
 
 from functools import wraps
@@ -129,10 +127,10 @@ class DataCollections:
     def __init__(self):
         self.clip = TextData("clips", "")
 
-        self.texts = DataCollection("texts")
+        self.texts = DataCollection("text groups")
         self.texts.add_content(self.clip)
 
-        self.actions = DataCollection("actions")
+        self.actions = DataCollection("action groups")
 
 
 data_collections = DataCollections()

@@ -134,24 +134,27 @@ class Controller:
     def update_app(self):
         """Function to push updates to GUI
         sources can be keyboard events, delegation requests or clipboard changes"""
-        self.app.frame.update_data(self.actual.get_names(self.selected_text))
+        title = "Select from " + self.actual.name
+        self.app.frame.update_data(title, self.actual.get_names(self.selected_text))
 
     def get_next(self, number):
         """Step to the next state, select the n-th item for that"""
+        # If number is out of possible range this will raise IndexError
+        item = self.actual.get_content(number)
         if self.step == TEXTS:
-            self.selected_text_data = self.data.texts.get_content(number)
+            self.selected_text_data = item
             self.actual = self.selected_text_data
             self.step = TEXT
         elif self.step == TEXT:
-            self.selected_text = self.selected_text_data.get_content(number)
+            self.selected_text = item
             self.actual = self.data.actions
             self.step = ACTIONS
         elif self.step == ACTIONS:
-            self.selected_action_data = self.data.actions.get_content(number)
+            self.selected_action_data = item
             self.actual = self.selected_action_data
             self.step = ACTION
         elif self.step == ACTION:
-            self.selected_action = self.selected_action_data.get_content(number)
+            self.selected_action = item
             self.actual = self.selected_text_data  # go back to selected text collection
             self.step = TEXT
             gui_lines.set_clip_content(safe_action(self.selected_text, self.selected_action))

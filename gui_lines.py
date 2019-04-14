@@ -8,12 +8,11 @@ as part of the wx mainloop
 from itertools import chain, repeat
 
 import wx
+import wx.adv
+from wx.lib.wordwrap import wordwrap
 
 import commands
 from config import NUMBER_OF_ROWS
-
-
-BUTTON_CODES = str.maketrans("▲▼←", "udb")
 
 
 def get_clip_content():
@@ -105,6 +104,9 @@ class GuiLinesFrame(wx.Frame):
         btn = wx.Button(panel, -1, "←", size=(25, 25))
         self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
         subsizer.Add(btn, 0, wx.CENTER)
+        self.title_btn = wx.Button(panel, -1, "Title", size=(25, 25))
+        self.Bind(wx.EVT_BUTTON, self.on_title_click, self.title_btn)
+        subsizer.Add(self.title_btn, 1, wx.CENTER)
         btn = wx.Button(panel, -1, "▲", size=(25, 25))
         self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
         subsizer.Add(btn, 0, wx.CENTER)
@@ -165,7 +167,7 @@ class GuiLinesFrame(wx.Frame):
         """Button click will select the actual line
         but with delegating the action to the controller"""
         btn_text = event.GetEventObject().GetLabel()
-        btn_code = btn_text.translate(BUTTON_CODES)
+        btn_code = btn_text.translate(commands.BUTTON_CODES)
         self.handle_keyboard_events(btn_code)
         event.Skip()
 
@@ -174,8 +176,9 @@ class GuiLinesFrame(wx.Frame):
         text = get_clip_content()
         self.handle_update_request(text)
 
-    def update_data(self, data_iter):
+    def update_data(self, title, data_iter):
         """Update the line data from the provided generator/iterator"""
+        self.title_btn.SetLabel(title)
         for i, text in enumerate(chain(data_iter, repeat(""))):
             if i >= NUMBER_OF_ROWS:
                 break
@@ -183,3 +186,26 @@ class GuiLinesFrame(wx.Frame):
             entry.Clear()
             entry.AppendText(text)
             entry.SetInsertionPoint(0)
+
+    def on_title_click(self, event):
+        """Display program info"""
+        with open("LICENSE") as f:
+            license_text = f.read()
+        info = wx.adv.AboutDialogInfo()
+        info.Name = "ClipTools"
+        info.Version = "0.1"
+        info.Copyright = "(c) 2019-2019 BigBirdCode"
+        info.Description = str(
+            "\"ClipTools\" is a clipboard manager with text processing tools.\n\n"
+            "App is listening to keyboard and collecting texts copied to the clipboard. It can\n"
+            "also have collection of other useful texts. Beside texts, it has some actions, like\n"
+            "uppercase, lowercase, backslash duplication, getting file content, etc.\n\n"
+            "You can assign a keyboard shortcut to the ClipTools app. So it can be started by\n"
+            "just a key combination. Then you can easily select a group of texts, the actual\n"
+            "text, the processing action just by the number keys from 1 to 9. Finally the\n"
+            "processed text result is copied to the clipboard.")
+        info.WebSite = ("https://github.com/bigbirdcode/cliptools", "ClipTools Github page")
+        info.Developers = ["BigBirdCode"]
+        info.License = license_text
+        # Then we call wx.AboutBox giving it that info object
+        wx.adv.AboutBox(info)

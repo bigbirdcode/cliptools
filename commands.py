@@ -29,6 +29,8 @@ SPECIAL_KEYS = {
 
 NUM_KEYS = "123456789"
 
+BUTTON_CODES = str.maketrans("▲▼←", "UDB")
+
 KEY_COMMANDS = {
     "1": "1",
     "2": "2",
