@@ -2,36 +2,60 @@
 with a lines based GUI interface
 
 Key or command line commands
+
+Commands that can be used
+    number: select line, proceed with the selection, copy as the last action
+    0: minimize
+    B: back
+    C: copy selected text immediately
+    F: bring forward, use it in base keyboard shortcut for bringing up the app
+    U: page up
+    D: page down
+Strings are executed as Key sequence, example: 'F1C'
+
+Key description is modifiers (if any) and basic keydown name
+Examples: '1', 'Shift-1', 'Shift-Ctrl-Alt-1'
 """
 
 import wx
 
-from config import NUMBER_OF_ROWS
-
-# Character keys that can also be used as command line options
-
-NUM_KEYS = "".join(str(i) for i in range(1, NUMBER_OF_ROWS + 1))  # numbers
-CONTROL_KEYS = [
-    '0', # minimize
-    'b', # back
-    'c', # copy immediately
-    'f', # bring forward, use it in base keyboard shortcut for the app
-]
-ALL_KEYS = NUM_KEYS + "".join(CONTROL_KEYS)
-
-
-# Special keys and their meaning, i.e. macro
 
 SPECIAL_KEYS = {
-    wx.WXK_BACK: ['b'],
-    wx.WXK_ESCAPE: ['0'],
-    wx.WXK_F1: ['1', 'c'],
-    wx.WXK_F2: ['2', 'c'],
-    wx.WXK_F3: ['3', 'c'],
-    wx.WXK_F4: ['4', 'c'],
-    wx.WXK_F5: ['5', 'c'],
-    wx.WXK_F6: ['6', 'c'],
-    wx.WXK_F7: ['7', 'c'],
-    wx.WXK_F8: ['8', 'c'],
-    wx.WXK_F9: ['9', 'c'],
+    wx.WXK_BACK: 'Back',
+    wx.WXK_ESCAPE: 'Esc',
+}
+
+# Note: if you change NUMBER_OF_ROWS value change commands accordingly
+
+NUM_KEYS = "123456789"
+
+BUTTON_CODES = str.maketrans("▲▼←", "UDB")
+
+KEY_COMMANDS = {
+    "1": "1",
+    "2": "2",
+    "3": "3",
+    "4": "4",
+    "5": "5",
+    "6": "6",
+    "7": "7",
+    "8": "8",
+    "9": "9",
+    "0": "0",
+    "B": "B",
+    "C": "C",
+    "F": "F",
+    "D": "D",
+    "U": "U",
+    "Back": "B",
+    "Esc": "0",
+    "Shift-1": "1C",
+    "Shift-2": "2C",
+    "Shift-3": "3C",
+    "Shift-4": "4C",
+    "Shift-5": "5C",
+    "Shift-6": "6C",
+    "Shift-7": "7C",
+    "Shift-8": "8C",
+    "Shift-9": "9C",
 }

@@ -8,12 +8,11 @@ as part of the wx mainloop
 from itertools import chain, repeat
 
 import wx
+import wx.adv
+from wx.lib.wordwrap import wordwrap
 
 import commands
 from config import NUMBER_OF_ROWS
-
-
-HANDLED_KEYS = {8: 'b', 49: '1', 50: '2', 51: '3', 52: '4', 53: '5', 54: '6', 55: '7', 56: '8', 57: '9'}
 
 
 def get_clip_content():
@@ -101,11 +100,13 @@ class GuiLinesFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
 
         # Buttons, right now just placeholders
-        # TODO: make these buttons meaningful and work
         subsizer = wx.BoxSizer(wx.HORIZONTAL)
         btn = wx.Button(panel, -1, "←", size=(25, 25))
         self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
         subsizer.Add(btn, 0, wx.CENTER)
+        self.title_btn = wx.Button(panel, -1, "Title", size=(25, 25))
+        self.Bind(wx.EVT_BUTTON, self.on_title_click, self.title_btn)
+        subsizer.Add(self.title_btn, 1, wx.CENTER)
         btn = wx.Button(panel, -1, "▲", size=(25, 25))
         self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
         subsizer.Add(btn, 0, wx.CENTER)
@@ -141,26 +142,33 @@ class GuiLinesFrame(wx.Frame):
     def on_key_press(self, event):
         """Number key press will select the actual line
         but with delegating the action to the controller"""
-
-        # TODO: Alt + F4 is now not handled correctly
-
-        n = event.GetUnicodeKey()
-        if n == wx.WXK_NONE:
-            n = event.GetKeyCode()
-        if n in commands.SPECIAL_KEYS:
-            for c in commands.SPECIAL_KEYS[n]:
-                self.handle_keyboard_events(c)
-        else:
-            c = chr(n).lower()
-            if c in commands.ALL_KEYS:
-                self.handle_keyboard_events(c)
+        cmd_txt = ""
+        # Modifiers
+        for mod, text in [
+                (event.ShiftDown(),   'Shift-'),
+                (event.ControlDown(), 'Ctrl-'),
+                (event.AltDown(),     'Alt-'),
+            ]:
+            if mod:
+                cmd_txt += text
+        # Key name
+        key_code = event.GetKeyCode()
+        key_name = commands.SPECIAL_KEYS.get(key_code, None)
+        if key_name is None:
+            key_name = chr(key_code)
+        cmd_txt += key_name
+        # Command sequence string based on modifiers and name
+        cmd_seq = commands.KEY_COMMANDS.get(cmd_txt, "")
+        for cmd_item in cmd_seq:
+            self.handle_keyboard_events(cmd_item)
         event.Skip()
 
     def on_button_click(self, event):
         """Button click will select the actual line
         but with delegating the action to the controller"""
-        c = event.GetEventObject().GetLabel()
-        self.handle_keyboard_events(c)
+        btn_text = event.GetEventObject().GetLabel()
+        btn_code = btn_text.translate(commands.BUTTON_CODES)
+        self.handle_keyboard_events(btn_code)
         event.Skip()
 
     def on_update_timer(self, event):
@@ -168,12 +176,36 @@ class GuiLinesFrame(wx.Frame):
         text = get_clip_content()
         self.handle_update_request(text)
 
-    def update_data(self, data_iter):
+    def update_data(self, title, data_iter):
         """Update the line data from the provided generator/iterator"""
-        for i, s in enumerate(chain(data_iter, repeat(""))):
+        self.title_btn.SetLabel(title)
+        for i, text in enumerate(chain(data_iter, repeat(""))):
             if i >= NUMBER_OF_ROWS:
                 break
             entry = self.texts[i]
             entry.Clear()
-            entry.AppendText(s)
+            entry.AppendText(text)
             entry.SetInsertionPoint(0)
+
+    def on_title_click(self, event):
+        """Display program info"""
+        with open("LICENSE") as f:
+            license_text = f.read()
+        info = wx.adv.AboutDialogInfo()
+        info.Name = "ClipTools"
+        info.Version = "0.1"
+        info.Copyright = "(c) 2019-2019 BigBirdCode"
+        info.Description = str(
+            "\"ClipTools\" is a clipboard manager with text processing tools.\n\n"
+            "App is listening to keyboard and collecting texts copied to the clipboard. It can\n"
+            "also have collection of other useful texts. Beside texts, it has some actions, like\n"
+            "uppercase, lowercase, backslash duplication, getting file content, etc.\n\n"
+            "You can assign a keyboard shortcut to the ClipTools app. So it can be started by\n"
+            "just a key combination. Then you can easily select a group of texts, the actual\n"
+            "text, the processing action just by the number keys from 1 to 9. Finally the\n"
+            "processed text result is copied to the clipboard.")
+        info.WebSite = ("https://github.com/bigbirdcode/cliptools", "ClipTools Github page")
+        info.Developers = ["BigBirdCode"]
+        info.License = license_text
+        # Then we call wx.AboutBox giving it that info object
+        wx.adv.AboutBox(info)

@@ -13,7 +13,7 @@ import commands
 import data_struct
 import gui_lines
 import text_data
-import text_functions
+import text_functions  # pylint: disable=unused-import
 from config import SERVER_SUCCESS
 from utils import safe_action
 
@@ -77,9 +77,9 @@ class Controller:
         self.step = TEXTS
         self.actual = self.data.texts
         self.selected_text_data = None
-        self.selected_text = None
+        self.selected_text = ""  # default text is empty text
         self.selected_action_data = None
-        self.selected_action = None
+        self.selected_action = str  # default action is string conversion
 
     def start(self):
         """Start the thread for delegation check and the mainloop of the GUI"""
@@ -90,7 +90,7 @@ class Controller:
     def handle_keyboard_events(self, key):
         """Function to handle commands, main source are GUI keyboard events
         but in the future it will handle command line commands too"""
-        if key == 'f':
+        if key == 'F':
             self.app.bring_to_front()
             self.update_app()
         elif key in commands.NUM_KEYS:
@@ -99,14 +99,19 @@ class Controller:
                 self.get_next(number)
             except IndexError:
                 pass # not valid number, just ignore
-        elif key == 'b':
+        elif key == 'B':
             self.get_prev()
         elif key == '0':
             self.app.minimize()
-        elif key == 'c':
+        elif key == 'C':
             gui_lines.set_clip_content(self.selected_text)
+            self.actual = self.selected_text_data  # go back to selected text collection
             self.step = TEXT
             self.app.minimize()
+        elif key == "U":
+            self.actual.page_up()
+        elif key == "D":
+            self.actual.page_down()
         else:
             print("Non-handled key: " + key)
         self.update_app()
@@ -129,28 +134,28 @@ class Controller:
     def update_app(self):
         """Function to push updates to GUI
         sources can be keyboard events, delegation requests or clipboard changes"""
-        if self.step == TEXTS:
-            self.app.frame.update_data(self.data.texts.get_names())
-        elif self.step == TEXT:
-            self.app.frame.update_data(self.selected_text_data.get_names())
-        elif self.step == ACTIONS:
-            self.app.frame.update_data(self.data.actions.get_names())
-        elif self.step == ACTION:
-            self.app.frame.update_data(self.selected_action_data.get_names(self.selected_text))
+        title = "Select from " + self.actual.name
+        self.app.frame.update_data(title, self.actual.get_names(self.selected_text))
 
     def get_next(self, number):
         """Step to the next state, select the n-th item for that"""
+        # If number is out of possible range this will raise IndexError
+        item = self.actual.get_content(number)
         if self.step == TEXTS:
-            self.selected_text_data = self.data.texts.get_content(number)
+            self.selected_text_data = item
+            self.actual = self.selected_text_data
             self.step = TEXT
         elif self.step == TEXT:
-            self.selected_text = self.selected_text_data.get_content(number)
+            self.selected_text = item
+            self.actual = self.data.actions
             self.step = ACTIONS
         elif self.step == ACTIONS:
-            self.selected_action_data = self.data.actions.get_content(number)
+            self.selected_action_data = item
+            self.actual = self.selected_action_data
             self.step = ACTION
         elif self.step == ACTION:
-            self.selected_action = self.selected_action_data.get_content(number)
+            self.selected_action = item
+            self.actual = self.selected_text_data  # go back to selected text collection
             self.step = TEXT
             gui_lines.set_clip_content(safe_action(self.selected_text, self.selected_action))
             self.app.minimize()
@@ -158,13 +163,16 @@ class Controller:
     def get_prev(self):
         """Step back one state"""
         if self.step == ACTION:
+            self.actual = self.data.actions
             self.step = ACTIONS
         elif self.step == ACTIONS:
+            self.actual = self.selected_text_data
             self.step = TEXT
         elif self.step == TEXT:
+            self.actual = self.data.texts
             self.step = TEXTS
         elif self.step == TEXTS:
-            pass
+            pass  # cannot go back from texts state
 
     def load_data(self):
         """Load text and action data from the current implementation"""
