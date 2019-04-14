@@ -52,11 +52,13 @@ class BaseData:
         return self.content[self.location + number]
 
     def get_name(self, number, text=""):
-        """Get the name to represent the content, default is short version"""
+        """Get the name to represent the content, default is short version
+        text can be used for actions, not used for simple texts"""
         return limit_text(self.get_content(number))
 
     def get_names(self, text=""):
-        """Iterator, returning the context"""
+        """Iterator, returning the context
+        text can be used for actions, not used for simple texts"""
         for number in range(NUMBER_OF_ROWS):
             try:
                 yield self.get_name(number, text)

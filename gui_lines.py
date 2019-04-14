@@ -13,7 +13,7 @@ import commands
 from config import NUMBER_OF_ROWS
 
 
-HANDLED_KEYS = {8: 'b', 49: '1', 50: '2', 51: '3', 52: '4', 53: '5', 54: '6', 55: '7', 56: '8', 57: '9'}
+BUTTON_CODES = str.maketrans("▲▼←", "udb")
 
 
 def get_clip_content():
@@ -101,7 +101,6 @@ class GuiLinesFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
 
         # Buttons, right now just placeholders
-        # TODO: make these buttons meaningful and work
         subsizer = wx.BoxSizer(wx.HORIZONTAL)
         btn = wx.Button(panel, -1, "←", size=(25, 25))
         self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
@@ -165,8 +164,9 @@ class GuiLinesFrame(wx.Frame):
     def on_button_click(self, event):
         """Button click will select the actual line
         but with delegating the action to the controller"""
-        c = event.GetEventObject().GetLabel()
-        self.handle_keyboard_events(c)
+        btn_text = event.GetEventObject().GetLabel()
+        btn_code = btn_text.translate(BUTTON_CODES)
+        self.handle_keyboard_events(btn_code)
         event.Skip()
 
     def on_update_timer(self, event):
@@ -176,10 +176,10 @@ class GuiLinesFrame(wx.Frame):
 
     def update_data(self, data_iter):
         """Update the line data from the provided generator/iterator"""
-        for i, s in enumerate(chain(data_iter, repeat(""))):
+        for i, text in enumerate(chain(data_iter, repeat(""))):
             if i >= NUMBER_OF_ROWS:
                 break
             entry = self.texts[i]
             entry.Clear()
-            entry.AppendText(s)
+            entry.AppendText(text)
             entry.SetInsertionPoint(0)

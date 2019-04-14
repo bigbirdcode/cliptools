@@ -23,7 +23,9 @@ And of course Python and wxPython are great!
 Concept
 -------
 
-I assigned a keyboard shortcut to the ClipTools app. So it is started by just a key combination. Then I can easily select a group of texts, the actual text, the processing action just by the number keys from 1 to 9. Finally the result is copied to the clipboard.
+App is listening to keyboard and collecting texts copied to the clipboard. It can also have collection of other useful texts. Beside texts, it has some actions, like uppercase, lowercase, backslash duplication, getting file content, etc.
+
+I assigned a keyboard shortcut to the ClipTools app. So it is started by just a key combination. Then I can easily select a group of texts, the actual text, the processing action just by the number keys from 1 to 9. Finally the processed text result is copied to the clipboard.
 
 Status
 ------
