@@ -23,6 +23,8 @@ import wx
 SPECIAL_KEYS = {
     wx.WXK_BACK: 'Back',
     wx.WXK_ESCAPE: 'Esc',
+    wx.WXK_PAGEUP : "Pageup",
+    wx.WXK_PAGEDOWN : "Pagedown",
 }
 
 # Note: if you change NUMBER_OF_ROWS value change commands accordingly
@@ -49,6 +51,8 @@ KEY_COMMANDS = {
     "U": "U",
     "Back": "B",
     "Esc": "0",
+    "Pageup": "U",
+    "Pagedown": "D",
     "Shift-1": "1C",
     "Shift-2": "2C",
     "Shift-3": "3C",
