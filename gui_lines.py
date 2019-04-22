@@ -18,16 +18,22 @@ from config import NUMBER_OF_ROWS
 def get_clip_content():
     """Checking clipboard content, return text is available"""
     # TODO: handle filenames as text too
-    success = False
-    tdo = wx.TextDataObject()
+    success_text = False
+    success_file = False
+    tdo_text = wx.TextDataObject()
+    tdo_file = wx.FileDataObject()
     if wx.TheClipboard.Open():
-        success = wx.TheClipboard.GetData(tdo)
+        success_text = wx.TheClipboard.GetData(tdo_text)
+        if not success_text:
+            success_file = wx.TheClipboard.GetData(tdo_file)
         wx.TheClipboard.Close()
     else:
         print("Unable to open the clipboard")
         return ""
-    if success:
-        return tdo.GetText()
+    if success_text:
+        return tdo_text.GetText()
+    elif success_file:
+        return "\n".join(tdo_file.GetFilenames())
     else:
         #print("No clip data in text")
         return ""
@@ -124,7 +130,7 @@ class GuiLinesFrame(wx.Frame):
             btn = wx.Button(panel, -1, str(i+1), size=(25, 25))
             self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
             subsizer.Add(btn, 0, wx.CENTER)
-            text = wx.TextCtrl(panel, -1, "", size=(175, -1))
+            text = wx.TextCtrl(panel, -1, "", size=(200, -1))
             subsizer.Add(text, 1, wx.EXPAND)
             sizer.Add(subsizer, 0, wx.EXPAND)
             self.texts.append(text)
