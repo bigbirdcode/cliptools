@@ -14,6 +14,7 @@ from cliptools_app import data_struct
 from cliptools_app import gui_lines
 from cliptools_app import text_functions  # pylint: disable=unused-import
 from cliptools_app.utils import safe_action
+
 from config import SERVER_SUCCESS
 
 # states
@@ -78,7 +79,8 @@ class Controller:
         self.selected_text_data = None
         self.selected_text = ""  # default text is empty text
         self.selected_action_data = None
-        self.selected_action = str  # default action is string conversion
+        self.selected_action = text_functions.paste_paste
+        self.processed_text = ""
 
     def start(self):
         """Start the thread for delegation check and the mainloop of the GUI"""
@@ -134,7 +136,8 @@ class Controller:
         """Function to push updates to GUI
         sources can be keyboard events, delegation requests or clipboard changes"""
         title = "Select from " + self.actual.name
-        self.app.frame.update_data(title, self.actual.get_names(self.selected_text))
+        self.app.frame.update_data(title, self.actual.get_names(self.selected_text),
+            self.selected_text, self.selected_action.__doc__, self.processed_text)
 
     def get_next(self, number):
         """Step to the next state, select the n-th item for that"""
@@ -158,6 +161,8 @@ class Controller:
             self.step = TEXT
             gui_lines.set_clip_content(safe_action(self.selected_text, self.selected_action))
             self.app.minimize()
+        # Also update processed text
+        self.processed_text = safe_action(self.selected_text, self.selected_action)
 
     def get_prev(self):
         """Step back one state"""

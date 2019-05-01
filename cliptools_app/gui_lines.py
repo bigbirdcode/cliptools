@@ -107,7 +107,7 @@ class GuiLinesFrame(wx.Frame):
         # Use a sizer to layout the controls, stacked vertically and with
         sizer = wx.BoxSizer(wx.VERTICAL)
 
-        # Buttons, right now just placeholders
+        # Buttons in the top row, back, page, instructions
         subsizer = wx.BoxSizer(wx.HORIZONTAL)
         btn = wx.Button(panel, -1, "←", size=(25, 25))
         self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
@@ -125,8 +125,6 @@ class GuiLinesFrame(wx.Frame):
 
         # Add the lines: 1 button 1 text
         # Use a sizer to layout the controls,
-        # stacked vertically and horizontally
-        # and with a 10 pixel border around each
         for i in range(NUMBER_OF_ROWS):
             subsizer = wx.BoxSizer(wx.HORIZONTAL)
             btn = wx.Button(panel, -1, str(i+1), size=(25, 25))
@@ -137,6 +135,15 @@ class GuiLinesFrame(wx.Frame):
             sizer.Add(subsizer, 0, wx.EXPAND)
             self.texts.append(text)
 
+        # Add 3 multi-line text for the details
+        self.selected_text = wx.TextCtrl(panel, -1, "Selected text", size=(200,100), style=wx.TE_MULTILINE)
+        self.action_doc = wx.TextCtrl(panel, -1, "Help for the action", size=(200,100), style=wx.TE_MULTILINE)
+        self.processed_text = wx.TextCtrl(panel, -1, "Processed text", size=(200,100), style=wx.TE_MULTILINE)
+        sizer.Add(self.selected_text, 0, wx.EXPAND)
+        sizer.Add(self.action_doc, 0, wx.EXPAND)
+        sizer.Add(self.processed_text, 0, wx.EXPAND)
+
+        # Set the layout in the panel
         panel.SetSizer(sizer)
         panel.Layout()
 
@@ -184,7 +191,7 @@ class GuiLinesFrame(wx.Frame):
         text = get_clip_content()
         self.handle_update_request(text)
 
-    def update_data(self, title, data_iter):
+    def update_data(self, title, data_iter, selected_text, action_doc, processed_text):
         """Update the line data from the provided generator/iterator"""
         self.title_btn.SetLabel(title)
         for i, text in enumerate(chain(data_iter, repeat(""))):
@@ -194,6 +201,15 @@ class GuiLinesFrame(wx.Frame):
             entry.Clear()
             entry.AppendText(text)
             entry.SetInsertionPoint(0)
+        self.selected_text.Clear()
+        self.selected_text.AppendText(selected_text)
+        self.selected_text.SetInsertionPoint(0)
+        self.action_doc.Clear()
+        self.action_doc.AppendText(action_doc)
+        self.action_doc.SetInsertionPoint(0)
+        self.processed_text.Clear()
+        self.processed_text.AppendText(processed_text)
+        self.processed_text.SetInsertionPoint(0)
 
     def on_title_click(self, event):
         """Display program info"""
