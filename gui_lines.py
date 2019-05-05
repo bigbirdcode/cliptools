@@ -20,12 +20,16 @@ def get_clip_content():
     success_file = False
     tdo_text = wx.TextDataObject()
     tdo_file = wx.FileDataObject()
-    if wx.TheClipboard.Open():
-        success_text = wx.TheClipboard.GetData(tdo_text)
-        if not success_text:
-            success_file = wx.TheClipboard.GetData(tdo_file)
-        wx.TheClipboard.Close()
-    else:
+    try:
+        if wx.TheClipboard.Open():
+            success_text = wx.TheClipboard.GetData(tdo_text)
+            if not success_text:
+                success_file = wx.TheClipboard.GetData(tdo_file)
+            wx.TheClipboard.Close()
+        else:
+            print("Unable to open the clipboard")
+            return ""
+    except Exception:
         print("Unable to open the clipboard")
         return ""
     if success_text:
