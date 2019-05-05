@@ -26,4 +26,3 @@ def safe_action(text, action):
     except Exception as exc:
         result = "ERROR: {}".format(exc)
     return result
-

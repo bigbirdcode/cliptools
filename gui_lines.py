@@ -9,7 +9,6 @@ from itertools import chain, repeat
 
 import wx
 import wx.adv
-from wx.lib.wordwrap import wordwrap
 
 import commands
 from config import NUMBER_OF_ROWS
@@ -17,7 +16,6 @@ from config import NUMBER_OF_ROWS
 
 def get_clip_content():
     """Checking clipboard content, return text is available"""
-    # TODO: handle filenames as text too
     success_text = False
     success_file = False
     tdo_text = wx.TextDataObject()

@@ -16,7 +16,10 @@ class BaseData:
 
     def __init__(self, name, content):
         self.name = name
-        self.content = list(content)
+        if content:
+            self.content = list(content)
+        else:
+            self.content = list()
         self.location = 0
 
     def add_content(self, content, end=True):
@@ -49,7 +52,7 @@ class BaseData:
         """Get the content taking into account the location"""
         return self.content[self.location + number]
 
-    def get_name(self, number, text=""):
+    def get_name(self, number, text=""):  # pylint: disable=unused-argument
         """Get the name to represent the content, default is short version
         text can be used for actions, not used for simple texts"""
         return limit_text(self.get_content(number))
@@ -68,10 +71,12 @@ class TextData(BaseData):
 
     """Text data storage structure, content is a list of strings"""
 
-    def add_content(self, content):
+    def add_content(self, content, end=None):
         """Add an item to the contents and handle size, location
         Note: currently only clip data is growing, and new items go to the start"""
-        super().add_content(content, end=False)
+        if end is None:
+            end = False
+        super().add_content(content, end=end)
 
 
 class ActionData(BaseData):
@@ -79,22 +84,23 @@ class ActionData(BaseData):
     """Action, i.e. text processing tools data storage structure
     Content are (name, action) tuples"""
 
-    def add_content(self, name, action):
+    def add_content(self, content, end=True):
         """Add an item to the contents and handle size, location, avoid duplicates"""
+        name, action = content
         if name in (item[0] for item in self.content):
             raise RuntimeError('Redeclaration of ' + name)
-        self.content.append((name, action))
+        super().add_content(content, end=end)
 
     def get_content(self, number):
         """Get the action from the content taking into account the location"""
         content = super().get_content(number)
         return content[1]
 
-    def get_name(self, number, txt):
+    def get_name(self, number, text=""):
         """Get the name to represent the content, here applying the action"""
         content = super().get_content(number)
         name, action = content
-        result = safe_action(txt, action)
+        result = safe_action(text, action)
         result = limit_text(result)
         result = "{}: {}".format(name, result)
         return result
@@ -118,6 +124,7 @@ class DataCollection(BaseData):
             if content.name == name:
                 return content
         raise RuntimeError("Name not found: " + name)
+
 
 class DataCollections:
 
@@ -143,10 +150,11 @@ def register_function(action_func):
     try:
         data = data_collections.actions.get_content_by_name(data_name)
     except RuntimeError:
-        data = ActionData(data_name, "")
+        data = ActionData(data_name, None)
         data_collections.actions.add_content(data)
     @wraps(action_func)
     def wrapper(*args, **kwds):
         return action_func(*args, **kwds)
-    data.add_content(func_name, wrapper)
+    content = (func_name, wrapper)
+    data.add_content(content)
     return wrapper
