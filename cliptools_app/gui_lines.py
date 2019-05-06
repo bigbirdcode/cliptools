@@ -10,7 +10,7 @@ from itertools import chain, repeat
 import wx
 import wx.adv
 
-import commands
+from cliptools_app import commands
 from config import NUMBER_OF_ROWS
 
 
@@ -201,7 +201,7 @@ class GuiLinesFrame(wx.Frame):
             license_text = f.read()
         info = wx.adv.AboutDialogInfo()
         info.Name = "ClipTools"
-        info.Version = "0.1"
+        info.Version = "0.2"
         info.Copyright = "(c) 2019-2019 BigBirdCode"
         info.Description = str(
             "\"ClipTools\" is a clipboard manager with text processing tools.\n\n"

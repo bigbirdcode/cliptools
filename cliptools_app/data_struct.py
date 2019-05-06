@@ -7,32 +7,34 @@ Definition of data structures used to store text and action data
 from functools import wraps
 
 from config import MAX_NUMBER_OF_DATA, NUMBER_OF_ROWS
-from utils import limit_text, safe_action
+from cliptools_app.utils import limit_text, safe_action
 
 
 class BaseData:
 
     """Base of all data storage structure"""
 
-    def __init__(self, name, content):
+    def __init__(self, name, contents=None):
         self.name = name
-        if content:
-            self.content = list(content)
+        if contents:
+            # at creation size is not checked
+            # user may want to create large data sets
+            self.contents = list(contents)
         else:
-            self.content = list()
+            self.contents = list()
         self.location = 0
 
     def add_content(self, content, end=True):
         """Add an item to the contents and handle size, location"""
         if end:
-            self.content.append(content)
-            if len(self.content) > MAX_NUMBER_OF_DATA:
-                del self.content[0]
+            self.contents.append(content)
+            if len(self.contents) > MAX_NUMBER_OF_DATA:
+                del self.contents[0]
         else:
-            self.content.insert(0, content)
-            if len(self.content) > MAX_NUMBER_OF_DATA:
-                del self.content[-1]
-            if self.location != 0 and self.location < len(self.content) - 1:
+            self.contents.insert(0, content)
+            if len(self.contents) > MAX_NUMBER_OF_DATA:
+                del self.contents[-1]
+            if self.location != 0 and self.location < len(self.contents) - 1:
                 self.location += 1
 
     def page_up(self):
@@ -44,13 +46,15 @@ class BaseData:
     def page_down(self):
         """Page down in the contents"""
         self.location += NUMBER_OF_ROWS
-        if self.location >= len(self.content):
+        if self.location >= len(self.contents):
             # Paging not possible, set it back
             self.location -= NUMBER_OF_ROWS
 
     def get_content(self, number):
         """Get the content taking into account the location"""
-        return self.content[self.location + number]
+        if number >= NUMBER_OF_ROWS:
+            raise IndexError()
+        return self.contents[self.location + number]
 
     def get_name(self, number, text=""):  # pylint: disable=unused-argument
         """Get the name to represent the content, default is short version
@@ -82,12 +86,16 @@ class TextData(BaseData):
 class ActionData(BaseData):
 
     """Action, i.e. text processing tools data storage structure
-    Content are (name, action) tuples"""
+    Content are (name, action) tuples
+
+    Note: assuming that items are added one by one,
+    init not checking duplicates
+    """
 
     def add_content(self, content, end=True):
         """Add an item to the contents and handle size, location, avoid duplicates"""
-        name, action = content
-        if name in (item[0] for item in self.content):
+        name, action = content  # pylint: disable=unused-variable
+        if name in (item[0] for item in self.contents):
             raise RuntimeError('Redeclaration of ' + name)
         super().add_content(content, end=end)
 
@@ -110,9 +118,6 @@ class DataCollection(BaseData):
 
     """Collection will store multiple data storage instances"""
 
-    def __init__(self, name):
-        super().__init__(name, [])
-
     def get_name(self, number, text=""):
         """Get the name to represent the content, here name of the content"""
         content = super().get_content(number)
@@ -120,7 +125,7 @@ class DataCollection(BaseData):
 
     def get_content_by_name(self, name):
         """Find the data structure by the name"""
-        for content in self.content:
+        for content in self.contents:
             if content.name == name:
                 return content
         raise RuntimeError("Name not found: " + name)

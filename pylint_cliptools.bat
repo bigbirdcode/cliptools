@@ -1,1 +1,1 @@
-pylint commands.py config.py controller.py data_struct.py gui_lines.py main.py sanitize.py text_data.py text_functions.py utils.py
+pylint config.py main.py text_data.py cliptools_app cliptools_test
