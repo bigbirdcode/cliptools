@@ -1,0 +1,1 @@
+pylint config.py main.py text_data.py cliptools_app cliptools_test

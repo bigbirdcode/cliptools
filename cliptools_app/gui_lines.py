@@ -9,25 +9,33 @@ from itertools import chain, repeat
 
 import wx
 import wx.adv
-from wx.lib.wordwrap import wordwrap
 
-import commands
+from cliptools_app import commands
 from config import NUMBER_OF_ROWS
 
 
 def get_clip_content():
     """Checking clipboard content, return text is available"""
-    # TODO: handle filenames as text too
-    success = False
-    tdo = wx.TextDataObject()
-    if wx.TheClipboard.Open():
-        success = wx.TheClipboard.GetData(tdo)
-        wx.TheClipboard.Close()
-    else:
+    success_text = False
+    success_file = False
+    tdo_text = wx.TextDataObject()
+    tdo_file = wx.FileDataObject()
+    try:
+        if wx.TheClipboard.Open():
+            success_text = wx.TheClipboard.GetData(tdo_text)
+            if not success_text:
+                success_file = wx.TheClipboard.GetData(tdo_file)
+            wx.TheClipboard.Close()
+        else:
+            print("Unable to open the clipboard")
+            return ""
+    except Exception:
         print("Unable to open the clipboard")
         return ""
-    if success:
-        return tdo.GetText()
+    if success_text:
+        return tdo_text.GetText()
+    elif success_file:
+        return "\n".join(tdo_file.GetFilenames())
     else:
         #print("No clip data in text")
         return ""
@@ -124,7 +132,7 @@ class GuiLinesFrame(wx.Frame):
             btn = wx.Button(panel, -1, str(i+1), size=(25, 25))
             self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
             subsizer.Add(btn, 0, wx.CENTER)
-            text = wx.TextCtrl(panel, -1, "", size=(175, -1))
+            text = wx.TextCtrl(panel, -1, "", size=(200, -1))
             subsizer.Add(text, 1, wx.EXPAND)
             sizer.Add(subsizer, 0, wx.EXPAND)
             self.texts.append(text)
@@ -193,7 +201,7 @@ class GuiLinesFrame(wx.Frame):
             license_text = f.read()
         info = wx.adv.AboutDialogInfo()
         info.Name = "ClipTools"
-        info.Version = "0.1"
+        info.Version = "0.2"
         info.Copyright = "(c) 2019-2019 BigBirdCode"
         info.Description = str(
             "\"ClipTools\" is a clipboard manager with text processing tools.\n\n"

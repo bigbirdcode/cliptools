@@ -73,7 +73,7 @@ def main():
         sys.exit(1)
 
     # So far ok, time to load the entire app and start working
-    import controller
+    from cliptools_app import controller
 
     control = controller.Controller(server_socket, sys.argv[1:])
     control.start()
