@@ -79,6 +79,7 @@ class Controller:
         self.selected_text = ""  # default text is empty text
         self.selected_action_data = None
         self.selected_action = str  # default action is string conversion
+        self.text_to_clipboard = ""
 
     def start(self):
         """Start the thread for delegation check and the mainloop of the GUI"""
@@ -103,7 +104,8 @@ class Controller:
         elif key == '0':
             self.app.minimize()
         elif key == 'C':
-            gui_lines.set_clip_content(self.selected_text)
+            self.text_to_clipboard = self.selected_text
+            gui_lines.set_clip_content(self.text_to_clipboard)
             self.actual = self.selected_text_data  # go back to selected text collection
             self.step = TEXT
             self.app.minimize()
@@ -121,7 +123,7 @@ class Controller:
         This function is then called.
         It was easier to handle delegation checks here too.
         May have a better implementation in the future."""
-        if text and text != self.last_clip:
+        if text and text != self.last_clip and text != self.text_to_clipboard:
             self.data.clip.add_content(text)
             self.last_clip = text
             if self.step == TEXT:
@@ -156,7 +158,8 @@ class Controller:
             self.selected_action = item
             self.actual = self.selected_text_data  # go back to selected text collection
             self.step = TEXT
-            gui_lines.set_clip_content(safe_action(self.selected_text, self.selected_action))
+            self.text_to_clipboard = safe_action(self.selected_text, self.selected_action)
+            gui_lines.set_clip_content(self.text_to_clipboard)
             self.app.minimize()
 
     def get_prev(self):

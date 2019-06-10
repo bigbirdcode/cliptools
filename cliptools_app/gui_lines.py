@@ -27,17 +27,17 @@ def get_clip_content():
                 success_file = wx.TheClipboard.GetData(tdo_file)
             wx.TheClipboard.Close()
         else:
-            print("Unable to open the clipboard")
+            # Unable to open the clipboard, ignoring
             return ""
     except Exception:
-        print("Unable to open the clipboard")
+        # Unable to open the clipboard, ignoring
         return ""
     if success_text:
         return tdo_text.GetText()
     elif success_file:
         return "\n".join(tdo_file.GetFilenames())
     else:
-        #print("No clip data in text")
+        # No clip data in text
         return ""
 
 
