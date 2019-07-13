@@ -14,6 +14,30 @@ from cliptools_app import commands
 from config import NUMBER_OF_ROWS
 
 
+def show_info():
+    """Display program info"""
+    with open("LICENSE") as f:
+        license_text = f.read()
+    info = wx.adv.AboutDialogInfo()
+    info.Name = "ClipTools"
+    info.Version = "0.2"
+    info.Copyright = "(c) 2019-2019 BigBirdCode"
+    info.Description = str(
+        "\"ClipTools\" is a clipboard manager with text processing tools.\n\n"
+        "App is listening to keyboard and collecting texts copied to the clipboard. It can\n"
+        "also have collection of other useful texts. Beside texts, it has some actions, like\n"
+        "uppercase, lowercase, backslash duplication, getting file content, etc.\n\n"
+        "You can assign a keyboard shortcut to the ClipTools app. So it can be started by\n"
+        "just a key combination. Then you can easily select a group of texts, the actual\n"
+        "text, the processing action just by the number keys from 1 to 9. Finally the\n"
+        "processed text result is copied to the clipboard.")
+    info.WebSite = ("https://github.com/bigbirdcode/cliptools", "ClipTools Github page")
+    info.Developers = ["BigBirdCode"]
+    info.License = license_text
+    # Then we call wx.AboutBox giving it that info object
+    wx.adv.AboutBox(info)
+
+
 def get_clip_content():
     """Checking clipboard content, return text is available"""
     success_text = False
@@ -29,16 +53,14 @@ def get_clip_content():
         else:
             print("Unable to open the clipboard")
             return ""
-    except Exception:
+    except Exception:  # pylint: disable=broad-except
         print("Unable to open the clipboard")
         return ""
     if success_text:
         return tdo_text.GetText()
-    elif success_file:
+    if success_file:
         return "\n".join(tdo_file.GetFilenames())
-    else:
-        #print("No clip data in text")
-        return ""
+    return ""
 
 
 def set_clip_content(text):
@@ -79,6 +101,10 @@ class GuiLinesApp(wx.App):
         self.frame.Raise()
         self.frame.Iconize(False)
 
+    def show_hide_details_page(self):
+        """Show / hide_details page"""
+        self.frame.show_hide_details_page()
+
 
 class GuiLinesFrame(wx.Frame):
 
@@ -113,7 +139,7 @@ class GuiLinesFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
         subsizer.Add(btn, 0, wx.CENTER)
         self.title_btn = wx.Button(panel, -1, "Title", size=(25, 25))
-        self.Bind(wx.EVT_BUTTON, self.on_title_click, self.title_btn)
+        self.Bind(wx.EVT_BUTTON, self.on_button_click, self.title_btn)
         subsizer.Add(self.title_btn, 1, wx.CENTER)
         btn = wx.Button(panel, -1, "▲", size=(25, 25))
         self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
@@ -135,13 +161,23 @@ class GuiLinesFrame(wx.Frame):
             sizer.Add(subsizer, 0, wx.EXPAND)
             self.texts.append(text)
 
+        # button to open the details panel
+        self.details_btn = wx.Button(panel, -1, "v", size=(15, 15))
+        sizer.Add(self.details_btn, 0, wx.EXPAND)
+        self.Bind(wx.EVT_BUTTON, self.on_button_click, self.details_btn)
+
         # Add 3 multi-line text for the details
-        self.selected_text = wx.TextCtrl(panel, -1, "Selected text", size=(200,100), style=wx.TE_MULTILINE)
-        self.action_doc = wx.TextCtrl(panel, -1, "Help for the action", size=(200,100), style=wx.TE_MULTILINE)
-        self.processed_text = wx.TextCtrl(panel, -1, "Processed text", size=(200,100), style=wx.TE_MULTILINE)
-        sizer.Add(self.selected_text, 0, wx.EXPAND)
-        sizer.Add(self.action_doc, 0, wx.EXPAND)
-        sizer.Add(self.processed_text, 0, wx.EXPAND)
+        self.details_panel = wx.Panel(self)
+        details_sizer = wx.BoxSizer(wx.VERTICAL)
+        self.selected_text = wx.TextCtrl(self.details_panel, -1, "Selected text", size=(200, 100), style=wx.TE_MULTILINE)
+        self.action_doc = wx.TextCtrl(self.details_panel, -1, "Help for the action", size=(200, 100), style=wx.TE_MULTILINE)
+        self.processed_text = wx.TextCtrl(self.details_panel, -1, "Processed text", size=(200, 100), style=wx.TE_MULTILINE)
+        details_sizer.Add(self.selected_text, 0, wx.EXPAND)
+        details_sizer.Add(self.action_doc, 0, wx.EXPAND)
+        details_sizer.Add(self.processed_text, 0, wx.EXPAND)
+        self.details_panel.SetSizer(details_sizer)
+        sizer.Add(self.details_panel, 0, wx.EXPAND)
+        self.details_panel.Hide()
 
         # Set the layout in the panel
         panel.SetSizer(sizer)
@@ -154,15 +190,20 @@ class GuiLinesFrame(wx.Frame):
         self.SetSizer(sizer)
         self.Fit()
 
+    def on_update_timer(self, event):
+        """Periodic clipboard check and trigger controller checks"""
+        text = get_clip_content()
+        self.handle_update_request(text)
+
     def on_key_press(self, event):
         """Number key press will select the actual line
         but with delegating the action to the controller"""
         cmd_txt = ""
         # Modifiers
         for mod, text in [
-                (event.ShiftDown(),   'Shift-'),
+                (event.ShiftDown(), 'Shift-'),
                 (event.ControlDown(), 'Ctrl-'),
-                (event.AltDown(),     'Alt-'),
+                (event.AltDown(), 'Alt-'),
             ]:
             if mod:
                 cmd_txt += text
@@ -182,14 +223,11 @@ class GuiLinesFrame(wx.Frame):
         """Button click will select the actual line
         but with delegating the action to the controller"""
         btn_text = event.GetEventObject().GetLabel()
+        if len(btn_text) > 1:
+            btn_text = "A"  # title click --> about
         btn_code = btn_text.translate(commands.BUTTON_CODES)
         self.handle_keyboard_events(btn_code)
         event.Skip()
-
-    def on_update_timer(self, event):
-        """Periodic clipboard check and trigger controller checks"""
-        text = get_clip_content()
-        self.handle_update_request(text)
 
     def update_data(self, title, data_iter, selected_text, action_doc, processed_text):
         """Update the line data from the provided generator/iterator"""
@@ -211,25 +249,8 @@ class GuiLinesFrame(wx.Frame):
         self.processed_text.AppendText(processed_text)
         self.processed_text.SetInsertionPoint(0)
 
-    def on_title_click(self, event):
-        """Display program info"""
-        with open("LICENSE") as f:
-            license_text = f.read()
-        info = wx.adv.AboutDialogInfo()
-        info.Name = "ClipTools"
-        info.Version = "0.2"
-        info.Copyright = "(c) 2019-2019 BigBirdCode"
-        info.Description = str(
-            "\"ClipTools\" is a clipboard manager with text processing tools.\n\n"
-            "App is listening to keyboard and collecting texts copied to the clipboard. It can\n"
-            "also have collection of other useful texts. Beside texts, it has some actions, like\n"
-            "uppercase, lowercase, backslash duplication, getting file content, etc.\n\n"
-            "You can assign a keyboard shortcut to the ClipTools app. So it can be started by\n"
-            "just a key combination. Then you can easily select a group of texts, the actual\n"
-            "text, the processing action just by the number keys from 1 to 9. Finally the\n"
-            "processed text result is copied to the clipboard.")
-        info.WebSite = ("https://github.com/bigbirdcode/cliptools", "ClipTools Github page")
-        info.Developers = ["BigBirdCode"]
-        info.License = license_text
-        # Then we call wx.AboutBox giving it that info object
-        wx.adv.AboutBox(info)
+    def show_hide_details_page(self):
+        visible = self.details_panel.IsShown()
+        self.details_btn.SetLabel('v' if visible else '^')
+        self.details_panel.Show(not visible)
+        self.Fit()

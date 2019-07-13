@@ -3,7 +3,7 @@ with a lines based GUI interface
 
 Key or command line commands
 
-Commands that can be used
+Commands that can be used (these are the important ones, full list is below)
     number: select line, proceed with the selection, copy as the last action
     0: minimize
     B: back
@@ -14,7 +14,7 @@ Commands that can be used
 Strings are executed as Key sequence, example: 'F1C'
 
 Key description is modifiers (if any) and basic keydown name
-Examples: '1', 'Shift-1', 'Shift-Ctrl-Alt-1'
+Examples: '1', 'Ctrl-1', 'Ctrl-Shift-Alt-1'
 """
 
 import wx
@@ -31,10 +31,10 @@ SPECIAL_KEYS = {
 
 NUM_KEYS = "123456789"
 
-BUTTON_CODES = str.maketrans("▲▼←", "UDB")
+BUTTON_CODES = str.maketrans("▲▼←^", "UDBV")
 
 KEY_COMMANDS = {
-    "1": "1",
+    "1": "1",  # select line, proceed with the selection, copy as the last action
     "2": "2",
     "3": "3",
     "4": "4",
@@ -43,23 +43,25 @@ KEY_COMMANDS = {
     "7": "7",
     "8": "8",
     "9": "9",
-    "0": "0",
-    "B": "B",
-    "C": "C",
-    "F": "F",
-    "D": "D",
-    "U": "U",
+    "0": "0",  # minimize
+    "A": "A",  # show the about box (also the title click)
+    "B": "B",  # back
+    "C": "C",  # copy selected text immediately
+    "D": "D",  # page down
+    "F": "F",  # bring forward, use it in base keyboard shortcut for bringing up the app
+    "U": "U",  # page up
+    "V": "V",  # show/hide the details panel
     "Back": "B",
     "Esc": "0",
     "Pageup": "U",
     "Pagedown": "D",
-    "Shift-1": "1C",
-    "Shift-2": "2C",
-    "Shift-3": "3C",
-    "Shift-4": "4C",
-    "Shift-5": "5C",
-    "Shift-6": "6C",
-    "Shift-7": "7C",
-    "Shift-8": "8C",
-    "Shift-9": "9C",
+    "Ctrl-1": "1C",  # select + copy the line
+    "Ctrl-2": "2C",
+    "Ctrl-3": "3C",
+    "Ctrl-4": "4C",
+    "Ctrl-5": "5C",
+    "Ctrl-6": "6C",
+    "Ctrl-7": "7C",
+    "Ctrl-8": "8C",
+    "Ctrl-9": "9C",
 }

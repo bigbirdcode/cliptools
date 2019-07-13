@@ -23,6 +23,6 @@ def safe_action(text, action):
     """Apply an action on a text and suppress exceptions"""
     try:
         result = action(text)
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-except
         result = "ERROR: {}".format(exc)
     return result

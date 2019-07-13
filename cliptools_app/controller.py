@@ -113,6 +113,10 @@ class Controller:
             self.actual.page_up()
         elif key == "D":
             self.actual.page_down()
+        elif key == "A":
+            gui_lines.show_info()
+        elif key == "V":
+            self.app.show_hide_details_page()
         else:
             print("Non-handled key: " + key)
         self.update_app()
@@ -136,8 +140,11 @@ class Controller:
         """Function to push updates to GUI
         sources can be keyboard events, delegation requests or clipboard changes"""
         title = "Select from " + self.actual.name
-        self.app.frame.update_data(title, self.actual.get_names(self.selected_text),
-            self.selected_text, self.selected_action.__doc__, self.processed_text)
+        self.app.frame.update_data(title,
+                                   self.actual.get_names(self.selected_text),
+                                   self.selected_text,
+                                   self.selected_action.__doc__,
+                                   self.processed_text)
 
     def get_next(self, number):
         """Step to the next state, select the n-th item for that"""
