@@ -85,9 +85,10 @@ class GuiLinesApp(wx.App):
         self.frame.Show(True)
         return True
 
-    def register_callbacks(self, handle_keyboard_events, handle_update_request):
+    def register_callbacks(self, handle_keyboard_events, handle_focus_event, handle_update_request):
         """Callbacks coming from controller to handle communication"""
         self.frame.handle_keyboard_events = handle_keyboard_events
+        self.frame.handle_focus_event = handle_focus_event
         self.frame.handle_update_request = handle_update_request
 
     def minimize(self):
@@ -115,6 +116,7 @@ class GuiLinesFrame(wx.Frame):
 
         # Callbacks that will be registered by the Controller
         self.handle_keyboard_events = None
+        self.handle_focus_event = None
         self.handle_update_request = None
 
         # List of textboxes for easier reference
@@ -122,6 +124,9 @@ class GuiLinesFrame(wx.Frame):
 
         # Key events are binded to the frame
         self.Bind(wx.EVT_CHAR_HOOK, self.on_key_press)
+
+        # Button events are handled by button names, generic handler is enough
+        self.Bind(wx.EVT_BUTTON, self.on_button_click)
 
         # Periodic timer events
         self.update_timer = wx.Timer(self)
@@ -135,43 +140,47 @@ class GuiLinesFrame(wx.Frame):
 
         # Buttons in the top row, back, page, instructions
         subsizer = wx.BoxSizer(wx.HORIZONTAL)
-        btn = wx.Button(panel, -1, "←", size=(25, 25))
-        self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
+        btn = wx.Button(panel, -1, "←", size=(25, 25), name="B")
         subsizer.Add(btn, 0, wx.CENTER)
-        self.title_btn = wx.Button(panel, -1, "Title", size=(25, 25))
-        self.Bind(wx.EVT_BUTTON, self.on_button_click, self.title_btn)
+        self.title_btn = wx.Button(panel, -1, "Title", size=(25, 25), name="A")
         subsizer.Add(self.title_btn, 1, wx.CENTER)
-        btn = wx.Button(panel, -1, "▲", size=(25, 25))
-        self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
+        btn = wx.Button(panel, -1, "▲", size=(25, 25), name="U")
         subsizer.Add(btn, 0, wx.CENTER)
-        btn = wx.Button(panel, -1, "▼", size=(25, 25))
-        self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
+        btn = wx.Button(panel, -1, "▼", size=(25, 25), name="D")
         subsizer.Add(btn, 0, wx.CENTER)
         sizer.Add(subsizer, 0, wx.EXPAND)
 
         # Add the lines: 1 button 1 text
         # Use a sizer to layout the controls,
         for i in range(NUMBER_OF_ROWS):
+            num_name = str(i+1)
             subsizer = wx.BoxSizer(wx.HORIZONTAL)
-            btn = wx.Button(panel, -1, str(i+1), size=(25, 25))
-            self.Bind(wx.EVT_BUTTON, self.on_button_click, btn)
+            btn = wx.Button(panel, -1, num_name, size=(25, 25), name=num_name)
             subsizer.Add(btn, 0, wx.CENTER)
-            text = wx.TextCtrl(panel, -1, "", size=(200, -1))
+            text = wx.TextCtrl(panel, -1, "", style=wx.TE_READONLY, size=(200, -1), name=num_name)
             subsizer.Add(text, 1, wx.EXPAND)
             sizer.Add(subsizer, 0, wx.EXPAND)
             self.texts.append(text)
+            text.Bind(wx.EVT_LEFT_UP, self.on_mouse_click)
+            btn.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
+            text.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
+            btn.Bind(wx.EVT_SET_FOCUS, self.on_focus)
+            text.Bind(wx.EVT_SET_FOCUS, self.on_focus)
+
 
         # button to open the details panel
-        self.details_btn = wx.Button(panel, -1, "v", size=(15, 15))
+        self.details_btn = wx.Button(panel, -1, "v", size=(15, 15), name="V")
         sizer.Add(self.details_btn, 0, wx.EXPAND)
-        self.Bind(wx.EVT_BUTTON, self.on_button_click, self.details_btn)
 
         # Add 3 multi-line text for the details
         self.details_panel = wx.Panel(self)
         details_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.selected_text = wx.TextCtrl(self.details_panel, -1, "Selected text", size=(200, 100), style=wx.TE_MULTILINE)
-        self.action_doc = wx.TextCtrl(self.details_panel, -1, "Help for the action", size=(200, 100), style=wx.TE_MULTILINE)
-        self.processed_text = wx.TextCtrl(self.details_panel, -1, "Processed text", size=(200, 100), style=wx.TE_MULTILINE)
+        self.selected_text = wx.TextCtrl(self.details_panel, -1, "Selected text",
+                                         size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.action_doc = wx.TextCtrl(self.details_panel, -1, "Help for the action",
+                                      size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.processed_text = wx.TextCtrl(self.details_panel, -1, "Processed text",
+                                          size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
         details_sizer.Add(self.selected_text, 0, wx.EXPAND)
         details_sizer.Add(self.action_doc, 0, wx.EXPAND)
         details_sizer.Add(self.processed_text, 0, wx.EXPAND)
@@ -222,12 +231,29 @@ class GuiLinesFrame(wx.Frame):
     def on_button_click(self, event):
         """Button click will select the actual line
         but with delegating the action to the controller"""
-        btn_text = event.GetEventObject().GetLabel()
-        if len(btn_text) > 1:
-            btn_text = "A"  # title click --> about
-        btn_code = btn_text.translate(commands.BUTTON_CODES)
-        self.handle_keyboard_events(btn_code)
+        btn_name = event.GetEventObject().GetName()
+        self.handle_keyboard_events(btn_name)
         event.Skip()
+
+    def on_mouse_click(self, event):
+        obj_name = event.GetEventObject().GetName()
+        try:
+            if int(obj_name) > 0:
+                self.handle_keyboard_events(obj_name)
+        except ValueError:
+            pass
+
+    def on_enter(self, event):
+        obj = event.GetEventObject()
+        obj.SetFocus()
+
+    def on_focus(self, event):
+        obj_name = event.GetEventObject().GetName()
+        try:
+            if int(obj_name) > 0:
+                self.handle_focus_event(obj_name)
+        except ValueError:
+            pass
 
     def update_data(self, title, data_iter, selected_text, action_doc, processed_text):
         """Update the line data from the provided generator/iterator"""

@@ -72,7 +72,7 @@ class Controller:
         self.data = data_struct.data_collections
         self.load_data()
         self.app = gui_lines.GuiLinesApp()
-        self.app.register_callbacks(self.handle_keyboard_events, self.handle_update_request)
+        self.app.register_callbacks(self.handle_keyboard_events, self.handle_focus_event, self.handle_update_request)
 
         self.step = TEXTS
         self.actual = self.data.texts
@@ -119,6 +119,23 @@ class Controller:
             self.app.show_hide_details_page()
         else:
             print("Non-handled key: " + key)
+        self.update_app()
+
+    def handle_focus_event(self, num_text):
+        number = int(num_text) - 1
+        try:
+            item = self.actual.get_content(number)
+        except IndexError:
+            return
+        if self.step == TEXTS:
+            pass
+        elif self.step == TEXT:
+            self.selected_text = item
+        elif self.step == ACTIONS:
+            pass
+        elif self.step == ACTION:
+            self.selected_action = item
+        self.processed_text = safe_action(self.selected_text, self.selected_action)
         self.update_app()
 
     def handle_update_request(self, text):
