@@ -38,6 +38,13 @@ def show_info():
     wx.adv.AboutBox(info)
 
 
+def show_error(msg):
+    """Error message to show"""
+    dlg = wx.MessageDialog(self, msg, 'ClipTools', wx.OK | wx.ICON_ERROR)
+    dlg.ShowModal()
+    dlg.Destroy()
+
+
 def get_clip_content():
     """Checking clipboard content, return text is available"""
     success_text = False
@@ -51,10 +58,10 @@ def get_clip_content():
                 success_file = wx.TheClipboard.GetData(tdo_file)
             wx.TheClipboard.Close()
         else:
-            print("Unable to open the clipboard")
+            # print("Unable to open the clipboard")
             return ""
     except Exception:  # pylint: disable=broad-except
-        print("Unable to open the clipboard")
+        # print("Unable to open the clipboard")
         return ""
     if success_text:
         return tdo_text.GetText()
@@ -71,7 +78,7 @@ def set_clip_content(text):
         wx.TheClipboard.SetData(tdo)
         wx.TheClipboard.Close()
     else:
-        print("Unable to open the clipboard")
+        show_error("Unable to open the clipboard, try again.")
 
 
 class GuiLinesApp(wx.App):
@@ -122,6 +129,10 @@ class GuiLinesFrame(wx.Frame):
         # List of textboxes for easier reference
         self.texts = list()
 
+        # Colors to use for the lines
+        self.active_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_ACTIVECAPTION)
+        self.normal_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+
         # Key events are binded to the frame
         self.Bind(wx.EVT_CHAR_HOOK, self.on_key_press)
 
@@ -164,8 +175,8 @@ class GuiLinesFrame(wx.Frame):
             text.Bind(wx.EVT_LEFT_UP, self.on_mouse_click)
             btn.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
             text.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
-            btn.Bind(wx.EVT_SET_FOCUS, self.on_focus)
-            text.Bind(wx.EVT_SET_FOCUS, self.on_focus)
+            #btn.Bind(wx.EVT_SET_FOCUS, self.on_focus)
+            #text.Bind(wx.EVT_SET_FOCUS, self.on_focus)
 
 
         # button to open the details panel
@@ -205,8 +216,10 @@ class GuiLinesFrame(wx.Frame):
         self.handle_update_request(text)
 
     def on_key_press(self, event):
-        """Number key press will select the actual line
-        but with delegating the action to the controller"""
+        """Function to respond to key press events.
+        Number key press will select the actual line
+        letters do various tasks.
+        Actual tasks delegated to the controller"""
         cmd_txt = ""
         # Modifiers
         for mod, text in [
@@ -229,13 +242,17 @@ class GuiLinesFrame(wx.Frame):
         event.Skip()
 
     def on_button_click(self, event):
-        """Button click will select the actual line
-        but with delegating the action to the controller"""
+        """Function to respond to button clicks.
+        Number button click will select the actual line
+        other buttons handled too.
+        Actual tasks delegated to the controller"""
         btn_name = event.GetEventObject().GetName()
         self.handle_keyboard_events(btn_name)
         event.Skip()
 
     def on_mouse_click(self, event):
+        """Mouse clicks on the text lines.
+        Task delegated to controller."""
         obj_name = event.GetEventObject().GetName()
         try:
             if int(obj_name) > 0:
@@ -244,10 +261,7 @@ class GuiLinesFrame(wx.Frame):
             pass
 
     def on_enter(self, event):
-        obj = event.GetEventObject()
-        obj.SetFocus()
-
-    def on_focus(self, event):
+        """Mouse-over handler, delegating tasks to focus handler"""
         obj_name = event.GetEventObject().GetName()
         try:
             if int(obj_name) > 0:
@@ -255,7 +269,13 @@ class GuiLinesFrame(wx.Frame):
         except ValueError:
             pass
 
-    def update_data(self, title, data_iter, selected_text, action_doc, processed_text):
+    def on_focus(self, event):
+        """Function to respond to focused selection.
+        Selection will show help in the details panel.
+        Task delegated to controller."""
+        pass
+
+    def update_data(self, title, data_iter, selected_text, action_doc, processed_text, focus_number):
         """Update the line data from the provided generator/iterator"""
         self.title_btn.SetLabel(title)
         for i, text in enumerate(chain(data_iter, repeat(""))):
@@ -265,6 +285,11 @@ class GuiLinesFrame(wx.Frame):
             entry.Clear()
             entry.AppendText(text)
             entry.SetInsertionPoint(0)
+            if i == focus_number:
+                entry.SetBackgroundColour(self.active_color)
+                entry.SetFocus()
+            else:
+                entry.SetBackgroundColour(self.normal_color)
         self.selected_text.Clear()
         self.selected_text.AppendText(selected_text)
         self.selected_text.SetInsertionPoint(0)

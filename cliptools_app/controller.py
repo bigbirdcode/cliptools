@@ -72,7 +72,9 @@ class Controller:
         self.data = data_struct.data_collections
         self.load_data()
         self.app = gui_lines.GuiLinesApp()
-        self.app.register_callbacks(self.handle_keyboard_events, self.handle_focus_event, self.handle_update_request)
+        self.app.register_callbacks(self.handle_keyboard_events,
+                                    self.handle_focus_event,
+                                    self.handle_update_request)
 
         self.step = TEXTS
         self.actual = self.data.texts
@@ -81,6 +83,21 @@ class Controller:
         self.selected_action_data = None
         self.selected_action = text_functions.paste_paste
         self.processed_text = ""
+        self.focus_number = {TEXTS: 0, TEXT: 0, ACTIONS: 0, ACTION: 0}
+        self.keyboard_actions = {
+            '0': self.app.minimize,
+            'A': self.action_backward,
+            'D': self.action_forward,
+            'W': self.action_focus_up,
+            'S': self.action_focus_down,
+            'E': self.actual.page_down,
+            'Q': self.actual.page_up,
+            'F': self.app.bring_to_front,
+            'C': self.action_copy_selected_text,
+            'V': self.action_copy_processed_text,
+            'I': gui_lines.show_info,
+            'Z': self.app.show_hide_details_page
+        }
 
     def start(self):
         """Start the thread for delegation check and the mainloop of the GUI"""
@@ -90,52 +107,29 @@ class Controller:
 
     def handle_keyboard_events(self, key):
         """Function to handle commands, main source are GUI keyboard events
-        but in the future it will handle command line commands too"""
-        if key == 'F':
-            self.app.bring_to_front()
-            self.update_app()
-        elif key in commands.NUM_KEYS:
+        but it handles command line commands too"""
+        if key in commands.NUM_KEYS:
             number = int(key) - 1
             try:
                 self.get_next(number)
+                self.get_focus(number)
             except IndexError:
-                pass # not valid number, just ignore
-        elif key == 'B':
-            self.get_prev()
-        elif key == '0':
-            self.app.minimize()
-        elif key == 'C':
-            gui_lines.set_clip_content(self.selected_text)
-            self.actual = self.selected_text_data  # go back to selected text collection
-            self.step = TEXT
-            self.app.minimize()
-        elif key == "U":
-            self.actual.page_up()
-        elif key == "D":
-            self.actual.page_down()
-        elif key == "A":
-            gui_lines.show_info()
-        elif key == "V":
-            self.app.show_hide_details_page()
+                return # not valid number, just ignore
         else:
-            print("Non-handled key: " + key)
+            if key in self.keyboard_actions:
+                self.keyboard_actions[key]()
+            else:
+                return
         self.update_app()
 
     def handle_focus_event(self, num_text):
-        number = int(num_text) - 1
+        """Function to handle focus changes on the GUI
+        it is a helper for the user to show the details of selected items"""
         try:
-            item = self.actual.get_content(number)
+            number = int(num_text) - 1
         except IndexError:
-            return
-        if self.step == TEXTS:
-            pass
-        elif self.step == TEXT:
-            self.selected_text = item
-        elif self.step == ACTIONS:
-            pass
-        elif self.step == ACTION:
-            self.selected_action = item
-        self.processed_text = safe_action(self.selected_text, self.selected_action)
+            return  # not a valid number, return
+        self.get_focus(number)
         self.update_app()
 
     def handle_update_request(self, text):
@@ -161,11 +155,27 @@ class Controller:
                                    self.actual.get_names(self.selected_text),
                                    self.selected_text,
                                    self.selected_action.__doc__,
-                                   self.processed_text)
+                                   self.processed_text,
+                                   self.focus_number[self.step])
+
+    def get_focus(self, number):
+        """Set the focus to the n-th item
+        If number is out of possible range this will raise IndexError"""
+        item = self.actual.get_content(number)
+        self.focus_number[self.step] = number
+        if self.step == TEXTS:
+            pass
+        elif self.step == TEXT:
+            self.selected_text = item
+        elif self.step == ACTIONS:
+            pass
+        elif self.step == ACTION:
+            self.selected_action = item
+        self.get_processed()
 
     def get_next(self, number):
-        """Step to the next state, select the n-th item for that"""
-        # If number is out of possible range this will raise IndexError
+        """Step to the next state, select the n-th item for that
+        If number is out of possible range this will raise IndexError"""
         item = self.actual.get_content(number)
         if self.step == TEXTS:
             self.selected_text_data = item
@@ -183,9 +193,12 @@ class Controller:
             self.selected_action = item
             self.actual = self.selected_text_data  # go back to selected text collection
             self.step = TEXT
-            gui_lines.set_clip_content(safe_action(self.selected_text, self.selected_action))
+            self.get_processed()  # extra processing before copying
+            gui_lines.set_clip_content(self.processed_text)
             self.app.minimize()
-        # Also update processed text
+
+    def get_processed(self):
+        """Update processed text"""
         self.processed_text = safe_action(self.selected_text, self.selected_action)
 
     def get_prev(self):
@@ -210,3 +223,49 @@ class Controller:
             return
         for name, data in text_data.defined_texts.items():
             self.data.texts.add_content(data_struct.TextData(name, data))
+
+    def action_focus_down(self):
+        """Action to select the next item, move the focus down"""
+        number = self.focus_number[self.step] + 1
+        try:
+            self.get_focus(number)
+        except IndexError:
+            return  # not a valid number, return
+
+    def action_focus_up(self):
+        """Action to select the previous item, move the focus up"""
+        number = self.focus_number[self.step] - 1
+        try:
+            self.get_focus(number)
+        except IndexError:
+            return  # not a valid number, return
+
+    def action_backward(self):
+        """Go backward, go to the previous state"""
+        try:
+            self.get_prev()
+            self.get_focus(self.focus_number[self.step])
+        except IndexError:
+            return  # not possible as focus refused, but better to handle it
+
+    def action_forward(self):
+        """Go forward, use the actual selection and go to the next state"""
+        try:
+            self.get_next(self.focus_number[self.step])
+            self.get_focus(self.focus_number[self.step])
+        except IndexError:
+            return  # not possible as focus refused, but better to handle it
+
+    def action_copy_selected_text(self):
+        """Action to copy the text and minimize"""
+        gui_lines.set_clip_content(self.selected_text)
+        self.actual = self.selected_text_data  # go back to selected text collection
+        self.step = TEXT
+        self.app.minimize()
+
+    def action_copy_processed_text(self):
+        """Action to copy the text and minimize"""
+        gui_lines.set_clip_content(self.processed_text)
+        self.actual = self.selected_text_data  # go back to selected text collection
+        self.step = TEXT
+        self.app.minimize()
