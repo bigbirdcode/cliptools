@@ -14,6 +14,13 @@ from cliptools_app import commands
 from config import NUMBER_OF_ROWS
 
 
+###########################################################
+#
+# Utility functions related to wx library
+#
+###########################################################
+
+
 def show_info():
     """Display program info"""
     with open("LICENSE") as f:
@@ -40,7 +47,7 @@ def show_info():
 
 def show_error(msg):
     """Error message to show"""
-    dlg = wx.MessageDialog(self, msg, 'ClipTools', wx.OK | wx.ICON_ERROR)
+    dlg = wx.MessageDialog(None, msg, 'ClipTools', wx.OK | wx.ICON_ERROR)
     dlg.ShowModal()
     dlg.Destroy()
 
@@ -81,6 +88,13 @@ def set_clip_content(text):
         show_error("Unable to open the clipboard, try again.")
 
 
+###########################################################
+#
+# Main Application
+#
+###########################################################
+
+
 class GuiLinesApp(wx.App):
 
     """Main GUI App"""
@@ -109,9 +123,16 @@ class GuiLinesApp(wx.App):
         self.frame.Raise()
         self.frame.Iconize(False)
 
-    def show_hide_details_page(self):
+    def show_hide_details_panel(self):
         """Show / hide_details page"""
-        self.frame.show_hide_details_page()
+        self.frame.show_hide_details_panel()
+
+
+###########################################################
+#
+# Main Frame of the Application, line based user interface
+#
+###########################################################
 
 
 class GuiLinesFrame(wx.Frame):
@@ -163,6 +184,7 @@ class GuiLinesFrame(wx.Frame):
 
         # Add the lines: 1 button 1 text
         # Use a sizer to layout the controls,
+        # Name numbering starts from 1 to match key presses
         for i in range(NUMBER_OF_ROWS):
             num_name = str(i+1)
             subsizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -175,9 +197,6 @@ class GuiLinesFrame(wx.Frame):
             text.Bind(wx.EVT_LEFT_UP, self.on_mouse_click)
             btn.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
             text.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
-            #btn.Bind(wx.EVT_SET_FOCUS, self.on_focus)
-            #text.Bind(wx.EVT_SET_FOCUS, self.on_focus)
-
 
         # button to open the details panel
         self.details_btn = wx.Button(panel, -1, "v", size=(15, 15), name="V")
@@ -245,20 +264,20 @@ class GuiLinesFrame(wx.Frame):
         """Function to respond to button clicks.
         Number button click will select the actual line
         other buttons handled too.
-        Actual tasks delegated to the controller"""
+        Actual tasks delegated to the controller based on button name"""
         btn_name = event.GetEventObject().GetName()
         self.handle_keyboard_events(btn_name)
         event.Skip()
 
     def on_mouse_click(self, event):
         """Mouse clicks on the text lines.
-        Task delegated to controller."""
+        Task delegated to controller based on name"""
         obj_name = event.GetEventObject().GetName()
         try:
             if int(obj_name) > 0:
                 self.handle_keyboard_events(obj_name)
         except ValueError:
-            pass
+            pass  # it was not a line, but something else
 
     def on_enter(self, event):
         """Mouse-over handler, delegating tasks to focus handler"""
@@ -267,17 +286,14 @@ class GuiLinesFrame(wx.Frame):
             if int(obj_name) > 0:
                 self.handle_focus_event(obj_name)
         except ValueError:
-            pass
-
-    def on_focus(self, event):
-        """Function to respond to focused selection.
-        Selection will show help in the details panel.
-        Task delegated to controller."""
-        pass
+            pass  # it was not a line, but something else
 
     def update_data(self, title, data_iter, selected_text, action_doc, processed_text, focus_number):
-        """Update the line data from the provided generator/iterator"""
+        """Update the line data from the provided generator/iterator
+        Beside also update details texts and line focus"""
+        # Title shows where are we now
         self.title_btn.SetLabel(title)
+        # Lines show the actual texts
         for i, text in enumerate(chain(data_iter, repeat(""))):
             if i >= NUMBER_OF_ROWS:
                 break
@@ -290,6 +306,7 @@ class GuiLinesFrame(wx.Frame):
                 entry.SetFocus()
             else:
                 entry.SetBackgroundColour(self.normal_color)
+        # Details show the selected items longer
         self.selected_text.Clear()
         self.selected_text.AppendText(selected_text)
         self.selected_text.SetInsertionPoint(0)
@@ -300,7 +317,9 @@ class GuiLinesFrame(wx.Frame):
         self.processed_text.AppendText(processed_text)
         self.processed_text.SetInsertionPoint(0)
 
-    def show_hide_details_page(self):
+    def show_hide_details_panel(self):
+        """Show or hide the details panel,
+        where 3 multi-line text show the selections"""
         visible = self.details_panel.IsShown()
         self.details_btn.SetLabel('v' if visible else '^')
         self.details_panel.Show(not visible)

@@ -17,11 +17,18 @@ from cliptools_app.utils import safe_action
 
 from config import SERVER_SUCCESS
 
-# states
+# states of the app
 TEXTS = 1
 TEXT = 2
 ACTIONS = 3
 ACTION = 4
+
+
+###########################################################
+#
+# Internal server functions to handle commands
+#
+###########################################################
 
 
 def _handle_socket_request(client_socket, server_queue) -> None:
@@ -58,6 +65,13 @@ def _init_server_loop(server_socket, server_queue) -> None:
     Thread(target=server_loop, daemon=True).start()
 
 
+###########################################################
+#
+# The Controller class
+#
+###########################################################
+
+
 class Controller:
 
     """Controller class, driving the GUI and the Data"""
@@ -84,19 +98,20 @@ class Controller:
         self.selected_action = text_functions.paste_paste
         self.processed_text = ""
         self.focus_number = {TEXTS: 0, TEXT: 0, ACTIONS: 0, ACTION: 0}
-        self.keyboard_actions = {
+        self.keyboard_commands = {
             '0': self.app.minimize,
-            'A': self.action_backward,
-            'D': self.action_forward,
-            'W': self.action_focus_up,
-            'S': self.action_focus_down,
+            'A': self.command_backward,
+            'D': self.command_forward,
+            'W': self.command_focus_up,
+            'S': self.command_focus_down,
             'E': self.actual.page_down,
             'Q': self.actual.page_up,
             'F': self.app.bring_to_front,
-            'C': self.action_copy_selected_text,
-            'V': self.action_copy_processed_text,
+            'C': self.command_copy_selected_text,
+            'V': self.command_copy_processed_text,
             'I': gui_lines.show_info,
-            'Z': self.app.show_hide_details_page
+            'Z': self.app.show_hide_details_panel,
+            'T': self.command_test
         }
 
     def start(self):
@@ -105,6 +120,19 @@ class Controller:
         self.update_app()
         self.app.MainLoop()
 
+    def load_data(self):
+        """Load text and action data from the current implementation"""
+        try:
+            import text_data
+        except ImportError:
+            return
+        for name, data in text_data.DEFINED_TEXTS.items():
+            self.data.texts.add_content(data_struct.TextData(name, data))
+
+    ###########################################################
+    # Handlers are callbacks, GUI app will call them
+    ###########################################################
+
     def handle_keyboard_events(self, key):
         """Function to handle commands, main source are GUI keyboard events
         but it handles command line commands too"""
@@ -112,14 +140,14 @@ class Controller:
             number = int(key) - 1
             try:
                 self.get_next(number)
-                self.get_focus(number)
+                self.get_focus(self.focus_number[self.step])
             except IndexError:
-                return # not valid number, just ignore
+                return  # not valid number, just ignore
         else:
-            if key in self.keyboard_actions:
-                self.keyboard_actions[key]()
+            if key in self.keyboard_commands:
+                self.keyboard_commands[key]()  # call the command
             else:
-                return
+                return  # unknown character, just ignore
         self.update_app()
 
     def handle_focus_event(self, num_text):
@@ -147,6 +175,10 @@ class Controller:
             cmd = self.server_queue.get_nowait()
             self.handle_keyboard_events(cmd)
 
+    ###########################################################
+    # Update is pushing the data to the GUI
+    ###########################################################
+
     def update_app(self):
         """Function to push updates to GUI
         sources can be keyboard events, delegation requests or clipboard changes"""
@@ -158,9 +190,14 @@ class Controller:
                                    self.processed_text,
                                    self.focus_number[self.step])
 
+    ###########################################################
+    # Functions to modify the states of the controller and data
+    ###########################################################
+
     def get_focus(self, number):
         """Set the focus to the n-th item
-        If number is out of possible range this will raise IndexError"""
+        If number is out of possible range this will raise IndexError
+        It will also process the selected texts"""
         item = self.actual.get_content(number)
         self.focus_number[self.step] = number
         if self.step == TEXTS:
@@ -175,8 +212,10 @@ class Controller:
 
     def get_next(self, number):
         """Step to the next state, select the n-th item for that
-        If number is out of possible range this will raise IndexError"""
+        If number is out of possible range this will raise IndexError
+        Usually get_focus should follow this function to finish the updates"""
         item = self.actual.get_content(number)
+        self.focus_number[self.step] = number
         if self.step == TEXTS:
             self.selected_text_data = item
             self.actual = self.selected_text_data
@@ -202,7 +241,8 @@ class Controller:
         self.processed_text = safe_action(self.selected_text, self.selected_action)
 
     def get_prev(self):
-        """Step back one state"""
+        """Step back one state
+        Usually get_focus should follow this function to finish the updates"""
         if self.step == ACTION:
             self.actual = self.data.actions
             self.step = ACTIONS
@@ -215,16 +255,11 @@ class Controller:
         elif self.step == TEXTS:
             pass  # cannot go back from texts state
 
-    def load_data(self):
-        """Load text and action data from the current implementation"""
-        try:
-            import text_data
-        except ImportError:
-            return
-        for name, data in text_data.defined_texts.items():
-            self.data.texts.add_content(data_struct.TextData(name, data))
+    ###########################################################
+    # Commands contain the details of user commands
+    ###########################################################
 
-    def action_focus_down(self):
+    def command_focus_down(self):
         """Action to select the next item, move the focus down"""
         number = self.focus_number[self.step] + 1
         try:
@@ -232,7 +267,7 @@ class Controller:
         except IndexError:
             return  # not a valid number, return
 
-    def action_focus_up(self):
+    def command_focus_up(self):
         """Action to select the previous item, move the focus up"""
         number = self.focus_number[self.step] - 1
         try:
@@ -240,32 +275,36 @@ class Controller:
         except IndexError:
             return  # not a valid number, return
 
-    def action_backward(self):
+    def command_backward(self):
         """Go backward, go to the previous state"""
         try:
             self.get_prev()
             self.get_focus(self.focus_number[self.step])
         except IndexError:
-            return  # not possible as focus refused, but better to handle it
+            return  # not possible, but better to handle it
 
-    def action_forward(self):
+    def command_forward(self):
         """Go forward, use the actual selection and go to the next state"""
         try:
             self.get_next(self.focus_number[self.step])
             self.get_focus(self.focus_number[self.step])
         except IndexError:
-            return  # not possible as focus refused, but better to handle it
+            return  # not possible, but better to handle it
 
-    def action_copy_selected_text(self):
+    def command_copy_selected_text(self):
         """Action to copy the text and minimize"""
         gui_lines.set_clip_content(self.selected_text)
         self.actual = self.selected_text_data  # go back to selected text collection
         self.step = TEXT
         self.app.minimize()
 
-    def action_copy_processed_text(self):
+    def command_copy_processed_text(self):
         """Action to copy the text and minimize"""
         gui_lines.set_clip_content(self.processed_text)
         self.actual = self.selected_text_data  # go back to selected text collection
         self.step = TEXT
         self.app.minimize()
+
+    def command_test(self):
+        """Action to perform something to test & debug"""
+        gui_lines.show_error('Test message')

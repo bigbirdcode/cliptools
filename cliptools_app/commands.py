@@ -63,6 +63,7 @@ KEY_COMMANDS = {
     "V": "V",  # copy processed text immediately
     "I": "I",  # show the info dialog (also the title click)
     "Z": "Z",  # show/hide the details panel
+    "T": "T",  # test actions
     # Aliases
     "Back": "A",
     "B": "A",

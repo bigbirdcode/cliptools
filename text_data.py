@@ -6,28 +6,28 @@ Pre-defined text, where you can add frequently used data
 
 from collections import OrderedDict
 
-defined_texts = OrderedDict()
+DEFINED_TEXTS = OrderedDict()
 
 
-defined_texts["samples"] = [
+DEFINED_TEXTS["samples"] = [
     "ÁRVÍZTŰRŐ TÜKÖRFÚRÓGÉP",
     "árvíztűrő tükörfúrógép",
     "Öt szép szűzlány őrült írót nyúz.",
 ]
 
-defined_texts["sniplets"] = [
+DEFINED_TEXTS["sniplets"] = [
     "class",
     "def",
     "main",
     ]
 
-defined_texts["my_data"] = [
+DEFINED_TEXTS["my_data"] = [
     "BigBirdCode",
     "Hungary",
     "Budapest",
     ]
 
-defined_texts["lot of data"] = [
+DEFINED_TEXTS["lot of data"] = [
     "01",
     "02",
     "03",
