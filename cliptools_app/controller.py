@@ -97,6 +97,7 @@ class Controller:
         self.selected_action_data = None
         self.selected_action = text_functions.paste_paste
         self.processed_text = ""
+        self.text_to_clipboard = ""
         self.focus_number = {TEXTS: 0, TEXT: 0, ACTIONS: 0, ACTION: 0}
         self.keyboard_commands = {
             '0': self.app.minimize,
@@ -166,7 +167,7 @@ class Controller:
         This function is then called.
         It was easier to handle delegation checks here too.
         May have a better implementation in the future."""
-        if text and text != self.last_clip:
+        if text and text != self.last_clip and text != self.text_to_clipboard:
             self.data.clip.add_content(text)
             self.last_clip = text
             if self.step == TEXT:
@@ -233,6 +234,7 @@ class Controller:
             self.actual = self.selected_text_data  # go back to selected text collection
             self.step = TEXT
             self.get_processed()  # extra processing before copying
+            self.text_to_clipboard = self.processed_text
             gui_lines.set_clip_content(self.processed_text)
             self.app.minimize()
 
@@ -293,6 +295,7 @@ class Controller:
 
     def command_copy_selected_text(self):
         """Action to copy the text and minimize"""
+        self.text_to_clipboard = self.selected_text
         gui_lines.set_clip_content(self.selected_text)
         self.actual = self.selected_text_data  # go back to selected text collection
         self.step = TEXT
@@ -300,6 +303,7 @@ class Controller:
 
     def command_copy_processed_text(self):
         """Action to copy the text and minimize"""
+        self.text_to_clipboard = self.processed_text
         gui_lines.set_clip_content(self.processed_text)
         self.actual = self.selected_text_data  # go back to selected text collection
         self.step = TEXT
