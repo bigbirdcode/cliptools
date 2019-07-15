@@ -145,7 +145,7 @@ class DataCollections:
         self.actions = DataCollection("action groups")
 
 
-data_collections = DataCollections()
+data_collections = DataCollections()  # pylint: disable=invalid-name
 
 
 def register_function(action_func):
