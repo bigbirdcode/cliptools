@@ -155,9 +155,9 @@ class Controller:
         it is a helper for the user to show the details of selected items"""
         try:
             number = int(num_text) - 1
-        except IndexError:
+            self.get_focus(number)
+        except (ValueError, IndexError):
             return  # not a valid number, return
-        self.get_focus(number)
         self.update_app()
 
     def handle_update_request(self, text):

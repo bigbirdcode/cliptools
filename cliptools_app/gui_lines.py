@@ -172,13 +172,13 @@ class GuiLinesFrame(wx.Frame):
 
         # Buttons in the top row, back, page, instructions
         subsizer = wx.BoxSizer(wx.HORIZONTAL)
-        btn = wx.Button(panel, -1, "←", size=(25, 25), name="B")
+        btn = wx.Button(panel, -1, "←", size=(25, 25), name="A")
         subsizer.Add(btn, 0, wx.CENTER)
-        self.title_btn = wx.Button(panel, -1, "Title", size=(25, 25), name="A")
+        self.title_btn = wx.Button(panel, -1, "Title", size=(25, 25), name="I")
         subsizer.Add(self.title_btn, 1, wx.CENTER)
-        btn = wx.Button(panel, -1, "▲", size=(25, 25), name="U")
+        btn = wx.Button(panel, -1, "▲", size=(25, 25), name="Q")
         subsizer.Add(btn, 0, wx.CENTER)
-        btn = wx.Button(panel, -1, "▼", size=(25, 25), name="D")
+        btn = wx.Button(panel, -1, "▼", size=(25, 25), name="E")
         subsizer.Add(btn, 0, wx.CENTER)
         sizer.Add(subsizer, 0, wx.EXPAND)
 
@@ -199,7 +199,7 @@ class GuiLinesFrame(wx.Frame):
             text.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
 
         # button to open the details panel
-        self.details_btn = wx.Button(panel, -1, "v", size=(15, 15), name="V")
+        self.details_btn = wx.Button(panel, -1, "v", size=(15, 15), name="Z")
         sizer.Add(self.details_btn, 0, wx.EXPAND)
 
         # Add 3 multi-line text for the details
@@ -233,6 +233,7 @@ class GuiLinesFrame(wx.Frame):
         """Periodic clipboard check and trigger controller checks"""
         text = get_clip_content()
         self.handle_update_request(text)
+        event.Skip()
 
     def on_key_press(self, event):
         """Function to respond to key press events.
@@ -278,6 +279,7 @@ class GuiLinesFrame(wx.Frame):
                 self.handle_keyboard_events(obj_name)
         except ValueError:
             pass  # it was not a line, but something else
+        event.Skip()
 
     def on_enter(self, event):
         """Mouse-over handler, delegating tasks to focus handler"""
@@ -287,6 +289,7 @@ class GuiLinesFrame(wx.Frame):
                 self.handle_focus_event(obj_name)
         except ValueError:
             pass  # it was not a line, but something else
+        event.Skip()
 
     def update_data(self, title, data_iter, selected_text, action_doc, processed_text, focus_number):
         """Update the line data from the provided generator/iterator
