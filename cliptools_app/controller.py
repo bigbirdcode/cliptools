@@ -11,7 +11,8 @@ from threading import Thread
 
 from cliptools_app import commands
 from cliptools_app import data_struct
-from cliptools_app import gui_lines
+from cliptools_app import gui_app
+from cliptools_app import gui_tools
 from cliptools_app import text_functions  # pylint: disable=unused-import
 from cliptools_app.utils import safe_action
 
@@ -85,7 +86,7 @@ class Controller:
 
         self.data = data_struct.data_collections
         self.load_data()
-        self.app = gui_lines.GuiLinesApp()
+        self.app = gui_app.GuiLinesApp()
         self.app.register_callbacks(self.handle_keyboard_events,
                                     self.handle_focus_event,
                                     self.handle_update_request)
@@ -110,7 +111,7 @@ class Controller:
             'F': self.app.bring_to_front,
             'C': self.command_copy_selected_text,
             'V': self.command_copy_processed_text,
-            'I': gui_lines.show_info,
+            'I': gui_tools.show_info,
             'Z': self.app.show_hide_details_panel,
             'T': self.command_test
         }
@@ -235,7 +236,7 @@ class Controller:
             self.step = TEXT
             self.get_processed()  # extra processing before copying
             self.text_to_clipboard = self.processed_text
-            gui_lines.set_clip_content(self.processed_text)
+            gui_tools.set_clip_content(self.processed_text)
             self.app.minimize()
 
     def get_processed(self):
@@ -304,7 +305,7 @@ class Controller:
     def command_copy_selected_text(self):
         """Action to copy the text and minimize"""
         self.text_to_clipboard = self.selected_text
-        gui_lines.set_clip_content(self.selected_text)
+        gui_tools.set_clip_content(self.selected_text)
         self.actual = self.selected_text_data  # go back to selected text collection
         self.step = TEXT
         self.app.minimize()
@@ -312,11 +313,11 @@ class Controller:
     def command_copy_processed_text(self):
         """Action to copy the text and minimize"""
         self.text_to_clipboard = self.processed_text
-        gui_lines.set_clip_content(self.processed_text)
+        gui_tools.set_clip_content(self.processed_text)
         self.actual = self.selected_text_data  # go back to selected text collection
         self.step = TEXT
         self.app.minimize()
 
     def command_test(self):
         """Action to perform something to test & debug"""
-        gui_lines.show_error('Test message')
+        gui_tools.show_error('Test message')
