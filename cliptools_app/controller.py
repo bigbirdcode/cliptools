@@ -86,10 +86,12 @@ class Controller:
 
         self.data = data_struct.data_collections
         self.load_data()
+        # Create the app instance
+        # usually call it directly, the only exception is the app.frame
         self.app = gui_app.GuiLinesApp()
-        self.app.register_callbacks(self.handle_keyboard_events,
-                                    self.handle_focus_event,
-                                    self.handle_update_request)
+        self.app.frame.register_callbacks(self.handle_keyboard_events,
+                                          self.handle_focus_event,
+                                          self.handle_update_request)
 
         self.step = TEXTS
         self.actual = self.data.texts
@@ -100,6 +102,8 @@ class Controller:
         self.processed_text = ""
         self.text_to_clipboard = ""
         self.focus_number = {TEXTS: 0, TEXT: 0, ACTIONS: 0, ACTION: 0}
+
+        # Actual commands for key or button press are defined here
         self.keyboard_commands = {
             '0': self.app.minimize,
             'A': self.command_backward,
@@ -113,6 +117,7 @@ class Controller:
             'V': self.command_copy_processed_text,
             'I': gui_tools.show_info,
             'Z': self.app.show_hide_details_panel,
+            'M': self.app.show_hide_shell_panel,
             'T': self.command_test
         }
 
@@ -187,10 +192,10 @@ class Controller:
         title = "Select from " + self.actual.name
         self.app.frame.update_data(title,
                                    self.actual.get_names(self.selected_text),
+                                   self.focus_number[self.step],
                                    self.selected_text,
                                    self.selected_action.__doc__,
-                                   self.processed_text,
-                                   self.focus_number[self.step])
+                                   self.processed_text)
 
     ###########################################################
     # Functions to modify the states of the controller and data
@@ -303,7 +308,7 @@ class Controller:
             return  # not possible, but better to handle it
 
     def command_copy_selected_text(self):
-        """Action to copy the text and minimize"""
+        """Action to copy the selected text and minimize"""
         self.text_to_clipboard = self.selected_text
         gui_tools.set_clip_content(self.selected_text)
         self.actual = self.selected_text_data  # go back to selected text collection
@@ -311,7 +316,7 @@ class Controller:
         self.app.minimize()
 
     def command_copy_processed_text(self):
-        """Action to copy the text and minimize"""
+        """Action to copy the processed text and minimize"""
         self.text_to_clipboard = self.processed_text
         gui_tools.set_clip_content(self.processed_text)
         self.actual = self.selected_text_data  # go back to selected text collection

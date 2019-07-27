@@ -145,6 +145,8 @@ class DataCollections:
         self.actions = DataCollection("action groups")
 
 
+# data collection instance to hold all data
+# defined here at module level so decorator can refer to it
 data_collections = DataCollections()  # pylint: disable=invalid-name
 
 

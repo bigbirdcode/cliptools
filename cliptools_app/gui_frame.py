@@ -1,12 +1,10 @@
 """ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
-Module contain the GUI codes and clipboard polling function
-as part of the wx mainloop
+Main frame of the GUI App. It will contains the lines, the details and the shell panels
 """
 
 import wx
-import wx.adv
 
 from cliptools_app import commands
 from cliptools_app import gui_tools
@@ -17,7 +15,7 @@ from cliptools_app import gui_shell_panel
 
 class GuiLinesFrame(wx.Frame):
 
-    """Main window with the lines"""
+    """Main frame with the lines, details, shell"""
 
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, -1, title)
@@ -38,8 +36,8 @@ class GuiLinesFrame(wx.Frame):
         # Button events are handled by button names, generic handler is enough
         self.Bind(wx.EVT_BUTTON, self.on_button_click)
 
-        # And also use a sizer to manage the size of the panel such
-        # that it fills the frame
+        # And also use a sizer to manage the size of the panel such lines,
+        # details, shell that it fills the frame
         sizer_h = wx.BoxSizer(wx.HORIZONTAL)
         sizer_v = wx.BoxSizer(wx.VERTICAL)
 
@@ -53,12 +51,20 @@ class GuiLinesFrame(wx.Frame):
 
         sizer_h.Add(sizer_v, 1, wx.EXPAND)
 
+        # Create the shell panel
         self.shell_panel = gui_shell_panel.ShellPanel(self)
         sizer_h.Add(self.shell_panel, 1, wx.EXPAND)
 
+        # Set and fit everything
         self.SetSizer(sizer_h)
-        #self.Layout()
+        self.Layout()
         self.Fit()
+
+    def register_callbacks(self, handle_keyboard_events, handle_focus_event, handle_update_request):
+        """Callbacks coming from controller to handle communication"""
+        self.handle_keyboard_events = handle_keyboard_events
+        self.handle_focus_event = handle_focus_event
+        self.handle_update_request = handle_update_request
 
     def on_update_timer(self, event):
         """Periodic clipboard check and trigger controller checks"""
@@ -68,8 +74,8 @@ class GuiLinesFrame(wx.Frame):
 
     def on_key_press(self, event):
         """Function to respond to key press events.
-        Number key press will select the actual line
-        letters do various tasks.
+        Number key press will select the actual line.
+        Letters do various tasks.
         Actual tasks delegated to the controller"""
         cmd_txt = ""
         # Modifiers
@@ -94,14 +100,15 @@ class GuiLinesFrame(wx.Frame):
 
     def on_button_click(self, event):
         """Function to respond to button clicks.
-        Number button click will select the actual line
-        other buttons handled too.
+        Button names define the actions as keys.
+        Number button click will select the actual line.
+        Other buttons do various tasks.
         Actual tasks delegated to the controller based on button name"""
         btn_name = event.GetEventObject().GetName()
         self.handle_keyboard_events(btn_name)
         event.Skip()
 
-    def update_data(self, title, data_iter, selected_text, action_doc, processed_text, focus_number):
+    def update_data(self, title, data_iter, focus_number, selected_text, action_doc, processed_text):
         """Update the line data from the provided generator/iterator
         Beside also update details texts and line focus"""
         self.lines_panel.update_data(title, data_iter, focus_number)

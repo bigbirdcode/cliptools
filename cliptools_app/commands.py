@@ -3,14 +3,7 @@ with a lines based GUI interface
 
 Key or command line commands
 
-Commands that can be used (these are the important ones, full list is below)
-    number: select line, proceed with the selection, copy as the last action
-    0: minimize
-    B: back
-    C: copy selected text immediately
-    F: bring forward, use it in base keyboard shortcut for bringing up the app
-    U: page up
-    D: page down
+Commands that can be used are defined below
 Strings are executed as Key sequence, example: 'F1C'
 
 Key description is modifiers (if any) and basic keydown name

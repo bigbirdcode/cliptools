@@ -1,12 +1,11 @@
 """ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
-Module contain the GUI codes and clipboard polling function
-as part of the wx mainloop
+Abstract panel with a button and a sub-panel that can be shown or hidden
+can be vertical or horizontal, need a sizer and to fit in children
 """
 
 import wx
-import wx.adv
 
 
 class ShowHidePanel(wx.Panel):
@@ -21,15 +20,14 @@ class ShowHidePanel(wx.Panel):
         """
         wx.Panel.__init__(self, parent, -1)
 
-        self.parent = parent
         self.open_title = "^" if layout == wx.VERTICAL else "<"
         self.closed_title = "v" if layout == wx.VERTICAL else ">"
 
-        # Use a sizer to layout the controls, stacked vertically
+        # Use a sizer to layout the controls
         sizer = wx.BoxSizer(layout)
 
         # button to open the content
-        self.show_hide_btn = wx.Button(self, -1, self.open_title, size=(15, 15), name=key_code)
+        self.show_hide_btn = wx.Button(self, -1, self.closed_title, size=(15, 15), name=key_code)
         sizer.Add(self.show_hide_btn, 0, wx.EXPAND)
 
         # Add panel for the content
@@ -41,9 +39,8 @@ class ShowHidePanel(wx.Panel):
         self.SetSizer(sizer)
 
     def show_hide(self):
-        """Show or hide the details panel,
-        where 3 multi-line text show the selections"""
-        visible = self.show_hide_panel.IsShown()
+        """Show or hide the content panel"""
+        visible = not self.show_hide_panel.IsShown()
         self.show_hide_btn.SetLabel(self.open_title if visible else self.closed_title)
-        self.show_hide_panel.Show(not visible)
-        self.parent.Fit()
+        self.show_hide_panel.Show(visible)
+        self.GetParent().Fit()

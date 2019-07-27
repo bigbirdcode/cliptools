@@ -1,24 +1,20 @@
 """ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
-Module contain the GUI codes and clipboard polling function
-as part of the wx mainloop
+Panel with a shell for more complex actions
 """
 
 import wx
-import wx.adv
 
 from cliptools_app import gui_show_hide_panel
 
 
 class ShellPanel(gui_show_hide_panel.ShowHidePanel):
 
-    """Create the main panel with the lines and the details sub-panel"""
+    """Shell panel"""
 
     def __init__(self, parent):
         super().__init__(parent, wx.HORIZONTAL, "M")
-
-        self.parent = parent
 
         # panel for the additional shell
         shell_sizer = wx.BoxSizer(wx.VERTICAL)

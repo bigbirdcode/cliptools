@@ -1,26 +1,22 @@
 """ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
-Module contain the GUI codes and clipboard polling function
-as part of the wx mainloop
+Lines panel is the main part of the gui, with the lines containing the actual texts
 """
 
 from itertools import chain, repeat
 
 import wx
-import wx.adv
 
 from config import NUMBER_OF_ROWS
 
 
 class LinesPanel(wx.Panel):
 
-    """Create the main panel with the lines and the details sub-panel"""
+    """Create the main panel with the lines"""
 
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, -1)
-
-        self.parent = parent
 
         # List of textboxes for easier reference
         self.texts = list()
@@ -65,8 +61,7 @@ class LinesPanel(wx.Panel):
         self.Fit()
 
     def update_data(self, title, data_iter, focus_number):
-        """Update the line data from the provided generator/iterator
-        Beside also update details texts and line focus"""
+        """Update the line data from the provided generator/iterator and the focus"""
         # Title shows where are we now
         self.title_btn.SetLabel(title)
         # Lines show the actual texts

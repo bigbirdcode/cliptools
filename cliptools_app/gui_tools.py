@@ -1,15 +1,11 @@
 """ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
-Module contain the GUI codes and clipboard polling function
-as part of the wx mainloop
+Tools and utilities related to the wx module
 """
 
 import wx
 import wx.adv
-
-from cliptools_app import commands
-from cliptools_app import gui_frame
 
 
 def show_info():
