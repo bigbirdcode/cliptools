@@ -29,6 +29,7 @@ SPECIAL_KEYS = {
     wx.WXK_DOWN: "Down",
     wx.WXK_LEFT: "Left",
     wx.WXK_RIGHT: "Right",
+    wx.WXK_RETURN: "Enter"
 }
 
 # Note: if you change NUMBER_OF_ROWS value change commands accordingly
@@ -63,6 +64,7 @@ KEY_COMMANDS = {
     "V": "V",  # copy processed text immediately
     "I": "I",  # show the info dialog (also the title click)
     "Z": "Z",  # show/hide the details panel
+    "M": "M",  # open shell
     "T": "T",  # test actions
     # Aliases
     "Back": "A",
@@ -74,6 +76,7 @@ KEY_COMMANDS = {
     "Right": "D",
     "Pageup": "Q",
     "Pagedown": "E",
+    "Enter": "D",
     # Scripts
     "Ctrl-1": "1C",  # select + copy the line
     "Ctrl-2": "2C",

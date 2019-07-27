@@ -125,7 +125,7 @@ class GuiLinesApp(wx.App):
 
     def show_hide_details_panel(self):
         """Show / hide_details page"""
-        self.frame.show_hide_details_panel()
+        self.frame.details_panel.show_hide()
 
 
 ###########################################################
@@ -147,12 +147,10 @@ class GuiLinesFrame(wx.Frame):
         self.handle_focus_event = None
         self.handle_update_request = None
 
-        # List of textboxes for easier reference
-        self.texts = list()
-
-        # Colors to use for the lines
-        self.active_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_ACTIVECAPTION)
-        self.normal_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+        # Periodic timer events
+        self.update_timer = wx.Timer(self)
+        self.update_timer.Start(500)
+        self.Bind(wx.EVT_TIMER, self.on_update_timer)
 
         # Key events are binded to the frame
         self.Bind(wx.EVT_CHAR_HOOK, self.on_key_press)
@@ -160,73 +158,26 @@ class GuiLinesFrame(wx.Frame):
         # Button events are handled by button names, generic handler is enough
         self.Bind(wx.EVT_BUTTON, self.on_button_click)
 
-        # Periodic timer events
-        self.update_timer = wx.Timer(self)
-        self.update_timer.Start(500)
-        self.Bind(wx.EVT_TIMER, self.on_update_timer)
-
-        # Now create the Panel to put the other controls on.
-        panel = wx.Panel(self)
-        # Use a sizer to layout the controls, stacked vertically and with
-        sizer = wx.BoxSizer(wx.VERTICAL)
-
-        # Buttons in the top row, back, page, instructions
-        subsizer = wx.BoxSizer(wx.HORIZONTAL)
-        btn = wx.Button(panel, -1, "←", size=(25, 25), name="A")
-        subsizer.Add(btn, 0, wx.CENTER)
-        self.title_btn = wx.Button(panel, -1, "Title", size=(25, 25), name="I")
-        subsizer.Add(self.title_btn, 1, wx.CENTER)
-        btn = wx.Button(panel, -1, "▲", size=(25, 25), name="Q")
-        subsizer.Add(btn, 0, wx.CENTER)
-        btn = wx.Button(panel, -1, "▼", size=(25, 25), name="E")
-        subsizer.Add(btn, 0, wx.CENTER)
-        sizer.Add(subsizer, 0, wx.EXPAND)
-
-        # Add the lines: 1 button 1 text
-        # Use a sizer to layout the controls,
-        # Name numbering starts from 1 to match key presses
-        for i in range(NUMBER_OF_ROWS):
-            num_name = str(i+1)
-            subsizer = wx.BoxSizer(wx.HORIZONTAL)
-            btn = wx.Button(panel, -1, num_name, size=(25, 25), name=num_name)
-            subsizer.Add(btn, 0, wx.CENTER)
-            text = wx.TextCtrl(panel, -1, "", style=wx.TE_READONLY, size=(200, -1), name=num_name)
-            subsizer.Add(text, 1, wx.EXPAND)
-            sizer.Add(subsizer, 0, wx.EXPAND)
-            self.texts.append(text)
-            text.Bind(wx.EVT_LEFT_UP, self.on_mouse_click)
-            btn.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
-            text.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
-
-        # button to open the details panel
-        self.details_btn = wx.Button(panel, -1, "v", size=(15, 15), name="Z")
-        sizer.Add(self.details_btn, 0, wx.EXPAND)
-
-        # Add 3 multi-line text for the details
-        self.details_panel = wx.Panel(self)
-        details_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.selected_text = wx.TextCtrl(self.details_panel, -1, "Selected text",
-                                         size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
-        self.action_doc = wx.TextCtrl(self.details_panel, -1, "Help for the action",
-                                      size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
-        self.processed_text = wx.TextCtrl(self.details_panel, -1, "Processed text",
-                                          size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
-        details_sizer.Add(self.selected_text, 0, wx.EXPAND)
-        details_sizer.Add(self.action_doc, 0, wx.EXPAND)
-        details_sizer.Add(self.processed_text, 0, wx.EXPAND)
-        self.details_panel.SetSizer(details_sizer)
-        sizer.Add(self.details_panel, 0, wx.EXPAND)
-        self.details_panel.Hide()
-
-        # Set the layout in the panel
-        panel.SetSizer(sizer)
-        panel.Layout()
-
         # And also use a sizer to manage the size of the panel such
         # that it fills the frame
-        sizer = wx.BoxSizer()
-        sizer.Add(panel, 1, wx.EXPAND)
-        self.SetSizer(sizer)
+        sizer_h = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_v = wx.BoxSizer(wx.VERTICAL)
+
+        # Create the main panel with the lines
+        self.lines_panel = LinesPanel(self)
+        sizer_v.Add(self.lines_panel, 0, wx.EXPAND)
+
+        # Create the details panel with the multi-line texts
+        self.details_panel = DetailsPanel(self)
+        sizer_v.Add(self.details_panel, 1, wx.EXPAND)
+
+        sizer_h.Add(sizer_v, 1, wx.EXPAND)
+
+        self.shell_panel = ShellPanel(self)
+        sizer_h.Add(self.shell_panel, 1, wx.EXPAND)
+
+        self.SetSizer(sizer_h)
+        #self.Layout()
         self.Fit()
 
     def on_update_timer(self, event):
@@ -270,28 +221,65 @@ class GuiLinesFrame(wx.Frame):
         self.handle_keyboard_events(btn_name)
         event.Skip()
 
-    def on_mouse_click(self, event):
-        """Mouse clicks on the text lines.
-        Task delegated to controller based on name"""
-        obj_name = event.GetEventObject().GetName()
-        try:
-            if int(obj_name) > 0:
-                self.handle_keyboard_events(obj_name)
-        except ValueError:
-            pass  # it was not a line, but something else
-        event.Skip()
-
-    def on_enter(self, event):
-        """Mouse-over handler, delegating tasks to focus handler"""
-        obj_name = event.GetEventObject().GetName()
-        try:
-            if int(obj_name) > 0:
-                self.handle_focus_event(obj_name)
-        except ValueError:
-            pass  # it was not a line, but something else
-        event.Skip()
-
     def update_data(self, title, data_iter, selected_text, action_doc, processed_text, focus_number):
+        """Update the line data from the provided generator/iterator
+        Beside also update details texts and line focus"""
+        self.lines_panel.update_data(title, data_iter, focus_number)
+        self.details_panel.update_data(selected_text, action_doc, processed_text)
+
+
+class LinesPanel(wx.Panel):
+
+    """Create the main panel with the lines and the details sub-panel"""
+
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent, -1)
+
+        self.parent = parent
+
+        # List of textboxes for easier reference
+        self.texts = list()
+
+        # Colors to use for the lines
+        self.active_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_ACTIVECAPTION)
+        self.normal_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+
+        # Use a sizer to layout the controls, stacked vertically
+        # lines and the details panel are the main parts of it
+        sizer = wx.BoxSizer(wx.VERTICAL)
+
+        # Buttons in the top row, back, page, instructions
+        subsizer = wx.BoxSizer(wx.HORIZONTAL)
+        btn = wx.Button(self, -1, "←", size=(25, 25), name="A")
+        subsizer.Add(btn, 0, wx.CENTER)
+        self.title_btn = wx.Button(self, -1, "Title", size=(25, 25), name="I")
+        subsizer.Add(self.title_btn, 1, wx.CENTER)
+        btn = wx.Button(self, -1, "▲", size=(25, 25), name="Q")
+        subsizer.Add(btn, 0, wx.CENTER)
+        btn = wx.Button(self, -1, "▼", size=(25, 25), name="E")
+        subsizer.Add(btn, 0, wx.CENTER)
+        sizer.Add(subsizer, 0, wx.EXPAND)
+
+        # Add the lines: 1 button 1 text
+        # Use a sizer to layout the controls,
+        # Name numbering starts from 1 to match key presses
+        for i in range(NUMBER_OF_ROWS):
+            num_name = str(i+1)
+            subsizer = wx.BoxSizer(wx.HORIZONTAL)
+            btn = wx.Button(self, -1, num_name, size=(25, 25), name=num_name)
+            subsizer.Add(btn, 0, wx.CENTER)
+            text = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY, size=(200, -1), name=num_name)
+            subsizer.Add(text, 1, wx.EXPAND)
+            sizer.Add(subsizer, 0, wx.EXPAND)
+            self.texts.append(text)
+            text.Bind(wx.EVT_LEFT_UP, self.on_mouse_click)
+            btn.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
+            text.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
+
+        self.SetSizer(sizer)
+        self.Fit()
+
+    def update_data(self, title, data_iter, focus_number):
         """Update the line data from the provided generator/iterator
         Beside also update details texts and line focus"""
         # Title shows where are we now
@@ -309,6 +297,77 @@ class GuiLinesFrame(wx.Frame):
                 entry.SetFocus()
             else:
                 entry.SetBackgroundColour(self.normal_color)
+
+    def on_mouse_click(self, event):
+        """Mouse clicks on the text lines.
+        Task delegated to controller based on name"""
+        obj_name = event.GetEventObject().GetName()
+        try:
+            if int(obj_name) > 0:
+                self.parent.handle_keyboard_events(obj_name)
+        except ValueError:
+            pass  # it was not a line, but something else
+        event.Skip()
+
+    def on_enter(self, event):
+        """Mouse-over handler, delegating tasks to focus handler"""
+        obj_name = event.GetEventObject().GetName()
+        try:
+            if int(obj_name) > 0:
+                self.parent.handle_focus_event(obj_name)
+        except ValueError:
+            pass  # it was not a line, but something else
+        event.Skip()
+
+
+
+class DetailsPanel(wx.Panel):
+
+    """Create the main panel with the lines and the details sub-panel"""
+
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent, -1)
+
+        self.parent = parent
+
+        # Use a sizer to layout the controls, stacked vertically
+        sizer = wx.BoxSizer(wx.VERTICAL)
+
+        # button to open the details self
+        self.details_btn = wx.Button(self, -1, "v", size=(15, 15), name="Z")
+        sizer.Add(self.details_btn, 0, wx.EXPAND)
+
+        # Add 3 multi-line text for the details
+        self.details_panel = wx.Panel(self)
+        details_sizer = wx.BoxSizer(wx.VERTICAL)
+        self.selected_text = wx.TextCtrl(self.details_panel, -1, "Selected text",
+                                         size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.action_doc = wx.TextCtrl(self.details_panel, -1, "Help for the action",
+                                      size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.processed_text = wx.TextCtrl(self.details_panel, -1, "Processed text",
+                                          size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        details_sizer.Add(self.selected_text, 1, wx.EXPAND)
+        details_sizer.Add(self.action_doc, 1, wx.EXPAND)
+        details_sizer.Add(self.processed_text, 1, wx.EXPAND)
+        self.details_panel.SetSizer(details_sizer)
+        sizer.Add(self.details_panel, 1, wx.EXPAND)
+        self.details_panel.Hide()
+
+        # Set the layout in the panel and return it
+        self.SetSizer(sizer)
+        self.Fit()
+
+    def show_hide(self):
+        """Show or hide the details panel,
+        where 3 multi-line text show the selections"""
+        visible = self.details_panel.IsShown()
+        self.details_btn.SetLabel('v' if visible else '^')
+        self.details_panel.Show(not visible)
+        self.parent.Fit()
+
+    def update_data(self, selected_text, action_doc, processed_text):
+        """Update the line data from the provided generator/iterator
+        Beside also update details texts and line focus"""
         # Details show the selected items longer
         self.selected_text.Clear()
         self.selected_text.AppendText(selected_text)
@@ -320,10 +379,33 @@ class GuiLinesFrame(wx.Frame):
         self.processed_text.AppendText(processed_text)
         self.processed_text.SetInsertionPoint(0)
 
-    def show_hide_details_panel(self):
-        """Show or hide the details panel,
-        where 3 multi-line text show the selections"""
-        visible = self.details_panel.IsShown()
-        self.details_btn.SetLabel('v' if visible else '^')
-        self.details_panel.Show(not visible)
+
+class ShellPanel(wx.Panel):
+
+    """Create the main panel with the lines and the details sub-panel"""
+
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent, -1)
+
+        self.parent = parent
+
+        # Use a sizer to layout the controls
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        # button to open the shell panel
+        self.shell_btn = wx.Button(self, -1, ">", size=(15, 30), name="M")
+        sizer.Add(self.shell_btn, 0, wx.EXPAND)
+
+        # panel for the additional shell
+        self.shell_panel = wx.Panel(self)
+        shell_sizer = wx.BoxSizer(wx.VERTICAL)
+        tmp_btn = wx.Button(self.shell_panel, -1, "Shell", size=(30, 30), name="T")
+        shell_sizer.Add(tmp_btn, 1, wx.EXPAND)
+        self.shell_panel.SetSizer(shell_sizer)
+
+        sizer.Add(self.shell_panel, 1, wx.EXPAND)
+        #self.shell_panel.Hide()
+
+        # Set the layout in the panel and return it
+        self.SetSizer(sizer)
         self.Fit()

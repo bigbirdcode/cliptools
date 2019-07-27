@@ -137,7 +137,7 @@ class DataCollections:
     self.clip is a special data, it will store clipboard texts"""
 
     def __init__(self):
-        self.clip = TextData("clips", "")
+        self.clip = TextData("clips", [""])
 
         self.texts = DataCollection("text groups")
         self.texts.add_content(self.clip)

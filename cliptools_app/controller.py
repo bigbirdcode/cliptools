@@ -105,8 +105,8 @@ class Controller:
             'D': self.command_forward,
             'W': self.command_focus_up,
             'S': self.command_focus_down,
-            'E': self.actual.page_down,
-            'Q': self.actual.page_up,
+            'E': self.command_page_down,
+            'Q': self.command_page_up,
             'F': self.app.bring_to_front,
             'C': self.command_copy_selected_text,
             'V': self.command_copy_processed_text,
@@ -276,6 +276,14 @@ class Controller:
             self.get_focus(number)
         except IndexError:
             return  # not a valid number, return
+
+    def command_page_up(self):
+        """Action to page up in the list"""
+        self.actual.page_up()
+
+    def command_page_down(self):
+        """Action to page up in the list"""
+        self.actual.page_down()
 
     def command_backward(self):
         """Go backward, go to the previous state"""
