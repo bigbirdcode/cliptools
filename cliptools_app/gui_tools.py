@@ -14,7 +14,7 @@ def show_info():
         license_text = f.read()
     info = wx.adv.AboutDialogInfo()
     info.Name = "ClipTools"
-    info.Version = "0.2"
+    info.Version = "0.3"
     info.Copyright = "(c) 2019-2019 BigBirdCode"
     info.Description = str(
         "\"ClipTools\" is a clipboard manager with text processing tools.\n\n"

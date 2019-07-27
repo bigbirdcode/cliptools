@@ -46,3 +46,15 @@ class DetailsPanel(gui_show_hide_panel.ShowHidePanel):
         self.processed_text.Clear()
         self.processed_text.AppendText(processed_text)
         self.processed_text.SetInsertionPoint(0)
+
+    def on_editor_set_focus(self, event):
+        """Override: add color,
+        Called when editor gets the focus"""
+        self.editor.SetBackgroundColour(self.GetParent().active_color)
+        super().on_editor_set_focus(event)
+
+    def on_editor_done(self, event):
+        """Override: add color,
+        Called when user is done with the edit, i.e. pressed escape or focus lost"""
+        self.editor.SetBackgroundColour(self.GetParent().normal_color)
+        super().on_editor_done(event)

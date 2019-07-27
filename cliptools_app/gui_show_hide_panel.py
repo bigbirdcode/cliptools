@@ -91,28 +91,27 @@ class ShowHidePanel(wx.Panel):
     def on_editor_set_focus(self, event):
         """Called when editor gets the focus"""
         self.GetParent().edit_mode = True
-        self.editor.SetBackgroundColour(self.GetParent().active_color)
         event.Skip()
 
     def on_editor_kill_focus(self, event):
-        """Called when editor gets the focus"""
-        self.GetParent().edit_mode = False
-        self.editor.SetBackgroundColour(self.GetParent().normal_color)
-        text = self.editor.GetValue()
-        self.GetParent().handle_new_text(text)
+        """Called when editor lost the focus
+        Default focus lost is done editing. You can override."""
+        self.on_editor_done(event)
         event.Skip()
 
     def on_key_press(self, event):
         """Keyboard event handler to check for Esc press, to exit from edit mode"""
         key_code = event.GetKeyCode()
         if key_code == wx.WXK_ESCAPE:
-            # Safe solution, select the show-hide button
             # do not propagate the esc key press
-            self.show_hide_btn.SetFocus()
+            self.on_editor_done(event)
         else:
             event.Skip()
 
     def on_editor_done(self, event):
-        """Called when user is done with the edit, i.e. pressed enter"""
+        """Called when user is done with the edit, i.e. pressed escape or focus lost"""
+        self.GetParent().edit_mode = False
+        text = self.editor.GetValue()
+        self.GetParent().handle_new_text(text)
+        # Safe solution, select the show-hide button
         self.show_hide_btn.SetFocus()
-        event.Skip()

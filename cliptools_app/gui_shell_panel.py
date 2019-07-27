@@ -5,6 +5,7 @@ Panel with a shell for more complex actions
 """
 
 import wx
+import wx.py.shell
 
 from cliptools_app import gui_show_hide_panel
 
@@ -20,11 +21,26 @@ class ShellPanel(gui_show_hide_panel.ShowHidePanel):
         """Override: Add a shell
         panels are given, only sizer is needed"""
         shell_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.selected_text = wx.TextCtrl(self.show_hide_panel, -1, "Selected text",
-                                         size=(500, 500), style=wx.TE_MULTILINE)
-        shell_sizer.Add(self.selected_text, 1, wx.EXPAND)
+        self.shell = wx.py.shell.Shell(self.show_hide_panel, -1, size=(500, 500))
+        shell_sizer.Add(self.shell, 1, wx.EXPAND)
         return shell_sizer
 
     def set_editor(self):
         """Override: set the selected text as the editor"""
-        return self.selected_text
+        return self.shell
+
+    def on_editor_kill_focus(self, event):
+        """Override: shell lost focus on auto complete, so need to skip this.
+        THIS IS A LIMITATION!
+        Called when editor gets the focus
+        """
+        event.Skip()
+
+    def on_editor_done(self, event):
+        """Override: copy result not possible!!!
+        Use selection then Ctrl+C in the shell window.
+        Cliptools will collect these texts too.
+        Called when user is done with the edit, i.e. pressed escape or focus lost"""
+        self.GetParent().edit_mode = False
+        # Safe solution, select the show-hide button
+        self.show_hide_btn.SetFocus()
