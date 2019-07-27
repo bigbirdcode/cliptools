@@ -31,6 +31,7 @@ class GuiLinesFrame(wx.Frame):
         self.Bind(wx.EVT_TIMER, self.on_update_timer)
 
         # Key events are binded to the frame
+        self.edit_mode = False
         self.Bind(wx.EVT_CHAR_HOOK, self.on_key_press)
 
         # Button events are handled by button names, generic handler is enough
@@ -47,9 +48,9 @@ class GuiLinesFrame(wx.Frame):
 
         # Create the details panel with the multi-line texts
         self.details_panel = gui_details_panel.DetailsPanel(self)
-        sizer_v.Add(self.details_panel, 1, wx.EXPAND)
+        sizer_v.Add(self.details_panel, 0, wx.EXPAND)
 
-        sizer_h.Add(sizer_v, 1, wx.EXPAND)
+        sizer_h.Add(sizer_v, 0, wx.EXPAND)
 
         # Create the shell panel
         self.shell_panel = gui_shell_panel.ShellPanel(self)
@@ -77,6 +78,9 @@ class GuiLinesFrame(wx.Frame):
         Number key press will select the actual line.
         Letters do various tasks.
         Actual tasks delegated to the controller"""
+        if self.edit_mode:
+            event.Skip()
+            return
         cmd_txt = ""
         # Modifiers
         for mod, text in [

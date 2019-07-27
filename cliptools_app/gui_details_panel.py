@@ -16,11 +16,12 @@ class DetailsPanel(gui_show_hide_panel.ShowHidePanel):
     def __init__(self, parent):
         super().__init__(parent, wx.VERTICAL, "Z")
 
-        # Add 3 multi-line text for the details
-        # panels are given, only sizer is needed
+    def create_content_and_sizer(self):
+        """Override: Add 3 multi-line text for the details
+        panels are given, only sizer is needed"""
         details_sizer = wx.BoxSizer(wx.VERTICAL)
         self.selected_text = wx.TextCtrl(self.show_hide_panel, -1, "Selected text",
-                                         size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
+                                         size=(200, 100), style=wx.TE_MULTILINE)
         self.action_doc = wx.TextCtrl(self.show_hide_panel, -1, "Help for the action",
                                       size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
         self.processed_text = wx.TextCtrl(self.show_hide_panel, -1, "Processed text",
@@ -28,10 +29,11 @@ class DetailsPanel(gui_show_hide_panel.ShowHidePanel):
         details_sizer.Add(self.selected_text, 1, wx.EXPAND)
         details_sizer.Add(self.action_doc, 1, wx.EXPAND)
         details_sizer.Add(self.processed_text, 1, wx.EXPAND)
-        self.show_hide_panel.SetSizer(details_sizer)
+        return details_sizer
 
-        # Set the layout in the panel
-        self.Fit()
+    def set_editor(self):
+        """Override: set the selected text as the editor"""
+        return self.selected_text
 
     def update_data(self, selected_text, action_doc, processed_text):
         """Update the details texts"""

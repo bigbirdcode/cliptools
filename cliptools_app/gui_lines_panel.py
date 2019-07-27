@@ -84,7 +84,7 @@ class LinesPanel(wx.Panel):
         obj_name = event.GetEventObject().GetName()
         try:
             if int(obj_name) > 0:
-                self.parent.handle_keyboard_events(obj_name)
+                self.GetParent().handle_keyboard_events(obj_name)
         except ValueError:
             pass  # it was not a line, but something else
         event.Skip()
@@ -94,7 +94,7 @@ class LinesPanel(wx.Panel):
         obj_name = event.GetEventObject().GetName()
         try:
             if int(obj_name) > 0:
-                self.parent.handle_focus_event(obj_name)
+                self.GetParent().handle_focus_event(obj_name)
         except ValueError:
             pass  # it was not a line, but something else
         event.Skip()

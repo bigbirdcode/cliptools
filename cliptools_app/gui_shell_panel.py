@@ -16,10 +16,15 @@ class ShellPanel(gui_show_hide_panel.ShowHidePanel):
     def __init__(self, parent):
         super().__init__(parent, wx.HORIZONTAL, "M")
 
-        # panel for the additional shell
+    def create_content_and_sizer(self):
+        """Override: Add a shell
+        panels are given, only sizer is needed"""
         shell_sizer = wx.BoxSizer(wx.VERTICAL)
-        tmp_btn = wx.Button(self.show_hide_panel, -1, "Shell", size=(30, 30), name="T")
-        shell_sizer.Add(tmp_btn, 1, wx.EXPAND)
-        self.show_hide_panel.SetSizer(shell_sizer)
+        self.selected_text = wx.TextCtrl(self.show_hide_panel, -1, "Selected text",
+                                         size=(500, 500), style=wx.TE_MULTILINE)
+        shell_sizer.Add(self.selected_text, 1, wx.EXPAND)
+        return shell_sizer
 
-        self.Fit()
+    def set_editor(self):
+        """Override: set the selected text as the editor"""
+        return self.selected_text
