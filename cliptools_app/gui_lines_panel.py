@@ -21,10 +21,6 @@ class LinesPanel(wx.Panel):
         # List of textboxes for easier reference
         self.texts = list()
 
-        # Colors to use for the lines
-        self.active_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_ACTIVECAPTION)
-        self.normal_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
-
         # Use a sizer to layout the controls, stacked vertically
         # lines and the details panel are the main parts of it
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -73,10 +69,12 @@ class LinesPanel(wx.Panel):
             entry.AppendText(text)
             entry.SetInsertionPoint(0)
             if i == focus_number:
-                entry.SetBackgroundColour(self.active_color)
-                entry.SetFocus()
+                entry.SetBackgroundColour(self.GetParent().active_color)
+                # exception is needed, don't take the focus from the editor
+                if not self.GetParent().edit_mode:
+                    entry.SetFocus()
             else:
-                entry.SetBackgroundColour(self.normal_color)
+                entry.SetBackgroundColour(self.GetParent().normal_color)
 
     def on_mouse_click(self, event):
         """Mouse clicks on the text lines.

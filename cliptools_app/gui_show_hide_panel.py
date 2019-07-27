@@ -7,6 +7,8 @@ can be vertical or horizontal, need a sizer and to fit in children
 
 import wx
 
+from cliptools_app import gui_tools
+
 
 class ShowHidePanel(wx.Panel):
 
@@ -48,6 +50,7 @@ class ShowHidePanel(wx.Panel):
         if self.editor:
             self.editor.Bind(wx.EVT_SET_FOCUS, self.on_editor_set_focus)
             self.editor.Bind(wx.EVT_KILL_FOCUS, self.on_editor_kill_focus)
+            self.editor.Bind(wx.EVT_CHAR_HOOK, self.on_key_press)
 
         # Set the sizer, child objects should call fit
         self.SetSizer(sizer)
@@ -73,16 +76,43 @@ class ShowHidePanel(wx.Panel):
         visible = not self.show_hide_panel.IsShown()
         self.show_hide_btn.SetLabel(self.open_title if visible else self.closed_title)
         self.show_hide_panel.Show(visible)
+        self.GetParent().Fit()
+
+    def show(self):
+        """Show the content panel"""
+        if not self.show_hide_panel.IsShown():
+            self.show_hide()
+
+    def focus_editor(self):
+        """Set the focus on the editor"""
         if self.editor:
             self.editor.SetFocus()
-        self.GetParent().Fit()
 
     def on_editor_set_focus(self, event):
         """Called when editor gets the focus"""
         self.GetParent().edit_mode = True
+        self.editor.SetBackgroundColour(self.GetParent().active_color)
         event.Skip()
 
     def on_editor_kill_focus(self, event):
         """Called when editor gets the focus"""
         self.GetParent().edit_mode = False
+        self.editor.SetBackgroundColour(self.GetParent().normal_color)
+        text = self.editor.GetValue()
+        self.GetParent().handle_new_text(text)
+        event.Skip()
+
+    def on_key_press(self, event):
+        """Keyboard event handler to check for Esc press, to exit from edit mode"""
+        key_code = event.GetKeyCode()
+        if key_code == wx.WXK_ESCAPE:
+            # Safe solution, select the show-hide button
+            # do not propagate the esc key press
+            self.show_hide_btn.SetFocus()
+        else:
+            event.Skip()
+
+    def on_editor_done(self, event):
+        """Called when user is done with the edit, i.e. pressed enter"""
+        self.show_hide_btn.SetFocus()
         event.Skip()

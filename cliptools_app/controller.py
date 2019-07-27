@@ -91,6 +91,7 @@ class Controller:
         self.app = gui_app.GuiLinesApp()
         self.app.frame.register_callbacks(self.handle_keyboard_events,
                                           self.handle_focus_event,
+                                          self.handle_new_text,
                                           self.handle_update_request)
 
         self.step = TEXTS
@@ -117,7 +118,9 @@ class Controller:
             'V': self.command_copy_processed_text,
             'I': gui_tools.show_info,
             'Z': self.app.show_hide_details_panel,
+            'X': self.app.focus_details_panel,
             'M': self.app.show_hide_shell_panel,
+            'N': self.app.focus_shell_panel,
             'T': self.command_test
         }
 
@@ -166,6 +169,17 @@ class Controller:
         except (ValueError, IndexError):
             return  # not a valid number, return
         self.update_app()
+
+    def handle_new_text(self, text):
+        """Function to handle texts changed by the user
+        User can change the selected text or work with the shell"""
+        if text and text != self.selected_text:
+            self.data.clip.add_content(text)
+            self.selected_text = text
+            self.get_processed()
+            #self.text_to_clipboard = text
+            #gui_tools.set_clip_content(text)
+            self.update_app()
 
     def handle_update_request(self, text):
         """Function to handle texts coming from the clipboard and checking delegation requests

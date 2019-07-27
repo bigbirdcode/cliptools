@@ -52,9 +52,10 @@ class BaseData:
 
     def get_content(self, number):
         """Get the content taking into account the location"""
-        if number >= NUMBER_OF_ROWS:
-            raise IndexError()
-        return self.contents[self.location + number]
+        # Check if line is valid, list index will check content
+        if 0 <= number < NUMBER_OF_ROWS:
+            return self.contents[self.location + number]
+        raise IndexError()
 
     def get_name(self, number, text=""):  # pylint: disable=unused-argument
         """Get the name to represent the content, default is short version

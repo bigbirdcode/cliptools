@@ -35,6 +35,16 @@ class GuiLinesApp(wx.App):
         """Show / hide details panel"""
         self.frame.details_panel.show_hide()
 
+    def focus_details_panel(self):
+        """Focus the editor field of details panel, show it if needed"""
+        self.frame.details_panel.show()
+        self.frame.details_panel.focus_editor()
+
     def show_hide_shell_panel(self):
         """Show / hide shell panel"""
         self.frame.shell_panel.show_hide()
+
+    def focus_shell_panel(self):
+        """Focus the shell, show it if needed"""
+        self.frame.shell_panel.show()
+        self.frame.shell_panel.focus_editor()

@@ -23,7 +23,12 @@ class GuiLinesFrame(wx.Frame):
         # Callbacks that will be registered by the Controller
         self.handle_keyboard_events = None
         self.handle_focus_event = None
+        self.handle_new_text = None
         self.handle_update_request = None
+
+        # Colors to use for the lines
+        self.active_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_ACTIVECAPTION)
+        self.normal_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
 
         # Periodic timer events
         self.update_timer = wx.Timer(self)
@@ -61,10 +66,15 @@ class GuiLinesFrame(wx.Frame):
         self.Layout()
         self.Fit()
 
-    def register_callbacks(self, handle_keyboard_events, handle_focus_event, handle_update_request):
+    def register_callbacks(self,
+                           handle_keyboard_events,
+                           handle_focus_event,
+                           handle_new_text,
+                           handle_update_request):
         """Callbacks coming from controller to handle communication"""
         self.handle_keyboard_events = handle_keyboard_events
         self.handle_focus_event = handle_focus_event
+        self.handle_new_text = handle_new_text
         self.handle_update_request = handle_update_request
 
     def on_update_timer(self, event):
@@ -79,8 +89,10 @@ class GuiLinesFrame(wx.Frame):
         Letters do various tasks.
         Actual tasks delegated to the controller"""
         if self.edit_mode:
+            # editor will handle the key-press
             event.Skip()
             return
+        # Build command string based on modifiers and name
         cmd_txt = ""
         # Modifiers
         for mod, text in [
@@ -96,11 +108,16 @@ class GuiLinesFrame(wx.Frame):
         if key_name is None:
             key_name = chr(key_code)
         cmd_txt += key_name
-        # Command sequence string based on modifiers and name
-        cmd_seq = commands.KEY_COMMANDS.get(cmd_txt, "")
+        # Check whether it is a valid key
+        try:
+            cmd_seq = commands.KEY_COMMANDS[cmd_txt]
+        except KeyError:
+            # cannot handle
+            event.Skip()
+            return
         for cmd_item in cmd_seq:
             self.handle_keyboard_events(cmd_item)
-        event.Skip()
+        #event.Skip()
 
     def on_button_click(self, event):
         """Function to respond to button clicks.
