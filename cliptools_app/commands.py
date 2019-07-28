@@ -3,14 +3,7 @@ with a lines based GUI interface
 
 Key or command line commands
 
-Commands that can be used (these are the important ones, full list is below)
-    number: select line, proceed with the selection, copy as the last action
-    0: minimize
-    B: back
-    C: copy selected text immediately
-    F: bring forward, use it in base keyboard shortcut for bringing up the app
-    U: page up
-    D: page down
+Commands that can be used are defined below
 Strings are executed as Key sequence, example: 'F1C'
 
 Key description is modifiers (if any) and basic keydown name
@@ -29,6 +22,7 @@ SPECIAL_KEYS = {
     wx.WXK_DOWN: "Down",
     wx.WXK_LEFT: "Left",
     wx.WXK_RIGHT: "Right",
+    wx.WXK_RETURN: "Enter"
 }
 
 # Note: if you change NUMBER_OF_ROWS value change commands accordingly
@@ -63,6 +57,9 @@ KEY_COMMANDS = {
     "V": "V",  # copy processed text immediately
     "I": "I",  # show the info dialog (also the title click)
     "Z": "Z",  # show/hide the details panel
+    "X": "X",  # focus the text edit field in the details panel
+    "M": "M",  # open shell
+    "N": "N",  # focus the shell
     "T": "T",  # test actions
     # Aliases
     "Back": "A",
@@ -74,6 +71,7 @@ KEY_COMMANDS = {
     "Right": "D",
     "Pageup": "Q",
     "Pagedown": "E",
+    "Enter": "D",
     # Scripts
     "Ctrl-1": "1C",  # select + copy the line
     "Ctrl-2": "2C",

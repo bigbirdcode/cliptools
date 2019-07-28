@@ -52,9 +52,10 @@ class BaseData:
 
     def get_content(self, number):
         """Get the content taking into account the location"""
-        if number >= NUMBER_OF_ROWS:
-            raise IndexError()
-        return self.contents[self.location + number]
+        # Check if line is valid, list index will check content
+        if 0 <= number < NUMBER_OF_ROWS:
+            return self.contents[self.location + number]
+        raise IndexError()
 
     def get_name(self, number, text=""):  # pylint: disable=unused-argument
         """Get the name to represent the content, default is short version
@@ -137,7 +138,7 @@ class DataCollections:
     self.clip is a special data, it will store clipboard texts"""
 
     def __init__(self):
-        self.clip = TextData("clips", "")
+        self.clip = TextData("clips", [""])
 
         self.texts = DataCollection("text groups")
         self.texts.add_content(self.clip)
@@ -145,6 +146,8 @@ class DataCollections:
         self.actions = DataCollection("action groups")
 
 
+# data collection instance to hold all data
+# defined here at module level so decorator can refer to it
 data_collections = DataCollections()  # pylint: disable=invalid-name
 
 

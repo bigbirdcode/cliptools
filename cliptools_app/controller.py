@@ -11,7 +11,8 @@ from threading import Thread
 
 from cliptools_app import commands
 from cliptools_app import data_struct
-from cliptools_app import gui_lines
+from cliptools_app import gui_app
+from cliptools_app import gui_tools
 from cliptools_app import text_functions  # pylint: disable=unused-import
 from cliptools_app.utils import safe_action
 
@@ -85,10 +86,13 @@ class Controller:
 
         self.data = data_struct.data_collections
         self.load_data()
-        self.app = gui_lines.GuiLinesApp()
-        self.app.register_callbacks(self.handle_keyboard_events,
-                                    self.handle_focus_event,
-                                    self.handle_update_request)
+        # Create the app instance
+        # usually call it directly, the only exception is the app.frame
+        self.app = gui_app.GuiLinesApp()
+        self.app.frame.register_callbacks(self.handle_keyboard_events,
+                                          self.handle_focus_event,
+                                          self.handle_new_text,
+                                          self.handle_update_request)
 
         self.step = TEXTS
         self.actual = self.data.texts
@@ -99,19 +103,24 @@ class Controller:
         self.processed_text = ""
         self.text_to_clipboard = ""
         self.focus_number = {TEXTS: 0, TEXT: 0, ACTIONS: 0, ACTION: 0}
+
+        # Actual commands for key or button press are defined here
         self.keyboard_commands = {
             '0': self.app.minimize,
             'A': self.command_backward,
             'D': self.command_forward,
             'W': self.command_focus_up,
             'S': self.command_focus_down,
-            'E': self.actual.page_down,
-            'Q': self.actual.page_up,
+            'E': self.command_page_down,
+            'Q': self.command_page_up,
             'F': self.app.bring_to_front,
             'C': self.command_copy_selected_text,
             'V': self.command_copy_processed_text,
-            'I': gui_lines.show_info,
+            'I': gui_tools.show_info,
             'Z': self.app.show_hide_details_panel,
+            'X': self.app.focus_details_panel,
+            'M': self.app.show_hide_shell_panel,
+            'N': self.app.focus_shell_panel,
             'T': self.command_test
         }
 
@@ -161,6 +170,17 @@ class Controller:
             return  # not a valid number, return
         self.update_app()
 
+    def handle_new_text(self, text):
+        """Function to handle texts changed by the user
+        User can change the selected text or work with the shell"""
+        if text and text != self.selected_text:
+            self.data.clip.add_content(text)
+            self.selected_text = text
+            self.get_processed()
+            #self.text_to_clipboard = text
+            #gui_tools.set_clip_content(text)
+            self.update_app()
+
     def handle_update_request(self, text):
         """Function to handle texts coming from the clipboard and checking delegation requests
         Right now GUI mainloop is checking periodically the clipboard.
@@ -186,10 +206,10 @@ class Controller:
         title = "Select from " + self.actual.name
         self.app.frame.update_data(title,
                                    self.actual.get_names(self.selected_text),
+                                   self.focus_number[self.step],
                                    self.selected_text,
                                    self.selected_action.__doc__,
-                                   self.processed_text,
-                                   self.focus_number[self.step])
+                                   self.processed_text)
 
     ###########################################################
     # Functions to modify the states of the controller and data
@@ -235,7 +255,7 @@ class Controller:
             self.step = TEXT
             self.get_processed()  # extra processing before copying
             self.text_to_clipboard = self.processed_text
-            gui_lines.set_clip_content(self.processed_text)
+            gui_tools.set_clip_content(self.processed_text)
             self.app.minimize()
 
     def get_processed(self):
@@ -277,6 +297,14 @@ class Controller:
         except IndexError:
             return  # not a valid number, return
 
+    def command_page_up(self):
+        """Action to page up in the list"""
+        self.actual.page_up()
+
+    def command_page_down(self):
+        """Action to page up in the list"""
+        self.actual.page_down()
+
     def command_backward(self):
         """Go backward, go to the previous state"""
         try:
@@ -294,21 +322,21 @@ class Controller:
             return  # not possible, but better to handle it
 
     def command_copy_selected_text(self):
-        """Action to copy the text and minimize"""
+        """Action to copy the selected text and minimize"""
         self.text_to_clipboard = self.selected_text
-        gui_lines.set_clip_content(self.selected_text)
+        gui_tools.set_clip_content(self.selected_text)
         self.actual = self.selected_text_data  # go back to selected text collection
         self.step = TEXT
         self.app.minimize()
 
     def command_copy_processed_text(self):
-        """Action to copy the text and minimize"""
+        """Action to copy the processed text and minimize"""
         self.text_to_clipboard = self.processed_text
-        gui_lines.set_clip_content(self.processed_text)
+        gui_tools.set_clip_content(self.processed_text)
         self.actual = self.selected_text_data  # go back to selected text collection
         self.step = TEXT
         self.app.minimize()
 
     def command_test(self):
         """Action to perform something to test & debug"""
-        gui_lines.show_error('Test message')
+        gui_tools.show_error('Test message')
