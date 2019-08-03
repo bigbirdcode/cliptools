@@ -22,7 +22,8 @@ class BaseData:
             self.contents = list(contents)
         else:
             self.contents = list()
-        self.location = 0
+        self.location = 0  # used for page up-down, where are we
+        self.focus = 0     # what is in focus, from 0 to NUMBER_OF_ROWS - 1
 
     def add_content(self, content, end=True):
         """Add an item to the contents and handle size, location"""
@@ -34,21 +35,52 @@ class BaseData:
             self.contents.insert(0, content)
             if len(self.contents) > MAX_NUMBER_OF_DATA:
                 del self.contents[-1]
-            if self.location != 0 and self.location < len(self.contents) - 1:
+            if self.location != 0:
+                # if first data is on page, keep it, data moves
+                # else page will keep the same data
                 self.location += 1
+            if 0 < self.focus < NUMBER_OF_ROWS - 1:
+                # if first data is in focus, keep it, data moves
+                # else focus will keep the same data, until possible
+                self.focus += 1
 
     def page_up(self):
         """Page up in the contents"""
-        self.location -= NUMBER_OF_ROWS
-        if self.location < 0:
+        if self.location == 0:
+            # first page, focus moves
+            self.focus = 0
+        elif self.location < NUMBER_OF_ROWS:
             self.location = 0
+        else:
+            self.location -= NUMBER_OF_ROWS
 
     def page_down(self):
         """Page down in the contents"""
-        self.location += NUMBER_OF_ROWS
-        if self.location >= len(self.contents):
-            # Paging not possible, set it back
-            self.location -= NUMBER_OF_ROWS
+        if self.location >= len(self.contents) - 1 - NUMBER_OF_ROWS:
+            # at the end, focus last element
+            self.focus = len(self.contents) - self.location - 1
+        else:
+            self.location += NUMBER_OF_ROWS
+            if self.location + self.focus > len(self.contents):
+                self.focus = len(self.contents) - self.location - 1
+
+    def set_focus(self, number):
+        """Set the focus to the given line, check available data"""
+        if 0 <= number < NUMBER_OF_ROWS and self.location + number < len(self.contents):
+            # no change in focus if out of range
+            self.focus = number
+
+    def focus_down(self):
+        """Move the focus down, i.e. increase, check handled by set_focus"""
+        self.set_focus(self.focus + 1)
+
+    def focus_up(self):
+        """Move the focus up, i.e. decrease, check handled by set_focus"""
+        self.set_focus(self.focus - 1)
+
+    def get_focused_content(self):
+        """Get the content that has the focus"""
+        return self.get_content(self.focus)
 
     def get_content(self, number):
         """Get the content taking into account the location"""
