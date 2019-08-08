@@ -41,7 +41,8 @@ class BaseData:
                 self.location += 1
             if 0 < self.focus < NUMBER_OF_ROWS - 1:
                 # if first data is in focus, keep it, data moves
-                # else focus will keep the same data, until possible
+                # else focus will keep the same data
+                # NUMBER_OF_ROWS - 1 cannot increase any more
                 self.focus += 1
 
     def page_up(self):
@@ -95,13 +96,13 @@ class BaseData:
         return limit_text(self.get_content(number))
 
     def get_names(self, text=""):
-        """Iterator, returning the context
-        text can be used for actions, not used for simple texts"""
+        """Iterator, returning the context. Return empty strings if not enough data.
+        Parameter text can be used for actions, not used for simple texts"""
         for number in range(NUMBER_OF_ROWS):
             try:
                 yield self.get_name(number, text)
             except IndexError:
-                break
+                yield ""
 
 
 class TextData(BaseData):

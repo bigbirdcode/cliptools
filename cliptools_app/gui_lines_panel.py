@@ -61,9 +61,7 @@ class LinesPanel(wx.Panel):
         # Title shows where are we now
         self.title_btn.SetLabel(title)
         # Lines show the actual texts
-        for i, text in enumerate(chain(data_iter, repeat(""))):
-            if i >= NUMBER_OF_ROWS:
-                break
+        for i, text in enumerate(data_iter):
             entry = self.texts[i]
             entry.Clear()
             entry.AppendText(text)
