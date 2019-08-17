@@ -57,12 +57,12 @@ class BaseData:
 
     def page_down(self):
         """Page down in the contents"""
-        if self.location >= len(self.contents) - 1 - NUMBER_OF_ROWS:
+        if self.location >= len(self.contents) - NUMBER_OF_ROWS:
             # at the end, focus last element
             self.focus = len(self.contents) - self.location - 1
         else:
             self.location += NUMBER_OF_ROWS
-            if self.location + self.focus > len(self.contents):
+            if self.location + self.focus >= len(self.contents):
                 self.focus = len(self.contents) - self.location - 1
 
     def set_focus(self, number):

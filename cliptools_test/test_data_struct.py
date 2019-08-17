@@ -157,8 +157,8 @@ class TestBaseData(unittest.TestCase):
 
     def test_base_get_names(self):
         sut = data_struct.BaseData('SUT', ['0', '1'])
-        self.assertEqual(list(sut.get_names()), ['0', '1'])
-        self.assertEqual(list(sut.get_names('optional text')), ['0', '1'])
+        self.assertEqual(list(sut.get_names()), ['0', '1', '', '', ''])
+        self.assertEqual(list(sut.get_names('optional text')), ['0', '1', '', '', ''])
 
     def test_base_get_names_long(self):
         sut = data_struct.BaseData('SUT', text_range(6))
