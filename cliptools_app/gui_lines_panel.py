@@ -4,8 +4,6 @@ with a lines based GUI interface
 Lines panel is the main part of the gui, with the lines containing the actual texts
 """
 
-from itertools import chain, repeat
-
 import wx
 
 import config
