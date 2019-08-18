@@ -11,6 +11,8 @@ Yes, there are many clipboard managers, but I had this idea, how to make it simp
 
 Programming language: Python and wxPython.
 
+Test suite: Pytest
+
 Inspiration
 -----------
 

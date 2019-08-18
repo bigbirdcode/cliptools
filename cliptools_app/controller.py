@@ -9,14 +9,14 @@ import queue
 import socket
 from threading import Thread
 
+import config
 from cliptools_app import commands
 from cliptools_app import data_struct
 from cliptools_app import gui_app
 from cliptools_app import gui_tools
 from cliptools_app import text_functions  # pylint: disable=unused-import
-from cliptools_app.utils import safe_action
+from cliptools_app import utils
 
-from config import SERVER_SUCCESS
 
 # states of the app
 TEXTS = 1
@@ -49,7 +49,7 @@ def _handle_socket_request(client_socket, server_queue) -> None:
     for item in args:
         server_queue.put(item)
     # respond OK
-    client_socket.sendall(SERVER_SUCCESS.encode(encoding="utf-8"))
+    client_socket.sendall(config.SERVER_SUCCESS.encode(encoding="utf-8"))
     client_socket.shutdown(socket.SHUT_WR)
 
 
@@ -102,7 +102,6 @@ class Controller:
         self.selected_action = text_functions.paste_paste
         self.processed_text = ""
         self.text_to_clipboard = ""
-        self.focus_number = {TEXTS: 0, TEXT: 0, ACTIONS: 0, ACTION: 0}
 
         # Actual commands for key or button press are defined here
         self.keyboard_commands = {
@@ -150,7 +149,7 @@ class Controller:
             number = int(key) - 1
             try:
                 self.get_next(number)
-                self.get_focus(self.focus_number[self.step])
+                self.get_focus()
             except IndexError:
                 return  # not valid number, just ignore
         else:
@@ -165,7 +164,8 @@ class Controller:
         it is a helper for the user to show the details of selected items"""
         try:
             number = int(num_text) - 1
-            self.get_focus(number)
+            self.actual.set_focus(number)
+            self.get_focus()
         except (ValueError, IndexError):
             return  # not a valid number, return
         self.update_app()
@@ -206,7 +206,7 @@ class Controller:
         title = "Select from " + self.actual.name
         self.app.frame.update_data(title,
                                    self.actual.get_names(self.selected_text),
-                                   self.focus_number[self.step],
+                                   self.actual.focus,
                                    self.selected_text,
                                    self.selected_action.__doc__,
                                    self.processed_text)
@@ -215,12 +215,9 @@ class Controller:
     # Functions to modify the states of the controller and data
     ###########################################################
 
-    def get_focus(self, number):
-        """Set the focus to the n-th item
-        If number is out of possible range this will raise IndexError
-        It will also process the selected texts"""
-        item = self.actual.get_content(number)
-        self.focus_number[self.step] = number
+    def get_focus(self):
+        """Get the selected text and/or processed text based on the focus"""
+        item = self.actual.get_focused_content()
         if self.step == TEXTS:
             pass
         elif self.step == TEXT:
@@ -236,7 +233,7 @@ class Controller:
         If number is out of possible range this will raise IndexError
         Usually get_focus should follow this function to finish the updates"""
         item = self.actual.get_content(number)
-        self.focus_number[self.step] = number
+        self.actual.set_focus(number)
         if self.step == TEXTS:
             self.selected_text_data = item
             self.actual = self.selected_text_data
@@ -260,7 +257,7 @@ class Controller:
 
     def get_processed(self):
         """Update processed text"""
-        self.processed_text = safe_action(self.selected_text, self.selected_action)
+        self.processed_text = utils.safe_action(self.selected_text, self.selected_action)
 
     def get_prev(self):
         """Step back one state
@@ -283,41 +280,37 @@ class Controller:
 
     def command_focus_down(self):
         """Action to select the next item, move the focus down"""
-        number = self.focus_number[self.step] + 1
-        try:
-            self.get_focus(number)
-        except IndexError:
-            return  # not a valid number, return
+        self.actual.focus_down()
+        self.get_focus()
 
     def command_focus_up(self):
         """Action to select the previous item, move the focus up"""
-        number = self.focus_number[self.step] - 1
-        try:
-            self.get_focus(number)
-        except IndexError:
-            return  # not a valid number, return
+        self.actual.focus_up()
+        self.get_focus()
 
     def command_page_up(self):
         """Action to page up in the list"""
         self.actual.page_up()
+        self.get_focus()
 
     def command_page_down(self):
         """Action to page up in the list"""
         self.actual.page_down()
+        self.get_focus()
 
     def command_backward(self):
         """Go backward, go to the previous state"""
         try:
             self.get_prev()
-            self.get_focus(self.focus_number[self.step])
+            self.get_focus()
         except IndexError:
             return  # not possible, but better to handle it
 
     def command_forward(self):
         """Go forward, use the actual selection and go to the next state"""
         try:
-            self.get_next(self.focus_number[self.step])
-            self.get_focus(self.focus_number[self.step])
+            self.get_next(self.actual.focus)
+            self.get_focus()
         except IndexError:
             return  # not possible, but better to handle it
 

@@ -8,7 +8,7 @@ from itertools import chain, repeat
 
 import wx
 
-from config import NUMBER_OF_ROWS
+import config
 
 
 class LinesPanel(wx.Panel):
@@ -40,7 +40,7 @@ class LinesPanel(wx.Panel):
         # Add the lines: 1 button 1 text
         # Use a sizer to layout the controls,
         # Name numbering starts from 1 to match key presses
-        for i in range(NUMBER_OF_ROWS):
+        for i in range(config.NUMBER_OF_ROWS):
             num_name = str(i+1)
             subsizer = wx.BoxSizer(wx.HORIZONTAL)
             btn = wx.Button(self, -1, num_name, size=(25, 25), name=num_name)
@@ -61,9 +61,7 @@ class LinesPanel(wx.Panel):
         # Title shows where are we now
         self.title_btn.SetLabel(title)
         # Lines show the actual texts
-        for i, text in enumerate(chain(data_iter, repeat(""))):
-            if i >= NUMBER_OF_ROWS:
-                break
+        for i, text in enumerate(data_iter):
             entry = self.texts[i]
             entry.Clear()
             entry.AppendText(text)

@@ -6,7 +6,7 @@ Definition of data structures used to store text and action data
 
 from functools import wraps
 
-from config import MAX_NUMBER_OF_DATA, NUMBER_OF_ROWS
+import config
 from cliptools_app.utils import limit_text, safe_action
 
 
@@ -22,38 +22,72 @@ class BaseData:
             self.contents = list(contents)
         else:
             self.contents = list()
-        self.location = 0
+        self.location = 0  # used for page up-down, where are we
+        self.focus = 0     # what is in focus, from 0 to config.NUMBER_OF_ROWS - 1
 
     def add_content(self, content, end=True):
         """Add an item to the contents and handle size, location"""
         if end:
             self.contents.append(content)
-            if len(self.contents) > MAX_NUMBER_OF_DATA:
+            if len(self.contents) > config.MAX_NUMBER_OF_DATA:
                 del self.contents[0]
         else:
             self.contents.insert(0, content)
-            if len(self.contents) > MAX_NUMBER_OF_DATA:
+            if len(self.contents) > config.MAX_NUMBER_OF_DATA:
                 del self.contents[-1]
-            if self.location != 0 and self.location < len(self.contents) - 1:
+            if self.location == 0:
+                # if first data is on page, keep it, data moves
+                if 0 < self.focus < config.NUMBER_OF_ROWS - 1:
+                    # if first data is in focus, keep it, data moves
+                    # else focus will keep the same data
+                    # config.NUMBER_OF_ROWS - 1 cannot increase any more
+                    self.focus += 1
+            else:
+                # else page will keep the same data, collecting before existing
                 self.location += 1
 
     def page_up(self):
         """Page up in the contents"""
-        self.location -= NUMBER_OF_ROWS
-        if self.location < 0:
+        if self.location == 0:
+            # first page, focus moves
+            self.focus = 0
+        elif self.location < config.NUMBER_OF_ROWS:
             self.location = 0
+        else:
+            self.location -= config.NUMBER_OF_ROWS
 
     def page_down(self):
         """Page down in the contents"""
-        self.location += NUMBER_OF_ROWS
-        if self.location >= len(self.contents):
-            # Paging not possible, set it back
-            self.location -= NUMBER_OF_ROWS
+        if self.location >= len(self.contents) - config.NUMBER_OF_ROWS:
+            # at the end, focus last element
+            self.focus = len(self.contents) - self.location - 1
+        else:
+            self.location += config.NUMBER_OF_ROWS
+            if self.location + self.focus >= len(self.contents):
+                self.focus = len(self.contents) - self.location - 1
+
+    def set_focus(self, number):
+        """Set the focus to the given line, check available data"""
+        if 0 <= number < config.NUMBER_OF_ROWS and self.location + number < len(self.contents):
+            # no change in focus if out of range
+            self.focus = number
+
+    def focus_down(self):
+        """Move the focus down, i.e. increase, check handled by set_focus"""
+        self.set_focus(self.focus + 1)
+
+    def focus_up(self):
+        """Move the focus up, i.e. decrease, check handled by set_focus"""
+        self.set_focus(self.focus - 1)
+
+    def get_focused_content(self):
+        """Get the content that has the focus"""
+        return self.get_content(self.focus)
 
     def get_content(self, number):
         """Get the content taking into account the location"""
         # Check if line is valid, list index will check content
-        if 0 <= number < NUMBER_OF_ROWS:
+        if 0 <= number < config.NUMBER_OF_ROWS:
             return self.contents[self.location + number]
         raise IndexError()
 
@@ -63,13 +97,13 @@ class BaseData:
         return limit_text(self.get_content(number))
 
     def get_names(self, text=""):
-        """Iterator, returning the context
-        text can be used for actions, not used for simple texts"""
-        for number in range(NUMBER_OF_ROWS):
+        """Iterator, returning the context. Return empty strings if not enough data.
+        Parameter text can be used for actions, not used for simple texts"""
+        for number in range(config.NUMBER_OF_ROWS):
             try:
                 yield self.get_name(number, text)
             except IndexError:
-                break
+                yield ""
 
 
 class TextData(BaseData):
