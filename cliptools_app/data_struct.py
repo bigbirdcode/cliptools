@@ -6,7 +6,7 @@ Definition of data structures used to store text and action data
 
 from functools import wraps
 
-from config import MAX_NUMBER_OF_DATA, NUMBER_OF_ROWS
+import config
 from cliptools_app.utils import limit_text, safe_action
 
 
@@ -23,26 +23,26 @@ class BaseData:
         else:
             self.contents = list()
         self.location = 0  # used for page up-down, where are we
-        self.focus = 0     # what is in focus, from 0 to NUMBER_OF_ROWS - 1
+        self.focus = 0     # what is in focus, from 0 to config.NUMBER_OF_ROWS - 1
 
     def add_content(self, content, end=True):
         """Add an item to the contents and handle size, location"""
         if end:
             self.contents.append(content)
-            if len(self.contents) > MAX_NUMBER_OF_DATA:
+            if len(self.contents) > config.MAX_NUMBER_OF_DATA:
                 del self.contents[0]
         else:
             self.contents.insert(0, content)
-            if len(self.contents) > MAX_NUMBER_OF_DATA:
+            if len(self.contents) > config.MAX_NUMBER_OF_DATA:
                 del self.contents[-1]
             if self.location != 0:
                 # if first data is on page, keep it, data moves
                 # else page will keep the same data
                 self.location += 1
-            if 0 < self.focus < NUMBER_OF_ROWS - 1:
+            if 0 < self.focus < config.NUMBER_OF_ROWS - 1:
                 # if first data is in focus, keep it, data moves
                 # else focus will keep the same data
-                # NUMBER_OF_ROWS - 1 cannot increase any more
+                # config.NUMBER_OF_ROWS - 1 cannot increase any more
                 self.focus += 1
 
     def page_up(self):
@@ -50,24 +50,24 @@ class BaseData:
         if self.location == 0:
             # first page, focus moves
             self.focus = 0
-        elif self.location < NUMBER_OF_ROWS:
+        elif self.location < config.NUMBER_OF_ROWS:
             self.location = 0
         else:
-            self.location -= NUMBER_OF_ROWS
+            self.location -= config.NUMBER_OF_ROWS
 
     def page_down(self):
         """Page down in the contents"""
-        if self.location >= len(self.contents) - NUMBER_OF_ROWS:
+        if self.location >= len(self.contents) - config.NUMBER_OF_ROWS:
             # at the end, focus last element
             self.focus = len(self.contents) - self.location - 1
         else:
-            self.location += NUMBER_OF_ROWS
+            self.location += config.NUMBER_OF_ROWS
             if self.location + self.focus >= len(self.contents):
                 self.focus = len(self.contents) - self.location - 1
 
     def set_focus(self, number):
         """Set the focus to the given line, check available data"""
-        if 0 <= number < NUMBER_OF_ROWS and self.location + number < len(self.contents):
+        if 0 <= number < config.NUMBER_OF_ROWS and self.location + number < len(self.contents):
             # no change in focus if out of range
             self.focus = number
 
@@ -86,7 +86,7 @@ class BaseData:
     def get_content(self, number):
         """Get the content taking into account the location"""
         # Check if line is valid, list index will check content
-        if 0 <= number < NUMBER_OF_ROWS:
+        if 0 <= number < config.NUMBER_OF_ROWS:
             return self.contents[self.location + number]
         raise IndexError()
 
@@ -98,7 +98,7 @@ class BaseData:
     def get_names(self, text=""):
         """Iterator, returning the context. Return empty strings if not enough data.
         Parameter text can be used for actions, not used for simple texts"""
-        for number in range(NUMBER_OF_ROWS):
+        for number in range(config.NUMBER_OF_ROWS):
             try:
                 yield self.get_name(number, text)
             except IndexError:

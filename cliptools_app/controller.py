@@ -9,14 +9,14 @@ import queue
 import socket
 from threading import Thread
 
+import config
 from cliptools_app import commands
 from cliptools_app import data_struct
 from cliptools_app import gui_app
 from cliptools_app import gui_tools
 from cliptools_app import text_functions  # pylint: disable=unused-import
-from cliptools_app.utils import safe_action
+from cliptools_app import utils
 
-from config import SERVER_SUCCESS
 
 # states of the app
 TEXTS = 1
@@ -49,7 +49,7 @@ def _handle_socket_request(client_socket, server_queue) -> None:
     for item in args:
         server_queue.put(item)
     # respond OK
-    client_socket.sendall(SERVER_SUCCESS.encode(encoding="utf-8"))
+    client_socket.sendall(config.SERVER_SUCCESS.encode(encoding="utf-8"))
     client_socket.shutdown(socket.SHUT_WR)
 
 
@@ -257,7 +257,7 @@ class Controller:
 
     def get_processed(self):
         """Update processed text"""
-        self.processed_text = safe_action(self.selected_text, self.selected_action)
+        self.processed_text = utils.safe_action(self.selected_text, self.selected_action)
 
     def get_prev(self):
         """Step back one state

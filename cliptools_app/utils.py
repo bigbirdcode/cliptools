@@ -4,18 +4,20 @@ with a lines based GUI interface
 Utility functions
 """
 
-from config import STRING_LENTH
+import config
 
 
-def limit_text(text, length=STRING_LENTH):
+def limit_text(text, length=None):
     """Limit the text to display in the GUI
     result will be like: 'start of text [...]'"""
+    if length is None:
+        length = config.STRING_LENTH
     text = text.strip()
+    text = text.replace("\n", " ")
     if len(text) <= length:
         result = text
     else:
-        result = text[:STRING_LENTH-5] + "[...]"
-    result = result.replace("\n", " ")
+        result = text[:length-5] + "[...]"
     return result
 
 
