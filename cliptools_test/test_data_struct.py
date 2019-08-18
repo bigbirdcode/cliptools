@@ -43,7 +43,7 @@ def test_base_init_get_name(testconfig):
     sut = data_struct.BaseData('SUT', ['0', 'Long\nand\nboring\ntext'])
     assert sut.get_name(0) == '0'
     assert sut.get_name(1) == 'Long [...]'
-    assert sut.get_name(0 == 'optional text', '0')
+    assert sut.get_name(0, 'optional text') == '0'
 
 def test_base_add_content_end(testconfig):
     sut = data_struct.BaseData('SUT', ['0', '1'])
@@ -161,6 +161,92 @@ def test_base_get_names_long(testconfig):
     sut = data_struct.BaseData('SUT', text_range(6))
     assert list(sut.get_names()) == ['0', '1', '2', '3', '4']
 
+def test_base_get_focus(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(6))
+    assert sut.get_focused_content() == '0'
+
+def test_base_set_and_get_focus(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(6))
+    sut.set_focus(2)
+    assert sut.get_focused_content() == '2'
+    sut.set_focus(5)  # out of view, no change
+    assert sut.get_focused_content() == '2'
+
+def test_base_focus_up(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(6))
+    sut.set_focus(2)
+    sut.focus_up()
+    assert sut.get_focused_content() == '1'
+
+def test_base_focus_down(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(6))
+    sut.set_focus(2)
+    sut.focus_down()
+    assert sut.get_focused_content() == '3'
+
+def test_base_focus_page_down_short(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(6))
+    sut.set_focus(2)
+    sut.page_down()
+    assert sut.get_focused_content() == '5'
+
+def test_base_focus_page_down_long(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(10))
+    sut.set_focus(2)
+    sut.page_down()
+    assert sut.get_focused_content() == '7'
+    sut.page_down()
+    assert sut.get_focused_content() == '9'
+
+def test_base_focus_page_up_simple(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(10))
+    sut.set_focus(2)
+    sut.page_down()
+    sut.page_up()
+    assert sut.get_focused_content() == '2'
+
+def test_base_focus_page_up_short(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(6))
+    sut.set_focus(2)
+    sut.page_up()
+    assert sut.get_focused_content() == '0'
+
+def test_base_focus_with_add_end(testconfig):
+    sut = data_struct.BaseData('SUT', ['0', '1'])
+    sut.add_content('2')
+    assert sut.get_focused_content() == '0'
+    sut.set_focus(2)
+    sut.add_content('3')
+    assert sut.get_focused_content() == '2'
+
+def test_base_focus_with_add_begin(testconfig):
+    sut = data_struct.BaseData('SUT', ['0', '1'])
+    assert sut.get_focused_content() == '0'
+    sut.add_content('-1', end=False)  # focus stay at index 0
+    assert sut.get_focused_content() == '-1'
+    sut.set_focus(2)  # focus is at index 2, that is '1'
+    sut.add_content('-2', end=False)  # focus moves with item
+    assert sut.get_focused_content() == '1'
+
+def test_base_focus_with_add_begin_full(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(6))
+    sut.set_focus(4)  # focus is at last possible index
+    sut.add_content('-1', end=False)
+    assert sut.get_focused_content() == '3'
+
+def test_base_focus_with_add_begin_page_down(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(6))
+    sut.page_down()
+    sut.add_content('-1', end=False)  # no change
+    assert sut.get_focused_content() == '5'
+
+def test_base_focus_with_add_begin_page_down_full(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(10))
+    sut.set_focus(4)  # focus is at last possible index
+    sut.page_down()
+    sut.add_content('-1', end=False)  # no change
+    assert sut.get_focused_content() == '9'
+
 
 ###########################################################
 # Test the class TextData
@@ -191,12 +277,18 @@ def test_action_add_duplicate_content(testconfig):
 def test_action_get_name(testconfig):
     sut = data_struct.ActionData('SUT')
     sut.add_content(('0', str.lower))
-    assert sut.get_name(0 == 'FOo', '0: foo')
+    assert sut.get_name(0, 'FOo') == '0: foo'
 
 def test_action_get_name_wrong(testconfig):
     sut = data_struct.ActionData('SUT')
     sut.add_content(('0', lambda x: str(1 / float(x))))
-    assert sut.get_name(0 == '0', '0: ERROR[...]')
+    assert sut.get_name(0, '0') == '0: ERROR[...]'
+
+def test_action_get_names(testconfig):
+    sut = data_struct.ActionData('SUT')
+    sut.add_content(('0', str.lower))
+    sut.add_content(('1', str.upper))
+    assert list(sut.get_names('FOo')) == ['0: foo', '1: FOO', '', '', '']
 
 
 ###########################################################
@@ -247,4 +339,4 @@ def test_register_function(testconfig):
     with pytest.raises(RuntimeError):
         data_struct.register_function(groupname_funcname)
     actions = data_struct.data_collections.actions.get_content_by_name('groupname')
-    assert actions.get_name(0 == 'T', 'funcname: T')
+    assert actions.get_name(0, 'T') == 'funcname: T'

@@ -35,15 +35,16 @@ class BaseData:
             self.contents.insert(0, content)
             if len(self.contents) > config.MAX_NUMBER_OF_DATA:
                 del self.contents[-1]
-            if self.location != 0:
+            if self.location == 0:
                 # if first data is on page, keep it, data moves
-                # else page will keep the same data
+                if 0 < self.focus < config.NUMBER_OF_ROWS - 1:
+                    # if first data is in focus, keep it, data moves
+                    # else focus will keep the same data
+                    # config.NUMBER_OF_ROWS - 1 cannot increase any more
+                    self.focus += 1
+            else:
+                # else page will keep the same data, collecting before existing
                 self.location += 1
-            if 0 < self.focus < config.NUMBER_OF_ROWS - 1:
-                # if first data is in focus, keep it, data moves
-                # else focus will keep the same data
-                # config.NUMBER_OF_ROWS - 1 cannot increase any more
-                self.focus += 1
 
     def page_up(self):
         """Page up in the contents"""
