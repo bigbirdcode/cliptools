@@ -6,18 +6,11 @@ Test
 Utility functions
 """
 
-# pragma pylint: disable=missing-docstring
+# pragma pylint: disable=missing-docstring,unused-argument
 
 import pytest
 
-import config
 from cliptools_app import utils
-
-@pytest.fixture
-def testconfig():
-    config.STRING_LENTH = 10
-    config.NUMBER_OF_ROWS = 5
-    config.MAX_NUMBER_OF_DATA = 20
 
 
 def action_good(text):

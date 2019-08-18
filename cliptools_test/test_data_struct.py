@@ -6,21 +6,14 @@ Test
 Definition of data structures used to store text and action data
 """
 
-# pragma pylint: disable=missing-docstring
+# pragma pylint: disable=missing-docstring,unused-argument
 
 import pytest
 
-import config
 from cliptools_app import data_struct
 
 def text_range(number):
     return [str(i) for i in range(number)]
-
-@pytest.fixture
-def testconfig():
-    config.STRING_LENTH = 10
-    config.NUMBER_OF_ROWS = 5
-    config.MAX_NUMBER_OF_DATA = 20
 
 
 ###########################################################
