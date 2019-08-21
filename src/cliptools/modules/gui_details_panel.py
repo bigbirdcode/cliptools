@@ -6,7 +6,7 @@ Details panel are an addition, it will show the selected text, function help and
 
 import wx
 
-from cliptools_app import gui_show_hide_panel
+from . import gui_show_hide_panel
 
 class DetailsPanel(gui_show_hide_panel.ShowHidePanel):
 

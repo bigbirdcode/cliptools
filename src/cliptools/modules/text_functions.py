@@ -11,8 +11,8 @@ Note: using doctest to show the usage of all functions.
 
 import os
 
-from cliptools_app.data_struct import register_function
-from cliptools_app import sanitize
+from .data_struct import register_function
+from . import sanitize
 
 
 TRANSLATE_TO_EN = str.maketrans("éÉáÁűŰőŐúÚöÖüÜóÓíÍ'\"+!%/=()", ";:'\"\\|[{]}0)-_=+`~!@#$%^&*(")
@@ -159,7 +159,7 @@ def filename_double(text):
 def filename_content(text):
     r"""Get the context of a full filename given as text
 
-    >>> filename_content('cliptools_test/test_text.txt')
+    >>> filename_content('tests/test_text.txt')
     'This is a test file.\n'
     """
     if not os.path.isfile(text):

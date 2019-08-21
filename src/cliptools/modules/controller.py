@@ -9,13 +9,13 @@ import queue
 import socket
 from threading import Thread
 
-import config
-from cliptools_app import commands
-from cliptools_app import data_struct
-from cliptools_app import gui_app
-from cliptools_app import gui_tools
-from cliptools_app import text_functions  # pylint: disable=unused-import
-from cliptools_app import utils
+from .. import config
+from . import commands
+from . import data_struct
+from . import gui_app
+from . import gui_tools
+from . import text_functions  # pylint: disable=unused-import
+from . import utils
 
 
 # states of the app
@@ -132,7 +132,7 @@ class Controller:
     def load_data(self):
         """Load text and action data from the current implementation"""
         try:
-            import text_data
+            from .. import text_data
         except ImportError:
             return
         for name, data in text_data.DEFINED_TEXTS.items():

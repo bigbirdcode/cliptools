@@ -4,13 +4,15 @@ with a lines based GUI interface
 Main frame of the GUI App. It will contains the lines, the details and the shell panels
 """
 
+import os
+
 import wx
 
-from cliptools_app import commands
-from cliptools_app import gui_tools
-from cliptools_app import gui_lines_panel
-from cliptools_app import gui_details_panel
-from cliptools_app import gui_shell_panel
+from . import commands
+from . import gui_tools
+from . import gui_lines_panel
+from . import gui_details_panel
+from . import gui_shell_panel
 
 
 class GuiLinesFrame(wx.Frame):
@@ -29,6 +31,11 @@ class GuiLinesFrame(wx.Frame):
         # Colors to use for the lines
         self.active_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_ACTIVECAPTION)
         self.normal_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+
+        # Icon
+        iconfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'resources', 'cliptools.png')
+        icon = wx.Icon(iconfile, wx.BITMAP_TYPE_ANY)
+        self.SetIcon(icon)
 
         # Periodic timer events
         self.update_timer = wx.Timer(self)

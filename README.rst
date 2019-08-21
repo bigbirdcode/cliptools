@@ -25,9 +25,14 @@ And of course Python and wxPython are great!
 Concept
 -------
 
-App is listening to keyboard and collecting texts copied to the clipboard. It can also have collection of other useful texts. Beside texts, it has some actions, like uppercase, lowercase, backslash duplication, getting file content, etc.
+ClipTools clipboard manager is collecting texts and files (as texts) copied to the clipboard.
+It shows these collected texts to the user in a GUI interface with lines for the texts.
+It can also have collection of other useful texts, that the user can define in a Python file.
+Beside texts, it has some text processing actions, like uppercase, lowercase, backslash duplication, getting file content, etc.User can apply these actions on the selected texts and copy the result back to the clipboard.
 
 Assign a keyboard shortcut to the ClipTools app. So you can bring it up just by a key combination. Then you can easily select a group of texts, the actual text, the processing action just by the number keys from 1 to 9. Finally the processed text result is copied to the clipboard and the app is minimized again.
+
+In addition minimal text editing is possible and a Python shell is provided for quick manipulation of texts. But these are basic functionalities, I suggest separate editors for real text editing. But with the clipboard transfers ClipTools can be a great help.
 
 Here is a screenshot, it is so simple:
 

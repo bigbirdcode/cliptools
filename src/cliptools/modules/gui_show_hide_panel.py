@@ -7,8 +7,6 @@ can be vertical or horizontal, need a sizer and to fit in children
 
 import wx
 
-from cliptools_app import gui_tools
-
 
 class ShowHidePanel(wx.Panel):
 
@@ -46,7 +44,7 @@ class ShowHidePanel(wx.Panel):
         self.show_hide_panel.Hide()
 
         # Define editor in the children to enable focus and keyboard input for them
-        self.editor = self.set_editor()
+        self.editor = self.set_editor()  # pylint: disable=assignment-from-none
         if self.editor:
             self.editor.Bind(wx.EVT_SET_FOCUS, self.on_editor_set_focus)
             self.editor.Bind(wx.EVT_KILL_FOCUS, self.on_editor_kill_focus)
@@ -111,6 +109,7 @@ class ShowHidePanel(wx.Panel):
     def on_editor_done(self, event):
         """Called when user is done with the edit, i.e. pressed escape or focus lost"""
         self.GetParent().edit_mode = False
+        # No None-check needed, we have the editor if we are here
         text = self.editor.GetValue()
         self.GetParent().handle_new_text(text)
         # Safe solution, select the show-hide button

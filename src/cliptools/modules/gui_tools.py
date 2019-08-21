@@ -10,11 +10,11 @@ import wx.adv
 
 def show_info():
     """Display program info"""
-    with open("LICENSE") as f:
+    with open("LICENSE.txt") as f:
         license_text = f.read()
     info = wx.adv.AboutDialogInfo()
-    info.Name = "ClipTools"
-    info.Version = "0.3"
+    info.Name = "cliptools"
+    info.Version = "1.0"
     info.Copyright = "(c) 2019-2019 BigBirdCode"
     info.Description = str(
         "\"ClipTools\" is a clipboard manager with text processing tools.\n\n"
