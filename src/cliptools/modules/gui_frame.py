@@ -6,11 +6,11 @@ Main frame of the GUI App. It will contains the lines, the details and the shell
 
 import wx
 
-from cliptools_app import commands
-from cliptools_app import gui_tools
-from cliptools_app import gui_lines_panel
-from cliptools_app import gui_details_panel
-from cliptools_app import gui_shell_panel
+from . import commands
+from . import gui_tools
+from . import gui_lines_panel
+from . import gui_details_panel
+from . import gui_shell_panel
 
 
 class GuiLinesFrame(wx.Frame):

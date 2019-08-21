@@ -6,8 +6,8 @@ Definition of data structures used to store text and action data
 
 from functools import wraps
 
-import config
-from cliptools_app.utils import limit_text, safe_action
+from .. import config
+from . import utils
 
 
 class BaseData:
@@ -94,7 +94,7 @@ class BaseData:
     def get_name(self, number, text=""):  # pylint: disable=unused-argument
         """Get the name to represent the content, default is short version
         text can be used for actions, not used for simple texts"""
-        return limit_text(self.get_content(number))
+        return utils.limit_text(self.get_content(number))
 
     def get_names(self, text=""):
         """Iterator, returning the context. Return empty strings if not enough data.
@@ -143,8 +143,8 @@ class ActionData(BaseData):
         """Get the name to represent the content, here applying the action"""
         content = super().get_content(number)
         name, action = content
-        result = safe_action(text, action)
-        result = limit_text(result)
+        result = utils.safe_action(text, action)
+        result = utils.limit_text(result)
         result = "{}: {}".format(name, result)
         return result
 

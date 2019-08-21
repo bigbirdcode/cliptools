@@ -10,7 +10,7 @@ Utility functions
 
 import pytest
 
-from cliptools_app import utils
+from cliptools.modules import utils
 
 
 def action_good(text):

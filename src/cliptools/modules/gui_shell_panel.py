@@ -7,8 +7,8 @@ Panel with a shell for more complex actions
 import wx
 import wx.py.shell
 
-from cliptools_app import data_struct
-from cliptools_app import gui_show_hide_panel
+from . import data_struct
+from . import gui_show_hide_panel
 
 
 INTRO = '''*** Cliptools Shell ***

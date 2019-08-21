@@ -4,7 +4,7 @@ with a lines based GUI interface
 Utility functions
 """
 
-import config
+from .. import config
 
 
 def limit_text(text, length=None):

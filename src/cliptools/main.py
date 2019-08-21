@@ -5,10 +5,28 @@ By BigBird who like to Code
 https://github.com/bigbirdcode/cliptools
 """
 
+import os
 import socket
 import sys
 
-from config import PORT, SERVER_SUCCESS
+
+# This file is the starting point of the Cliptools app.
+# Python has 2 types of calls:
+#  - direct call, like: python main.py
+#  - package call, like: python -m cliptools
+# Below quite ugly code will handle that
+if __name__ == '__main__' and __package__ is None:
+    # This was a direct call
+    # package information is missing, and relative imports will fail
+    # this hack imitates the package behavior and add outer dir to the path
+    __package__ = "cliptools"  # pylint: disable=redefined-builtin
+    cliptools_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if cliptools_dir not in sys.path:
+        sys.path.insert(0, cliptools_dir)
+    del cliptools_dir # clean up global name space
+
+# Now relative import is ok
+from . import config  # pylint: disable=wrong-import-position
 
 
 def _try_delegate_to_existing_instance(args):
@@ -19,7 +37,7 @@ def _try_delegate_to_existing_instance(args):
     """
     try:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.bind(("localhost", PORT))
+        server_socket.bind(("localhost", config.PORT))
         server_socket.listen(10)
         # we were able to create server socket (ie. app was not running)
         # Let's use the socket in the app
@@ -38,17 +56,17 @@ def _delegate_to_existing_instance(args):
     Function taken from Thonny, Python IDE for beginners at https://thonny.org/
     """
     data = repr(args).encode(encoding="utf_8")
-    sock = socket.create_connection(("localhost", PORT))
+    sock = socket.create_connection(("localhost", config.PORT))
     sock.sendall(data)
     sock.shutdown(socket.SHUT_WR)
     response = bytes([])
-    while len(response) < len(SERVER_SUCCESS):
+    while len(response) < len(config.SERVER_SUCCESS):
         new_data = sock.recv(2)
         if not new_data:
             break
         else:
             response += new_data
-    return response.decode("UTF-8") == SERVER_SUCCESS
+    return response.decode("UTF-8") == config.SERVER_SUCCESS
 
 
 def main():
@@ -73,7 +91,7 @@ def main():
         sys.exit(1)
 
     # So far ok, time to load the entire app and start working
-    from cliptools_app import controller
+    from .modules import controller
 
     control = controller.Controller(server_socket, sys.argv[1:])
     control.start()

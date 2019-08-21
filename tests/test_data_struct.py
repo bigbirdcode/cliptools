@@ -10,7 +10,8 @@ Definition of data structures used to store text and action data
 
 import pytest
 
-from cliptools_app import data_struct
+from cliptools.modules import data_struct
+
 
 def text_range(number):
     return [str(i) for i in range(number)]

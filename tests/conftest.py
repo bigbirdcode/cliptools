@@ -6,7 +6,7 @@ Global fixtures for Pytest
 
 import pytest
 
-import config
+from cliptools import config
 
 @pytest.fixture
 def testconfig():
