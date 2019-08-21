@@ -45,6 +45,9 @@ setup(
     packages=find_packages("src"),
     package_dir={"": "src"},
     include_package_data=True,
+    package_data={
+        'cliptools': ['resources/cliptools.png'],
+    },
     python_requires=">=3.5",
     install_requires=[
         "wxPython>=4.0",
