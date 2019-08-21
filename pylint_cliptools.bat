@@ -1,1 +1,1 @@
-pylint src\cliptools tests
+pylint src/cliptools tests

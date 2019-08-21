@@ -22,9 +22,6 @@ manipulation of texts. But these are basic functionalities, I suggest separate e
 for real text editing. But with the clipboard transfers ClipTools can be a great help.
 """
 
-with io.open("README.rst", "rt", encoding="utf8") as f:
-    readme = f.read()
-
 setup(
     name="cliptools",
     version="1.0",
@@ -33,20 +30,17 @@ setup(
     author="BigBirdCode",
     author_email="na",
     description="ClipTools clipboard manager and text processing tools with a lines based GUI interface.",
-    long_description=readme,
+    long_description=long_description,
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 4 - Beta",
         "Environment :: Desktop Environment",
         "Intended Audience :: Developers",
+        "Intended Audience :: End Users/Desktop",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Topic :: Text writing :: Clipboard :: Clip collection",
-        "Topic :: Text writing :: Clipboard :: Text processing",
+        "Topic :: Text Processing",
+        "Topic :: Utilities",
     ],
     packages=find_packages("src"),
     package_dir={"": "src"},

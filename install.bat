@@ -1,1 +1,1 @@
-pip install -e cliptools
+pip install -e .

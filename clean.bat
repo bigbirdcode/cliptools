@@ -1,1 +1,1 @@
-python.exe clean.py
+python clean.py
