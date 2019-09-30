@@ -47,7 +47,7 @@ def load_ext_py_data(ext_data):
     """Load external python data.
     WARNING, python file will be executed, take care not allow uncontrolled changes!
     raise exception if something is not ok."""
-    content = ext_data.read_text()
+    content = ext_data.read_text(encoding='utf-8')
     glo = dict()
     loc = dict()
     exec(content, glo, loc)  # pylint: disable=exec-used
@@ -57,7 +57,9 @@ def load_ext_py_data(ext_data):
 def load_ext_yml_data(ext_data):
     """Load external yaml data,
     raise exception if something is not ok."""
-    raise RuntimeError('Not yet implemented')
+    import yaml
+    content = ext_data.read_text(encoding='utf-8')
+    return yaml.safe_load(content)
 
 
 def load_sample_data():

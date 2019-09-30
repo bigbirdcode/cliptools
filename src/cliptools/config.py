@@ -8,7 +8,7 @@ Constants, configurations and shared info
 # If only filename is given it will be searched in user folder.
 # Absolute path can also be used.
 # *.py or *.yml files are supported.
-EXTERNAL_DATA = "cliptools_external_data.py"
+EXTERNAL_DATA = "cliptools_external_data.yml"
 
 # Port number used for inter process communication
 # only localhost is allowed, no external connections
