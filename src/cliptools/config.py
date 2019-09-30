@@ -4,6 +4,12 @@ with a lines based GUI interface
 Constants, configurations and shared info
 """
 
+# Local data file name or path to load personalized data
+# If only filename is given it will be searched in user folder.
+# Absolute path can also be used.
+# *.py or *.yml files are supported.
+EXTERNAL_DATA = "cliptools_external_data.py"
+
 # Port number used for inter process communication
 # only localhost is allowed, no external connections
 PORT = 5555

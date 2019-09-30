@@ -12,6 +12,7 @@ from threading import Thread
 from .. import config
 from . import commands
 from . import data_struct
+from . import data_loader
 from . import gui_app
 from . import gui_tools
 from . import text_functions  # pylint: disable=unused-import
@@ -130,12 +131,8 @@ class Controller:
         self.app.MainLoop()
 
     def load_data(self):
-        """Load text and action data from the current implementation"""
-        try:
-            from .. import text_data
-        except ImportError:
-            return
-        for name, data in text_data.DEFINED_TEXTS.items():
+        """Load available personal or sample text data"""
+        for name, data in data_loader.load_data().items():
             self.data.texts.add_content(data_struct.TextData(name, data))
 
     ###########################################################
