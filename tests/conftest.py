@@ -8,6 +8,7 @@ import pytest
 
 from cliptools import config
 
+
 @pytest.fixture
 def testconfig():
     """Change configuration values for easier test writing"""

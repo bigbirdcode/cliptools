@@ -159,7 +159,7 @@ def filename_double(text):
 def filename_content(text):
     r"""Get the context of a full filename given as text
 
-    >>> filename_content('tests/test_text.txt')
+    >>> filename_content('tests/test_resources/test_text.txt')
     'This is a test file.\n'
     """
     if not os.path.isfile(text):

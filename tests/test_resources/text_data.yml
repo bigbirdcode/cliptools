@@ -1,0 +1,10 @@
+﻿# ClipTools clipboard manager and text processing tools
+# with a lines based GUI interface
+
+# Test YAML file
+---
+yaml_data:
+    - A
+    - B
+    - C
+...
