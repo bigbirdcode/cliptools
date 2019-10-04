@@ -19,7 +19,7 @@ SERVER_SUCCESS = "CLIP-OK."
 
 # Number of rows in the GUI, should be between 1 and 9, but maybe 9 is the best
 # Note: if you change NUMBER_OF_ROWS value change commands accordingly
-NUMBER_OF_ROWS = 9
+NUMBER_OF_ROWS = 20
 
 # Number of clipboard history to store
 MAX_NUMBER_OF_DATA = 50

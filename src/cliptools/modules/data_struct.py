@@ -25,6 +25,10 @@ class BaseData:
         self.location = 0  # used for page up-down, where are we
         self.focus = 0     # what is in focus, from 0 to config.NUMBER_OF_ROWS - 1
 
+    def is_first_selected(self):
+        """Check whether the first item is selected"""
+        return self.location == 0 and self.focus == 0
+
     def add_content(self, content, end=True):
         """Add an item to the contents and handle size, location"""
         if end:

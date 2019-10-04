@@ -46,7 +46,7 @@ setup(
     package_dir={"": "src"},
     include_package_data=True,
     package_data={
-        'cliptools': ['resources/cliptools.png'],
+        'cliptools': ['resources/cliptools.png', 'resources/cliptools.ico'],
     },
     python_requires=">=3.5",
     install_requires=[

@@ -10,7 +10,6 @@ import socket
 from threading import Thread
 
 from .. import config
-from . import commands
 from . import data_struct
 from . import data_loader
 from . import gui_app
@@ -135,6 +134,7 @@ class Controller:
         for name, data in data_loader.load_data().items():
             self.data.texts.add_content(data_struct.TextData(name, data))
 
+
     ###########################################################
     # Handlers are callbacks, GUI app will call them
     ###########################################################
@@ -142,7 +142,7 @@ class Controller:
     def handle_keyboard_events(self, key):
         """Function to handle commands, main source are GUI keyboard events
         but it handles command line commands too"""
-        if key in commands.NUM_KEYS:
+        if key.isdecimal():
             number = int(key) - 1
             try:
                 self.get_next(number)
@@ -184,14 +184,25 @@ class Controller:
         This function is then called.
         It was easier to handle delegation checks here too.
         May have a better implementation in the future."""
+
+        # Part 1: Handling text
         if text and text != self.last_clip and text != self.text_to_clipboard:
+            # new text arrived
             self.data.clip.add_content(text)
             self.last_clip = text
-            if self.step == TEXT:
+            if self.step == TEXT and self.actual == self.data.clip:
+                # clips are shown, update needed
+                if self.data.clip.is_first_selected():
+                    # first text selected and it is changing, so process it
+                    self.selected_text = text
+                    self.get_processed()
                 self.update_app()
+
+        # Part 2: Handling queue for delegation requests
         while not self.server_queue.empty():
             cmd = self.server_queue.get_nowait()
             self.handle_keyboard_events(cmd)
+
 
     ###########################################################
     # Update is pushing the data to the GUI
@@ -207,6 +218,7 @@ class Controller:
                                    self.selected_text,
                                    self.selected_action.__doc__,
                                    self.processed_text)
+
 
     ###########################################################
     # Functions to modify the states of the controller and data
@@ -270,6 +282,7 @@ class Controller:
             self.step = TEXTS
         elif self.step == TEXTS:
             pass  # cannot go back from texts state
+
 
     ###########################################################
     # Commands contain the details of user commands
