@@ -248,6 +248,19 @@ def test_base_focus_with_add_begin_page_down_full(testconfig):
     sut.add_content('-1', end=False)  # no change
     assert sut.get_focused_content() == '9'
 
+def test_is_first_selected_1(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(10))
+    assert sut.is_first_selected()
+
+def test_is_first_selected_2(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(10))
+    sut.set_focus(4)
+    assert not sut.is_first_selected()
+
+def test_is_first_selected_3(testconfig):
+    sut = data_struct.BaseData('SUT', text_range(10))
+    sut.page_down()
+    assert not sut.is_first_selected()
 
 ###########################################################
 # Test the class TextData

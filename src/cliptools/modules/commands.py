@@ -27,8 +27,6 @@ SPECIAL_KEYS = {
 
 # Note: if you change NUMBER_OF_ROWS value change commands accordingly
 
-NUM_KEYS = "123456789"
-
 BUTTON_CODES = str.maketrans("▲▼←^", "UDBV")
 
 KEY_COMMANDS = {
