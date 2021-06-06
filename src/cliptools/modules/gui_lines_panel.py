@@ -48,8 +48,9 @@ class LinesPanel(wx.Panel):
             sizer.Add(subsizer, 0, wx.EXPAND)
             self.texts.append(text)
             text.Bind(wx.EVT_LEFT_UP, self.on_mouse_click)
-            btn.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
-            text.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
+            # Mouse-over switch is disabled because it is more annoying than useful
+            # btn.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
+            # text.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
 
         self.SetSizer(sizer)
         self.Fit()
