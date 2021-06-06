@@ -51,7 +51,7 @@ setup(
     python_requires=">=3.5",
     install_requires=[
         "wxPython>=4.0",
-        "pyyaml"
+        "strictyaml"
     ],
     extras_require={
         "dev": [

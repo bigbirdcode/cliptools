@@ -64,8 +64,7 @@ def _delegate_to_existing_instance(args):
         new_data = sock.recv(2)
         if not new_data:
             break
-        else:
-            response += new_data
+        response += new_data
     return response.decode("UTF-8") == config.SERVER_SUCCESS
 
 
@@ -84,14 +83,14 @@ def main():
         server_socket = delegation_result
     else:
         # something bad happened
-        from tkinter import messagebox
+        from tkinter import messagebox  # pylint: disable=import-outside-toplevel
         msg = "Ops, something bad happened, maybe we contacted something else..."
         messagebox.showerror("System exit", msg)
         print(msg)
         sys.exit(1)
 
     # So far ok, time to load the entire app and start working
-    from .modules import controller
+    from .modules import controller  # pylint: disable=import-outside-toplevel
 
     control = controller.Controller(server_socket, sys.argv[1:])
     control.start()

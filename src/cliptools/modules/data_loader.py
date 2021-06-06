@@ -57,15 +57,15 @@ def load_ext_py_data(ext_data):
 def load_ext_yml_data(ext_data):
     """Load external yaml data,
     raise exception if something is not ok."""
-    import yaml
+    import strictyaml  # pylint: disable=import-outside-toplevel
     content = ext_data.read_text(encoding='utf-8')
-    return yaml.safe_load(content)
+    return strictyaml.load(content).data
 
 
 def load_sample_data():
     """Load provided sample data"""
     try:
-        from .. import text_data
+        from .. import text_data  # pylint: disable=import-outside-toplevel
     except Exception:  # pylint: disable=broad-except
         # No data at all, return an empty dictionary
         return dict()
