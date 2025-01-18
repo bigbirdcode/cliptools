@@ -106,3 +106,4 @@ venv.bak/
 # ide files
 *project
 *workspace
+.idea
