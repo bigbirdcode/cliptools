@@ -10,12 +10,14 @@ import socket
 from threading import Thread
 
 from .. import config
-from . import data_struct
-from . import data_loader
-from . import gui_app
-from . import gui_tools
-from . import text_functions  # pylint: disable=unused-import
-from . import utils
+from . import (
+    data_loader,
+    data_struct,
+    gui_app,
+    gui_tools,
+    text_functions,  # pylint: disable=unused-import
+    utils,
+)
 
 
 # states of the app
@@ -74,7 +76,6 @@ def _init_server_loop(server_socket, server_queue) -> None:
 
 
 class Controller:
-
     """Controller class, driving the GUI and the Data"""
 
     def __init__(self, server_socket, init_args):
@@ -89,10 +90,12 @@ class Controller:
         # Create the app instance
         # usually call it directly, the only exception is the app.frame
         self.app = gui_app.GuiLinesApp()
-        self.app.frame.register_callbacks(self.handle_keyboard_events,
-                                          self.handle_focus_event,
-                                          self.handle_new_text,
-                                          self.handle_update_request)
+        self.app.frame.register_callbacks(
+            self.handle_keyboard_events,
+            self.handle_focus_event,
+            self.handle_new_text,
+            self.handle_update_request,
+        )
 
         self.step = TEXTS
         self.actual = self.data.texts
@@ -105,22 +108,22 @@ class Controller:
 
         # Actual commands for key or button press are defined here
         self.keyboard_commands = {
-            '0': self.app.minimize,
-            'A': self.command_backward,
-            'D': self.command_forward,
-            'W': self.command_focus_up,
-            'S': self.command_focus_down,
-            'E': self.command_page_down,
-            'Q': self.command_page_up,
-            'F': self.app.bring_to_front,
-            'C': self.command_copy_selected_text,
-            'V': self.command_copy_processed_text,
-            'I': gui_tools.show_info,
-            'Z': self.app.show_hide_details_panel,
-            'X': self.app.focus_details_panel,
-            'M': self.app.show_hide_shell_panel,
-            'N': self.app.focus_shell_panel,
-            'T': self.command_test
+            "0": self.app.minimize,
+            "A": self.command_backward,
+            "D": self.command_forward,
+            "W": self.command_focus_up,
+            "S": self.command_focus_down,
+            "E": self.command_page_down,
+            "Q": self.command_page_up,
+            "F": self.app.bring_to_front,
+            "C": self.command_copy_selected_text,
+            "V": self.command_copy_processed_text,
+            "I": gui_tools.show_info,
+            "Z": self.app.show_hide_details_panel,
+            "X": self.app.focus_details_panel,
+            "M": self.app.show_hide_shell_panel,
+            "N": self.app.focus_shell_panel,
+            "T": self.command_test,
         }
 
     def start(self):
@@ -133,7 +136,6 @@ class Controller:
         """Load available personal or sample text data"""
         for name, data in data_loader.load_data().items():
             self.data.texts.add_content(data_struct.TextData(name, data))
-
 
     ###########################################################
     # Handlers are callbacks, GUI app will call them
@@ -174,8 +176,8 @@ class Controller:
             self.data.clip.add_content(text)
             self.selected_text = text
             self.get_processed()
-            #self.text_to_clipboard = text
-            #gui_tools.set_clip_content(text)
+            # self.text_to_clipboard = text
+            # gui_tools.set_clip_content(text)
             self.update_app()
 
     def handle_update_request(self, text):
@@ -203,7 +205,6 @@ class Controller:
             cmd = self.server_queue.get_nowait()
             self.handle_keyboard_events(cmd)
 
-
     ###########################################################
     # Update is pushing the data to the GUI
     ###########################################################
@@ -212,13 +213,14 @@ class Controller:
         """Function to push updates to GUI
         sources can be keyboard events, delegation requests or clipboard changes"""
         title = "Select from " + self.actual.name
-        self.app.frame.update_data(title,
-                                   self.actual.get_names(self.selected_text),
-                                   self.actual.focus,
-                                   self.selected_text,
-                                   self.selected_action.__doc__,
-                                   self.processed_text)
-
+        self.app.frame.update_data(
+            title,
+            self.actual.get_names(self.selected_text),
+            self.actual.focus,
+            self.selected_text,
+            self.selected_action.__doc__,
+            self.processed_text,
+        )
 
     ###########################################################
     # Functions to modify the states of the controller and data
@@ -283,7 +285,6 @@ class Controller:
         elif self.step == TEXTS:
             pass  # cannot go back from texts state
 
-
     ###########################################################
     # Commands contain the details of user commands
     ###########################################################
@@ -342,4 +343,4 @@ class Controller:
 
     def command_test(self):
         """Action to perform something to test & debug"""
-        gui_tools.show_error('Test message')
+        gui_tools.show_error("Test message")

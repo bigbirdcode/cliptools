@@ -8,8 +8,8 @@ import wx
 
 from . import gui_show_hide_panel
 
-class DetailsPanel(gui_show_hide_panel.ShowHidePanel):
 
+class DetailsPanel(gui_show_hide_panel.ShowHidePanel):
     """Details panel with 3 multi line text to show
     the selected text, function help and processed text"""
 
@@ -20,12 +20,23 @@ class DetailsPanel(gui_show_hide_panel.ShowHidePanel):
         """Override: Add 3 multi-line text for the details
         panels are given, only sizer is needed"""
         details_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.selected_text = wx.TextCtrl(self.show_hide_panel, -1, "Selected text",
-                                         size=(200, 100), style=wx.TE_MULTILINE)
-        self.action_doc = wx.TextCtrl(self.show_hide_panel, -1, "Help for the action",
-                                      size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
-        self.processed_text = wx.TextCtrl(self.show_hide_panel, -1, "Processed text",
-                                          size=(200, 100), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.selected_text = wx.TextCtrl(
+            self.show_hide_panel, -1, "Selected text", size=(200, 100), style=wx.TE_MULTILINE
+        )
+        self.action_doc = wx.TextCtrl(
+            self.show_hide_panel,
+            -1,
+            "Help for the action",
+            size=(200, 100),
+            style=wx.TE_MULTILINE | wx.TE_READONLY,
+        )
+        self.processed_text = wx.TextCtrl(
+            self.show_hide_panel,
+            -1,
+            "Processed text",
+            size=(200, 100),
+            style=wx.TE_MULTILINE | wx.TE_READONLY,
+        )
         details_sizer.Add(self.selected_text, 1, wx.EXPAND)
         details_sizer.Add(self.action_doc, 1, wx.EXPAND)
         details_sizer.Add(self.processed_text, 1, wx.EXPAND)

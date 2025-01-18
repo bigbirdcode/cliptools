@@ -30,35 +30,36 @@ def load_data():
             return load_ext_data(ext_data)
         except Exception as exc:  # pylint: disable=broad-except
             # fallback to sample data
-            print('Cannot load: {}, exception: {}'.format(config.EXTERNAL_DATA, exc))
+            print("Cannot load: {}, exception: {}".format(config.EXTERNAL_DATA, exc))
     return load_sample_data()
 
 
 def load_ext_data(ext_data):
     """Load external data, raise exception if something is not ok."""
-    if ext_data.suffix.lower() == '.py':
+    if ext_data.suffix.lower() == ".py":
         return load_ext_py_data(ext_data)
-    if ext_data.suffix.lower() == '.yml':
+    if ext_data.suffix.lower() == ".yml":
         return load_ext_yml_data(ext_data)
-    raise RuntimeError('Type not supported')
+    raise RuntimeError("Type not supported")
 
 
 def load_ext_py_data(ext_data):
     """Load external python data.
     WARNING, python file will be executed, take care not allow uncontrolled changes!
     raise exception if something is not ok."""
-    content = ext_data.read_text(encoding='utf-8')
+    content = ext_data.read_text(encoding="utf-8")
     glo = dict()
     loc = dict()
     exec(content, glo, loc)  # pylint: disable=exec-used
-    return loc['DEFINED_TEXTS']
+    return loc["DEFINED_TEXTS"]
 
 
 def load_ext_yml_data(ext_data):
     """Load external yaml data,
     raise exception if something is not ok."""
     import strictyaml  # pylint: disable=import-outside-toplevel
-    content = ext_data.read_text(encoding='utf-8')
+
+    content = ext_data.read_text(encoding="utf-8")
     return strictyaml.load(content).data
 
 

@@ -36,13 +36,13 @@ DEFINED_TEXTS["sniplets"] = [
     "class",
     "def",
     "main",
-    ]
+]
 
 DEFINED_TEXTS["my_data"] = [
     "BigBirdCode",
     "Hungary",
     "Budapest",
-    ]
+]
 
 DEFINED_TEXTS["some data"] = [
     "01",
@@ -98,4 +98,4 @@ DEFINED_TEXTS["lot of data"] = [
     "38",
     "39",
     "40",
-    ]
+]

@@ -17,14 +17,15 @@ def show_info():
     info.Version = "1.0"
     info.Copyright = "(c) 2019-2019 BigBirdCode"
     info.Description = str(
-        "\"ClipTools\" is a clipboard manager with text processing tools.\n\n"
+        '"ClipTools" is a clipboard manager with text processing tools.\n\n'
         "App is listening to keyboard and collecting texts copied to the clipboard. It can\n"
         "also have collection of other useful texts. Beside texts, it has some actions, like\n"
         "uppercase, lowercase, backslash duplication, getting file content, etc.\n\n"
         "You can assign a keyboard shortcut to the ClipTools app. So it can be started by\n"
         "just a key combination. Then you can easily select a group of texts, the actual\n"
         "text, the processing action just by the number keys from 1 to 9. Finally the\n"
-        "processed text result is copied to the clipboard.")
+        "processed text result is copied to the clipboard."
+    )
     info.WebSite = ("https://github.com/bigbirdcode/cliptools", "ClipTools Github page")
     info.Developers = ["BigBirdCode"]
     info.License = license_text
@@ -34,7 +35,7 @@ def show_info():
 
 def show_error(msg):
     """Error message to show"""
-    dlg = wx.MessageDialog(None, msg, 'ClipTools', wx.OK | wx.ICON_ERROR)
+    dlg = wx.MessageDialog(None, msg, "ClipTools", wx.OK | wx.ICON_ERROR)
     dlg.ShowModal()
     dlg.Destroy()
 

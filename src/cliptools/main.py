@@ -15,7 +15,7 @@ import sys
 #  - direct call, like: python main.py
 #  - package call, like: python -m cliptools
 # Below quite ugly code will handle that
-if __name__ == '__main__' and __package__ is None:
+if __name__ == "__main__" and __package__ is None:
     # This was a direct call
     # package information is missing, and relative imports will fail
     # this hack imitates the package behavior and add outer dir to the path
@@ -23,7 +23,7 @@ if __name__ == '__main__' and __package__ is None:
     cliptools_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     if cliptools_dir not in sys.path:
         sys.path.insert(0, cliptools_dir)
-    del cliptools_dir # clean up global name space
+    del cliptools_dir  # clean up global name space
 
 # Now relative import is ok
 from . import config  # pylint: disable=wrong-import-position
@@ -84,6 +84,7 @@ def main():
     else:
         # something bad happened
         from tkinter import messagebox  # pylint: disable=import-outside-toplevel
+
         msg = "Ops, something bad happened, maybe we contacted something else..."
         messagebox.showerror("System exit", msg)
         print(msg)

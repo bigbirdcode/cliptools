@@ -14,15 +14,15 @@ import wx
 
 
 SPECIAL_KEYS = {
-    wx.WXK_BACK: 'Back',
-    wx.WXK_ESCAPE: 'Esc',
+    wx.WXK_BACK: "Back",
+    wx.WXK_ESCAPE: "Esc",
     wx.WXK_PAGEUP: "Pageup",
     wx.WXK_PAGEDOWN: "Pagedown",
     wx.WXK_UP: "Up",
     wx.WXK_DOWN: "Down",
     wx.WXK_LEFT: "Left",
     wx.WXK_RIGHT: "Right",
-    wx.WXK_RETURN: "Enter"
+    wx.WXK_RETURN: "Enter",
 }
 
 # Note: if you change NUMBER_OF_ROWS value change commands accordingly

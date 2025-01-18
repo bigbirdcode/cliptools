@@ -7,16 +7,15 @@ Panel with a shell for more complex actions
 import wx
 import wx.py.shell
 
-from . import data_struct
-from . import gui_show_hide_panel
+from . import data_struct, gui_show_hide_panel
 
 
 INTRO = '''*** Cliptools Shell ***
 To reach the collected clips type: "clips", example: "clips.content[0]"
 To reach the entire data collection type "dc"'''
 
-class ShellPanel(gui_show_hide_panel.ShowHidePanel):
 
+class ShellPanel(gui_show_hide_panel.ShowHidePanel):
     """Shell panel"""
 
     def __init__(self, parent):
@@ -26,11 +25,13 @@ class ShellPanel(gui_show_hide_panel.ShowHidePanel):
         """Override: Add a shell
         panels are given, only sizer is needed"""
         shared_locals = {
-            'dc': data_struct.data_collections,
-            'clips': data_struct.data_collections.clip
+            "dc": data_struct.data_collections,
+            "clips": data_struct.data_collections.clip,
         }
         shell_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.shell = wx.py.shell.Shell(self.show_hide_panel, -1, size=(500, 500), introText=INTRO, locals=shared_locals)
+        self.shell = wx.py.shell.Shell(
+            self.show_hide_panel, -1, size=(500, 500), introText=INTRO, locals=shared_locals
+        )
         shell_sizer.Add(self.shell, 1, wx.EXPAND)
         return shell_sizer
 

@@ -17,7 +17,7 @@ def limit_text(text, length=None):
     if len(text) <= length:
         result = text
     else:
-        result = text[:length-5] + "[...]"
+        result = text[: length - 5] + "[...]"
     return result
 
 

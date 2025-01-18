@@ -10,7 +10,6 @@ from . import gui_frame
 
 
 class GuiLinesApp(wx.App):
-
     """Main GUI App"""
 
     def OnInit(self):

@@ -1,8 +1,8 @@
 import io
 import re
 
-from setuptools import find_packages
-from setuptools import setup
+from setuptools import find_packages, setup
+
 
 long_description = """
 ClipTools clipboard manager is collecting texts and files (as texts) copied to the clipboard.
@@ -46,13 +46,10 @@ setup(
     package_dir={"": "src"},
     include_package_data=True,
     package_data={
-        'cliptools': ['resources/cliptools.png', 'resources/cliptools.ico'],
+        "cliptools": ["resources/cliptools.png", "resources/cliptools.ico"],
     },
     python_requires=">=3.5",
-    install_requires=[
-        "wxPython>=4.0",
-        "strictyaml"
-    ],
+    install_requires=["wxPython>=4.0", "strictyaml"],
     extras_require={
         "dev": [
             "pytest",

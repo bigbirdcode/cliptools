@@ -11,7 +11,6 @@ from . import utils
 
 
 class BaseData:
-
     """Base of all data storage structure"""
 
     def __init__(self, name, contents=None):
@@ -23,7 +22,7 @@ class BaseData:
         else:
             self.contents = list()
         self.location = 0  # used for page up-down, where are we
-        self.focus = 0     # what is in focus, from 0 to config.NUMBER_OF_ROWS - 1
+        self.focus = 0  # what is in focus, from 0 to config.NUMBER_OF_ROWS - 1
 
     def is_first_selected(self):
         """Check whether the first item is selected"""
@@ -111,7 +110,6 @@ class BaseData:
 
 
 class TextData(BaseData):
-
     """Text data storage structure, content is a list of strings"""
 
     def add_content(self, content, end=None):
@@ -123,7 +121,6 @@ class TextData(BaseData):
 
 
 class ActionData(BaseData):
-
     """Action, i.e. text processing tools data storage structure
     Content are (name, action) tuples
 
@@ -135,7 +132,7 @@ class ActionData(BaseData):
         """Add an item to the contents and handle size, location, avoid duplicates"""
         name, action = content  # pylint: disable=unused-variable
         if name in (item[0] for item in self.contents):
-            raise RuntimeError('Redeclaration of ' + name)
+            raise RuntimeError("Redeclaration of " + name)
         super().add_content(content, end=end)
 
     def get_content(self, number):
@@ -154,7 +151,6 @@ class ActionData(BaseData):
 
 
 class DataCollection(BaseData):
-
     """Collection will store multiple data storage instances"""
 
     def get_name(self, number, text=""):
@@ -171,7 +167,6 @@ class DataCollection(BaseData):
 
 
 class DataCollections:
-
     """Collections contain 2 collection elements, altogether representing the 4 levels of data
     self.clip is a special data, it will store clipboard texts"""
 
@@ -192,15 +187,17 @@ data_collections = DataCollections()  # pylint: disable=invalid-name
 def register_function(action_func):
     """Decorator, that will store the functions in actions data
     function name should be <dataname>_<functionname>"""
-    data_name, func_name = action_func.__name__.split('_', 1)
+    data_name, func_name = action_func.__name__.split("_", 1)
     try:
         data = data_collections.actions.get_content_by_name(data_name)
     except RuntimeError:
         data = ActionData(data_name, None)
         data_collections.actions.add_content(data)
+
     @wraps(action_func)
     def wrapper(*args, **kwds):
         return action_func(*args, **kwds)
+
     content = (func_name, wrapper)
     data.add_content(content)
     return wrapper

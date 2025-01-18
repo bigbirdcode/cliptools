@@ -8,15 +8,10 @@ import os
 
 import wx
 
-from . import commands
-from . import gui_tools
-from . import gui_lines_panel
-from . import gui_details_panel
-from . import gui_shell_panel
+from . import commands, gui_details_panel, gui_lines_panel, gui_shell_panel, gui_tools
 
 
 class GuiLinesFrame(wx.Frame):
-
     """Main frame with the lines, details, shell"""
 
     def __init__(self, parent, title):
@@ -33,7 +28,9 @@ class GuiLinesFrame(wx.Frame):
         self.normal_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
 
         # Icon
-        iconfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'resources', 'cliptools.png')
+        iconfile = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "..", "resources", "cliptools.png"
+        )
         icon = wx.Icon(iconfile, wx.BITMAP_TYPE_ANY)
         self.SetIcon(icon)
 
@@ -73,11 +70,9 @@ class GuiLinesFrame(wx.Frame):
         self.Layout()
         self.Fit()
 
-    def register_callbacks(self,
-                           handle_keyboard_events,
-                           handle_focus_event,
-                           handle_new_text,
-                           handle_update_request):
+    def register_callbacks(
+        self, handle_keyboard_events, handle_focus_event, handle_new_text, handle_update_request
+    ):
         """Callbacks coming from controller to handle communication"""
         self.handle_keyboard_events = handle_keyboard_events
         self.handle_focus_event = handle_focus_event
@@ -103,10 +98,10 @@ class GuiLinesFrame(wx.Frame):
         cmd_txt = ""
         # Modifiers
         for mod, text in [
-                (event.ShiftDown(), 'Shift-'),
-                (event.ControlDown(), 'Ctrl-'),
-                (event.AltDown(), 'Alt-'),
-            ]:
+            (event.ShiftDown(), "Shift-"),
+            (event.ControlDown(), "Ctrl-"),
+            (event.AltDown(), "Alt-"),
+        ]:
             if mod:
                 cmd_txt += text
         # Key name
@@ -124,7 +119,7 @@ class GuiLinesFrame(wx.Frame):
             return
         for cmd_item in cmd_seq:
             self.handle_keyboard_events(cmd_item)
-        #event.Skip()
+        # event.Skip()
 
     def on_button_click(self, event):
         """Function to respond to button clicks.
@@ -136,7 +131,9 @@ class GuiLinesFrame(wx.Frame):
         self.handle_keyboard_events(btn_name)
         event.Skip()
 
-    def update_data(self, title, data_iter, focus_number, selected_text, action_doc, processed_text):
+    def update_data(
+        self, title, data_iter, focus_number, selected_text, action_doc, processed_text
+    ):
         """Update the line data from the provided generator/iterator
         Beside also update details texts and line focus"""
         self.lines_panel.update_data(title, data_iter, focus_number)

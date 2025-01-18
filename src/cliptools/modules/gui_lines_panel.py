@@ -10,7 +10,6 @@ from .. import config
 
 
 class LinesPanel(wx.Panel):
-
     """Create the main panel with the lines"""
 
     def __init__(self, parent):
@@ -39,7 +38,7 @@ class LinesPanel(wx.Panel):
         # Use a sizer to layout the controls,
         # Name numbering starts from 1 to match key presses
         for i in range(config.NUMBER_OF_ROWS):
-            num_name = str(i+1)
+            num_name = str(i + 1)
             subsizer = wx.BoxSizer(wx.HORIZONTAL)
             btn = wx.Button(self, -1, num_name, size=(25, 25), name=num_name)
             subsizer.Add(btn, 0, wx.CENTER)
