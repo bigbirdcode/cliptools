@@ -9,24 +9,7 @@ import os
 import socket
 import sys
 
-
-# This file is the starting point of the Cliptools app.
-# Python has 2 types of calls:
-#  - direct call, like: python main.py
-#  - package call, like: python -m cliptools
-# Below quite ugly code will handle that
-if __name__ == "__main__" and __package__ is None:
-    # This was a direct call
-    # package information is missing, and relative imports will fail
-    # this hack imitates the package behavior and add outer dir to the path
-    __package__ = "cliptools"  # pylint: disable=redefined-builtin
-    cliptools_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    if cliptools_dir not in sys.path:
-        sys.path.insert(0, cliptools_dir)
-    del cliptools_dir  # clean up global name space
-
-# Now relative import is ok
-from . import config  # pylint: disable=wrong-import-position
+from cliptools import config
 
 
 def _try_delegate_to_existing_instance(args):
@@ -91,7 +74,7 @@ def main():
         sys.exit(1)
 
     # So far ok, time to load the entire app and start working
-    from .modules import controller  # pylint: disable=import-outside-toplevel
+    from cliptools.modules import controller  # pylint: disable=import-outside-toplevel
 
     control = controller.Controller(server_socket, sys.argv[1:])
     control.start()

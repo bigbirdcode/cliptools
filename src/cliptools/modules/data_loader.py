@@ -14,7 +14,7 @@ If file load has an error then a print to a console (if available) is given.
 
 import pathlib
 
-from .. import config
+from cliptools import config
 
 
 def load_data():

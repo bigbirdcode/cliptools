@@ -8,7 +8,13 @@ import os
 
 import wx
 
-from . import commands, gui_details_panel, gui_lines_panel, gui_shell_panel, gui_tools
+from cliptools.modules import (
+    commands,
+    gui_details_panel,
+    gui_lines_panel,
+    gui_shell_panel,
+    gui_tools,
+)
 
 
 class GuiLinesFrame(wx.Frame):

@@ -14,6 +14,6 @@ https://github.com/bigbirdcode/cliptools
 # in short, do not call this file directly, call "main.py" instead
 
 if __name__ == "__main__":
-    from . import main
+    from cliptools import main
 
     main.main()

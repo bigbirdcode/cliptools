@@ -11,8 +11,8 @@ Note: using doctest to show the usage of all functions.
 
 import os
 
-from . import sanitize
-from .data_struct import register_function
+from cliptools.modules import sanitize
+from cliptools.modules.data_struct import register_function
 
 
 TRANSLATE_TO_EN = str.maketrans("éÉáÁűŰőŐúÚöÖüÜóÓíÍ'\"+!%/=()", ";:'\"\\|[{]}0)-_=+`~!@#$%^&*(")

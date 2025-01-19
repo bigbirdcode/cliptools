@@ -4,7 +4,7 @@ with a lines based GUI interface
 Utility functions
 """
 
-from .. import config
+from cliptools import config
 
 
 def limit_text(text, length=None):

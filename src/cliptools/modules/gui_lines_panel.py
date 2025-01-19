@@ -6,7 +6,7 @@ Lines panel is the main part of the gui, with the lines containing the actual te
 
 import wx
 
-from .. import config
+from cliptools import config
 
 
 class LinesPanel(wx.Panel):

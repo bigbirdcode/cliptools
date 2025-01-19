@@ -9,8 +9,8 @@ import queue
 import socket
 from threading import Thread
 
-from .. import config
-from . import (
+from cliptools import config
+from cliptools.modules import (
     data_loader,
     data_struct,
     gui_app,

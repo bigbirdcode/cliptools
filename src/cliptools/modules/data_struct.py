@@ -6,8 +6,8 @@ Definition of data structures used to store text and action data
 
 from functools import wraps
 
-from .. import config
-from . import utils
+from cliptools import config
+from cliptools.modules import utils
 
 
 class BaseData:

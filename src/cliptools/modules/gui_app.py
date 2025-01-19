@@ -6,7 +6,7 @@ GUI App as a wx.App
 
 import wx
 
-from . import gui_frame
+from cliptools.modules import gui_frame
 
 
 class GuiLinesApp(wx.App):
