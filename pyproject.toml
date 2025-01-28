@@ -2,7 +2,7 @@
 name = "cliptools"
 description = "Clipboard managing and processing tool."
 readme = "README.md"
-version = "0.2"
+version = "0.3"
 authors = [
     {name = "BigBirdCode"},
 ]
@@ -17,7 +17,21 @@ dev = [
     "mypy",
     "ruff",
     "pytest",
+    "setuptools",
 ]
+
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.gui-scripts]
+cliptools = "cliptools.main:main"
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 
 [tool.ruff]
 line-length = 98
