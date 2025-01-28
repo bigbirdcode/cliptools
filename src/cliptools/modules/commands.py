@@ -59,6 +59,7 @@ KEY_COMMANDS = {
     "M": "M",  # open shell
     "N": "N",  # focus the shell
     "T": "T",  # test actions
+    "P": "P",  # automatic processing
     # Aliases
     "Back": "A",
     "B": "A",

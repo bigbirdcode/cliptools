@@ -138,9 +138,9 @@ class GuiLinesFrame(wx.Frame):
         event.Skip()
 
     def update_data(
-        self, title, data_iter, focus_number, selected_text, action_doc, processed_text
+        self, title, data_iter, focus_number, selected_text, action_doc, processed_text, auto_proc
     ):
         """Update the line data from the provided generator/iterator
         Beside also update details texts and line focus"""
-        self.lines_panel.update_data(title, data_iter, focus_number)
+        self.lines_panel.update_data(title, data_iter, focus_number, auto_proc)
         self.details_panel.update_data(selected_text, action_doc, processed_text)

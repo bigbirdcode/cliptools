@@ -103,6 +103,7 @@ class Controller:
         self.selected_text = ""  # default text is empty text
         self.selected_action_data = None
         self.selected_action = text_functions.paste_paste
+        self.auto_proc = False
         self.processed_text = ""
         self.text_to_clipboard = ""
 
@@ -124,6 +125,7 @@ class Controller:
             "M": self.app.show_hide_shell_panel,
             "N": self.app.focus_shell_panel,
             "T": self.command_test,
+            "P": self.command_auto_proc,
         }
 
     def start(self):
@@ -142,9 +144,11 @@ class Controller:
     ###########################################################
 
     def handle_keyboard_events(self, key):
-        """Function to handle commands, main source are GUI keyboard events
+        """Function to handle commands, main source are GUI keyboard events,
         but it handles command line commands too"""
-        if key.isdecimal():
+        if key in self.keyboard_commands:
+            self.keyboard_commands[key]()  # call the command
+        elif key.isdecimal():
             number = int(key) - 1
             try:
                 self.get_next(number)
@@ -152,10 +156,7 @@ class Controller:
             except IndexError:
                 return  # not valid number, just ignore
         else:
-            if key in self.keyboard_commands:
-                self.keyboard_commands[key]()  # call the command
-            else:
-                return  # unknown character, just ignore
+            return  # unknown character, just ignore
         self.update_app()
 
     def handle_focus_event(self, num_text):
@@ -192,6 +193,11 @@ class Controller:
             # new text arrived
             self.data.clip.add_content(text)
             self.last_clip = text
+            if self.auto_proc:
+                self.selected_text = text
+                self.get_processed()
+                self.text_to_clipboard = self.processed_text
+                gui_tools.set_clip_content(self.processed_text)
             if self.step == TEXT and self.actual == self.data.clip:
                 # clips are shown, update needed
                 if self.data.clip.is_first_selected():
@@ -220,6 +226,7 @@ class Controller:
             self.selected_text,
             self.selected_action.__doc__,
             self.processed_text,
+            self.auto_proc,
         )
 
     ###########################################################
@@ -344,3 +351,7 @@ class Controller:
     def command_test(self):
         """Action to perform something to test & debug"""
         gui_tools.show_error("Test message")
+
+    def command_auto_proc(self):
+        """Switching automatic processing"""
+        self.auto_proc = not self.auto_proc

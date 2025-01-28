@@ -28,6 +28,8 @@ class LinesPanel(wx.Panel):
         subsizer.Add(btn, 0, wx.CENTER)
         self.title_btn = wx.Button(self, -1, "Title", size=(25, 25), name="I")
         subsizer.Add(self.title_btn, 1, wx.CENTER)
+        self.auto_process_btn = wx.Button(self, -1, "*", size=(25, 25), name="P")
+        subsizer.Add(self.auto_process_btn, 0, wx.CENTER)
         btn = wx.Button(self, -1, "▲", size=(25, 25), name="Q")
         subsizer.Add(btn, 0, wx.CENTER)
         btn = wx.Button(self, -1, "▼", size=(25, 25), name="E")
@@ -54,10 +56,12 @@ class LinesPanel(wx.Panel):
         self.SetSizer(sizer)
         self.Fit()
 
-    def update_data(self, title, data_iter, focus_number):
+    def update_data(self, title, data_iter, focus_number, auto_proc):
         """Update the line data from the provided generator/iterator and the focus"""
         # Title shows where are we now
         self.title_btn.SetLabel(title)
+        # Auto_proc button
+        self.auto_process_btn.SetBackgroundColour(wx.RED if auto_proc else wx.LIGHT_GREY)
         # Lines show the actual texts
         for i, text in enumerate(data_iter):
             entry = self.texts[i]
