@@ -4,8 +4,11 @@ with a lines based GUI interface
 Tools and utilities related to the wx module
 """
 
+import pyperclip
 import wx
 import wx.adv
+
+from cliptools.config import USE_PY_PER_CLIP
 
 
 def show_info():
@@ -42,6 +45,12 @@ def show_error(msg):
 
 def get_clip_content():
     """Checking clipboard content, return text is available"""
+    if USE_PY_PER_CLIP:
+        try:
+            return pyperclip.paste()
+        except Exception:
+            return ""
+    # Use the wx-python clipboard
     success_text = False
     success_file = False
     tdo_text = wx.TextDataObject()
@@ -67,6 +76,13 @@ def get_clip_content():
 
 def set_clip_content(text):
     """Copy a processed text to the clipboard"""
+    if USE_PY_PER_CLIP:
+        try:
+            pyperclip.copy(text)
+        except Exception:
+            show_error("Unable to open the clipboard, try again.")
+        return
+    # Use the wx-python clipboard
     tdo = wx.TextDataObject()
     tdo.SetText(text)
     if wx.TheClipboard.Open():

@@ -8,8 +8,9 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "wxPython",
+    "pyperclip",
     "strictyaml",
+    "wxPython",
 ]
 
 [dependency-groups]

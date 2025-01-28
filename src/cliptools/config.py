@@ -26,3 +26,7 @@ MAX_NUMBER_OF_DATA = 50
 
 # Displayed string length, longer strings truncated to display
 STRING_LENTH = 30
+
+# What clipboard backed to use, Pyperclip ow wx-python
+
+USE_PY_PER_CLIP = True
