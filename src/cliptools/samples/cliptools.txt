@@ -1,0 +1,5 @@
+ClipTools user folder.
+See details in:
+https://github.com/bigbirdcode/cliptools
+
+BigBirdCode
