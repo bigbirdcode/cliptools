@@ -1,18 +1,21 @@
-"""ClipTools clipboard manager and text processing tools
+"""
+ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
 Global fixtures for Pytest
 """
 
+import pathlib
+
 import pytest
 
-from cliptools import config
+from cliptools.modules import config
 
 
 @pytest.fixture
-def testconfig():
+def testconfig() -> config.Config:
     """Change configuration values for easier test writing"""
-    config.STRING_LENTH = 10
-    config.NUMBER_OF_ROWS = 5
-    config.MAX_NUMBER_OF_DATA = 20
-    return "Test configuration applied"
+    partial_config = pathlib.Path(__file__).parent / "test_resources" / "test_config.yaml"
+    c = config.read_config(pathlib.Path(), config_file=partial_config)
+    assert not isinstance(c, str), c
+    return c

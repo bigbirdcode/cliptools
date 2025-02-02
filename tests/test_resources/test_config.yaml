@@ -1,0 +1,24 @@
+# ClipTools clipboard manager and text processing tools
+# with a lines based GUI interface
+
+# Configuration file
+
+---
+Configurations:
+    # Port number used for inter process communication
+    # only localhost is allowed, no external connections
+    port: 5555
+
+    # Number of rows in the GUI, should be between 1 and 9, but maybe 9 is the best
+    # Note: if you change number_of_rows value change commands accordingly
+    number_of_rows: 5
+
+    # Number of clipboard history to store
+    max_number_of_data: 20
+
+    # Displayed string length, longer strings truncated to display
+    string_length: 10
+
+    # What clipboard backed to use, Pyperclip ow wx-python
+    use_py_per_clip: True
+...
