@@ -2,15 +2,10 @@
 # with a lines based GUI interface
 
 # This is an example text data file showing how you can add frequently used data.
-# You can create similar file in your home folder with your personal content.
-# See EXTERNAL_DATA configuration parameter for details.
+# You can edit this file or create similar files in your user folder with your
+# personal content.
 
-# Sample pre-defined text.
-
-# Note: logging is not part of ClipTools yet. Only minimalistic feedback is give.
-# If personal text file not found then tool will silently read the default.
-# If personal text file load has an error then a print to a console (if available)
-# is given.
+# All data are read as text, there is no yaml conversions, you are free from mistakes.
 ---
 yaml_samples:
     - ÁRVÍZTŰRŐ TÜKÖRFÚRÓGÉP

@@ -1,10 +1,12 @@
-"""ClipTools clipboard manager and text processing tools
+"""
+ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
 Text processing functions used to change active text content
 
-You can add new functions as you like.
-Naming: <action_group_name>_<action_name>(text)
+You can add new functions as you like to this file, or create similar files
+to your user folder.
+Function naming: <action_group_name>_<action_name>(text)
 
 Note: using doctest to show the usage of all functions.
 """
@@ -20,7 +22,7 @@ TRANSLATE_TO_HUN = str.maketrans(";:'\"\\|[{]}0)-_=+`~!@#$%^&*(", "éÉáÁűŰ�
 
 
 @register_function
-def paste_paste(text):
+def paste_paste(text: str) -> str:
     """Dummy function, return the same text
 
     >>> paste_paste('foo')
@@ -30,7 +32,7 @@ def paste_paste(text):
 
 
 @register_function
-def case_upper(text):
+def case_upper(text: str) -> str:
     """Text in UPPERCASE
 
     >>> case_upper('foO')
@@ -40,7 +42,7 @@ def case_upper(text):
 
 
 @register_function
-def case_lower(text):
+def case_lower(text: str) -> str:
     """Text in lowercase
 
     >>> case_lower('FOo')
@@ -50,7 +52,7 @@ def case_lower(text):
 
 
 @register_function
-def case_title(text):
+def case_title(text: str) -> str:
     """Text in Title Case
 
     >>> case_title('foO BAr')
@@ -60,7 +62,7 @@ def case_title(text):
 
 
 @register_function
-def accents_to_hun(text):
+def accents_to_hun(text: str) -> str:
     """Correct accents if you forgot to change to Hungarian keyboard
     Note: I use Hungarian 101 key and US keyboards in parallel. But
     several times I forgot to change ad I type some garbage. These
@@ -74,7 +76,7 @@ def accents_to_hun(text):
 
 
 @register_function
-def accents_to_en(text):
+def accents_to_en(text: str) -> str:
     """Correct accents if you forgot to change to English keyboard
     Note: I use Hungarian 101 key and US keyboards in parallel. But
     several times I forgot to change ad I type some garbage. These
@@ -88,7 +90,7 @@ def accents_to_en(text):
 
 
 @register_function
-def accents_shave_marks(text):
+def accents_shave_marks(text: str) -> str:
     """Remove all diacritic marks
     From the book "Fluent Python" by Luciano Ramalho (O'Reilly, 2015)
 
@@ -101,7 +103,7 @@ def accents_shave_marks(text):
 
 
 @register_function
-def accents_asciize(text):
+def accents_asciize(text: str) -> str:
     """Remove all unicode to be plain ascii
     so that you can safely used to avoid the special characters.
     Be careful, still only useful only in Latin content.
@@ -114,7 +116,7 @@ def accents_asciize(text):
 
 
 @register_function
-def accents_dewinize(text):
+def accents_dewinize(text: str) -> str:
     """Replace Win1252 symbols with ASCII chars or sequences
     needed when copying code parts from MS Office, like Word...
     From the book "Fluent Python" by Luciano Ramalho (O'Reilly, 2015)
@@ -126,7 +128,7 @@ def accents_dewinize(text):
 
 
 @register_function
-def filename_linux(text):
+def filename_linux(text: str) -> str:
     r"""Represent filenames with Linux/Unix stile forward slashes
 
     >>> filename_linux('c:\\my documents\\bigbird')
@@ -136,7 +138,7 @@ def filename_linux(text):
 
 
 @register_function
-def filename_win(text):
+def filename_win(text: str) -> str:
     r"""Represent filenames with Linux/Unix stile forward slashes
 
     >>> filename_win('c:/my documents/bigbird')
@@ -146,8 +148,8 @@ def filename_win(text):
 
 
 @register_function
-def filename_double(text):
-    r"""Represent filenames with double back slashes
+def filename_double(text: str) -> str:
+    r"""Represent filenames with double backslashes
 
     >>> filename_double('c:\\my documents\\bigbird')
     'c:\\\\my documents\\\\bigbird'
@@ -156,7 +158,7 @@ def filename_double(text):
 
 
 @register_function
-def filename_content(text):
+def filename_content(text: str) -> str:
     r"""Get the context of a full filename given as text
 
     >>> filename_content('tests/test_resources/test_text.txt')
@@ -169,7 +171,7 @@ def filename_content(text):
 
 
 @register_function
-def split_semicolon(text):
+def split_semicolon(text: str) -> str:
     """Split lines by semicolon
     Useful to manage path in windows or email names
 
