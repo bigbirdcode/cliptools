@@ -22,16 +22,6 @@ TRANSLATE_TO_HUN = str.maketrans(";:'\"\\|[{]}0)-_=+`~!@#$%^&*(", "éÉáÁűŰ�
 
 
 @register_function
-def paste_paste(text: str) -> str:
-    """Dummy function, return the same text
-
-    >>> paste_paste('foo')
-    'foo'
-    """
-    return text
-
-
-@register_function
 def case_upper(text: str) -> str:
     """Text in UPPERCASE
 
