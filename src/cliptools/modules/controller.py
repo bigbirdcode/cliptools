@@ -1,23 +1,24 @@
-"""ClipTools clipboard manager and text processing tools
+"""
+ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
 Controller part, driving the GUI and the Data
 """
 
 import ast
+import pathlib
 import queue
 import socket
 from threading import Thread
 
-from cliptools import config
 from cliptools.modules import (
     data_loader,
     data_struct,
     gui_app,
     gui_tools,
-    text_functions,  # pylint: disable=unused-import
     utils,
 )
+from cliptools.modules.config import Config
 
 
 # states of the app
@@ -34,7 +35,7 @@ ACTION = 4
 ###########################################################
 
 
-def _handle_socket_request(client_socket, server_queue) -> None:
+def _handle_socket_request(client_socket, server_queue, server_success) -> None:
     """handle each connection, runs in separate thread"""
     # read the request
     data = bytes()
@@ -51,11 +52,11 @@ def _handle_socket_request(client_socket, server_queue) -> None:
     for item in args:
         server_queue.put(item)
     # respond OK
-    client_socket.sendall(config.SERVER_SUCCESS.encode(encoding="utf-8"))
+    client_socket.sendall(server_success.encode(encoding="utf-8"))
     client_socket.shutdown(socket.SHUT_WR)
 
 
-def _init_server_loop(server_socket, server_queue) -> None:
+def _init_server_loop(server_socket, server_queue, server_success) -> None:
     """Socket will listen requests from newer instances,
     which try to delegate commands to older instance
     """
@@ -63,7 +64,7 @@ def _init_server_loop(server_socket, server_queue) -> None:
     def server_loop():
         while True:
             (client_socket, _) = server_socket.accept()
-            _handle_socket_request(client_socket, server_queue)
+            _handle_socket_request(client_socket, server_queue, server_success)
 
     Thread(target=server_loop, daemon=True).start()
 
@@ -78,14 +79,16 @@ def _init_server_loop(server_socket, server_queue) -> None:
 class Controller:
     """Controller class, driving the GUI and the Data"""
 
-    def __init__(self, server_socket, init_args):
+    def __init__(self, server_socket: socket.socket, user_folder: pathlib.Path, config: Config, init_args):
         self.server_socket = server_socket
+        self.user_folder = user_folder
+        self.config = config
         self.server_queue = queue.Queue()
         for item in init_args:
             self.server_queue.put(item)
         self.last_clip = ""
 
-        self.data = data_struct.data_collections
+        self.data = data_struct.DataCollections()
         self.load_data()
         # Create the app instance
         # usually call it directly, the only exception is the app.frame
@@ -102,7 +105,7 @@ class Controller:
         self.selected_text_data = None
         self.selected_text = ""  # default text is empty text
         self.selected_action_data = None
-        self.selected_action = text_functions.paste_paste
+        self.selected_action = data_struct.paste_paste
         self.auto_proc = False
         self.processed_text = ""
         self.text_to_clipboard = ""
@@ -130,7 +133,7 @@ class Controller:
 
     def start(self):
         """Start the thread for delegation check and the mainloop of the GUI"""
-        _init_server_loop(self.server_socket, self.server_queue)
+        _init_server_loop(self.server_socket, self.server_queue, self.config.server_success)
         self.update_app()
         self.app.MainLoop()
 

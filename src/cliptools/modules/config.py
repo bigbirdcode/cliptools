@@ -16,11 +16,14 @@ class Config:
     """
     Configurations for ClipTools
     """
+    # configurable values
     port: int = 5555
     number_of_rows: int = 9
     max_number_of_data: int = 50
     string_length: int = 30
     use_py_per_clip: bool = True
+    # constants
+    server_success: str = "CLIP-OK."
 
 
 schema = strictyaml.Map({

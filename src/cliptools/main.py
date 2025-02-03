@@ -14,10 +14,7 @@ from typing import Never
 
 import platformdirs
 
-from cliptools.modules.config import read_config
-
-
-SERVER_SUCCESS = "CLIP-OK."
+from cliptools.modules.config import read_config, Config
 
 
 def error_and_exit(msg: str) -> Never:
@@ -55,7 +52,7 @@ def get_or_create_user_folder() -> pathlib.Path:
     return folder_path
 
 
-def _try_delegate_to_existing_instance(port: int, args: list[str]) -> socket.socket | bool:
+def _try_delegate_to_existing_instance(config: Config, args: list[str]) -> socket.socket | bool:
     """
     Try to create server socket.
     This is fastest way to find out if app is already running
@@ -64,19 +61,19 @@ def _try_delegate_to_existing_instance(port: int, args: list[str]) -> socket.soc
     """
     try:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.bind(("localhost", port))
+        server_socket.bind(("localhost", config.port))
         server_socket.listen(10)
     except OSError:
         # port was already taken, most likely by previous instance.
         # Try to connect and send arguments
-        return _delegate_to_existing_instance(port, args)
+        return _delegate_to_existing_instance(config, args)
     else:
         # we were able to create server socket (ie. app was not running)
         # Let's use the socket in the app
         return server_socket
 
 
-def _delegate_to_existing_instance(port: int, args: list[str]) -> bool:
+def _delegate_to_existing_instance(config: Config, args: list[str]) -> bool:
     """
     Sending arguments to existing instance
     If an error happen we quit, no fancy messages here
@@ -85,16 +82,16 @@ def _delegate_to_existing_instance(port: int, args: list[str]) -> bool:
     Function taken from Thonny, Python IDE for beginners at https://thonny.org/
     """
     data = repr(args).encode(encoding="utf_8")
-    sock = socket.create_connection(("localhost", port))
+    sock = socket.create_connection(("localhost", config.port))
     sock.sendall(data)
     sock.shutdown(socket.SHUT_WR)
     response = bytes([])
-    while len(response) < len(SERVER_SUCCESS):
+    while len(response) < len(config.server_success):
         new_data = sock.recv(2)
         if not new_data:
             break
         response += new_data
-    return response.decode("UTF-8") == SERVER_SUCCESS
+    return response.decode("UTF-8") == config.server_success
 
 
 def main() -> None:
@@ -109,8 +106,7 @@ def main() -> None:
     if isinstance(config, str):
         error_and_exit(config)
 
-    port = config.port
-    delegation_result = _try_delegate_to_existing_instance(port, sys.argv[1:])
+    delegation_result = _try_delegate_to_existing_instance(config, sys.argv[1:])
     if delegation_result is True:
         # Delegated to an existing instance. Exiting now.
         return
