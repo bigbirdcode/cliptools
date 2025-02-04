@@ -1,17 +1,16 @@
-"""ClipTools clipboard manager and text processing tools
+"""
+ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
 Utility functions
 """
 
-from cliptools import config
+from collections.abc import Callable
 
 
-def limit_text(text, length=None):
+def limit_text(text: str, length: int) -> str:
     """Limit the text to display in the GUI
     result will be like: 'start of text [...]'"""
-    if length is None:
-        length = config.STRING_LENTH
     text = text.strip()
     text = text.replace("\n", " ")
     if len(text) <= length:
@@ -21,7 +20,7 @@ def limit_text(text, length=None):
     return result
 
 
-def safe_action(text, action):
+def safe_action(text: str, action: Callable[[str], str]) -> str:
     """Apply an action on a text and suppress exceptions"""
     try:
         result = action(text)

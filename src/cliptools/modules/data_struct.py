@@ -4,6 +4,7 @@ with a lines based GUI interface
 
 Definition of data structures used to store text and action data
 """
+
 import pathlib
 from collections.abc import Callable, Iterable
 from functools import wraps
@@ -27,12 +28,14 @@ class BaseData:
             self.contents = []
         self.max_number_of_data = 0  # switched off by default
         self.number_of_rows = 9
+        self.string_length = 30
         self.location = 0  # used for page up-down, where are we
         self.focus = 0  # what is in focus, from 0 to self.config.number_of_rows - 1
 
     def set_config(self, config: Config, *, need_max: bool = False) -> None:
         """Set instance values from config"""
         self.number_of_rows = config.number_of_rows
+        self.string_length = config.string_length
         if need_max:
             self.max_number_of_data = config.max_number_of_data
             # TODO: clear data accordingly
@@ -113,7 +116,7 @@ class BaseData:
 
         text can be used for actions, not used for simple texts
         """
-        return utils.limit_text(self.get_content(number))
+        return utils.limit_text(self.get_content(number), self.string_length)
 
     def get_names(self, text=""):
         """
@@ -164,7 +167,7 @@ class ActionData(BaseData):
         content = super().get_content(number)
         name, action = content
         result = utils.safe_action(text, action)
-        result = utils.limit_text(result)
+        result = utils.limit_text(result, self.string_length)
         result = f"{name}: {result}"
         return result
 
