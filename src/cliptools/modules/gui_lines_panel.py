@@ -1,4 +1,5 @@
-"""ClipTools clipboard manager and text processing tools
+"""
+ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
 Lines panel is the main part of the gui, with the lines containing the actual texts

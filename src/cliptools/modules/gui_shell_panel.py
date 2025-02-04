@@ -1,4 +1,5 @@
-"""ClipTools clipboard manager and text processing tools
+"""
+ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
 Panel with a shell for more complex actions

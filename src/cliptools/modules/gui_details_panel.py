@@ -1,4 +1,5 @@
-"""ClipTools clipboard manager and text processing tools
+"""
+ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
 Details panel are an addition, it will show the selected text, function help and processed text

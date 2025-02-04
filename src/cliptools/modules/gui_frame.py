@@ -1,4 +1,5 @@
-"""ClipTools clipboard manager and text processing tools
+"""
+ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
 Main frame of the GUI App. It will contains the lines, the details and the shell panels
