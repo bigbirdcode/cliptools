@@ -12,7 +12,6 @@ import socket
 from threading import Thread
 
 from cliptools.modules import (
-    data_loader,
     data_struct,
     gui_app,
     gui_tools,
@@ -89,7 +88,8 @@ class Controller:
         self.last_clip = ""
 
         self.data = data_struct.DataCollections()
-        self.load_data()
+        self.data.set_config(self.config)
+        self.data.load_data(self.user_folder)
         # Create the app instance
         # usually call it directly, the only exception is the app.frame
         self.app = gui_app.GuiLinesApp()
@@ -136,11 +136,6 @@ class Controller:
         _init_server_loop(self.server_socket, self.server_queue, self.config.server_success)
         self.update_app()
         self.app.MainLoop()
-
-    def load_data(self):
-        """Load available personal or sample text data"""
-        for name, data in data_loader.load_data().items():
-            self.data.texts.add_content(data_struct.TextData(name, data))
 
     ###########################################################
     # Handlers are callbacks, GUI app will call them

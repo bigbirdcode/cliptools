@@ -4,9 +4,11 @@ with a lines based GUI interface
 
 Definition of data structures used to store text and action data
 """
-
+import pathlib
 from collections.abc import Callable, Iterable
 from functools import wraps
+
+import strictyaml
 
 from cliptools.modules import utils
 from cliptools.modules.config import Config
@@ -206,6 +208,16 @@ class DataCollections:
         for action_collection in self.actions.contents:
             action_collection.set_config(config)
         self.clip.set_config(config, need_max=True)
+
+    def load_data(self, user_folder: pathlib.Path) -> None:
+        """Load available personal or sample text data"""
+        for f in user_folder.glob("*.yml"):
+            if f.name == "config.yml":
+                continue
+            content = f.read_text(encoding="utf-8")
+            new_data = strictyaml.load(content).data
+            for name, data_part in new_data.items():
+                self.texts.add_content(TextData(name, data_part))
 
 
 # data collection instance to hold action data
