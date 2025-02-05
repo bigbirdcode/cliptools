@@ -6,6 +6,7 @@ Main frame of the GUI App. It will contains the lines, the details and the shell
 """
 
 import os
+from typing import Any
 
 import wx
 
@@ -16,13 +17,15 @@ from cliptools.modules import (
     gui_shell_panel,
     gui_tools,
 )
+from cliptools.modules.config import Config
 
 
 class GuiLinesFrame(wx.Frame):
     """Main frame with the lines, details, shell"""
 
-    def __init__(self, parent, title):
+    def __init__(self, parent: Any, title: str, config: Config):
         wx.Frame.__init__(self, parent, -1, title)
+        self.config = config
 
         # Callbacks that will be registered by the Controller
         self.handle_keyboard_events = None
@@ -59,7 +62,7 @@ class GuiLinesFrame(wx.Frame):
         sizer_v = wx.BoxSizer(wx.VERTICAL)
 
         # Create the main panel with the lines
-        self.lines_panel = gui_lines_panel.LinesPanel(self)
+        self.lines_panel = gui_lines_panel.LinesPanel(parent=self, config=self.config)
         sizer_v.Add(self.lines_panel, 0, wx.EXPAND)
 
         # Create the details panel with the multi-line texts

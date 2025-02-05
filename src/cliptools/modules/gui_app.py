@@ -8,14 +8,19 @@ GUI App as a wx.App
 import wx
 
 from cliptools.modules import gui_frame
+from cliptools.modules.config import Config
 
 
 class GuiLinesApp(wx.App):
     """Main GUI App"""
 
+    def __init__(self, config: Config) -> None:
+        super().__init__()
+        self.config = config
+
     def OnInit(self):
         """wxPython calls OnInit to create widgets"""
-        self.frame = gui_frame.GuiLinesFrame(None, "Clip Tools")
+        self.frame = gui_frame.GuiLinesFrame(parent=None, title="Clip Tools", config=self.config)
         self.SetTopWindow(self.frame)
         self.frame.Show(True)
         return True

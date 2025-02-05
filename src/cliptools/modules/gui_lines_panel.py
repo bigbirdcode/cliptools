@@ -5,16 +5,19 @@ with a lines based GUI interface
 Lines panel is the main part of the gui, with the lines containing the actual texts
 """
 
+from typing import Any
+
 import wx
 
-from cliptools import config
+from cliptools.modules.config import Config
 
 
 class LinesPanel(wx.Panel):
     """Create the main panel with the lines"""
 
-    def __init__(self, parent):
+    def __init__(self, parent: Any, config: Config):
         wx.Panel.__init__(self, parent, -1)
+        self.config = config
 
         # List of textboxes for easier reference
         self.texts = list()
@@ -40,7 +43,7 @@ class LinesPanel(wx.Panel):
         # Add the lines: 1 button 1 text
         # Use a sizer to layout the controls,
         # Name numbering starts from 1 to match key presses
-        for i in range(config.NUMBER_OF_ROWS):
+        for i in range(self.config.number_of_rows):
             num_name = str(i + 1)
             subsizer = wx.BoxSizer(wx.HORIZONTAL)
             btn = wx.Button(self, -1, num_name, size=(25, 25), name=num_name)

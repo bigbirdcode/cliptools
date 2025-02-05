@@ -78,7 +78,9 @@ def _init_server_loop(server_socket, server_queue, server_success) -> None:
 class Controller:
     """Controller class, driving the GUI and the Data"""
 
-    def __init__(self, server_socket: socket.socket, user_folder: pathlib.Path, config: Config, init_args):
+    def __init__(
+        self, server_socket: socket.socket, user_folder: pathlib.Path, config: Config, init_args
+    ):
         self.server_socket = server_socket
         self.user_folder = user_folder
         self.config = config
@@ -92,7 +94,7 @@ class Controller:
         self.data.load_data(self.user_folder)
         # Create the app instance
         # usually call it directly, the only exception is the app.frame
-        self.app = gui_app.GuiLinesApp()
+        self.app = gui_app.GuiLinesApp(config=config)
         self.app.frame.register_callbacks(
             self.handle_keyboard_events,
             self.handle_focus_event,
