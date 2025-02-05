@@ -91,7 +91,7 @@ class GuiLinesFrame(wx.Frame):
 
     def on_update_timer(self, event):
         """Periodic clipboard check and trigger controller checks"""
-        text = gui_tools.get_clip_content()
+        text = gui_tools.get_clip_content(self.config.use_py_per_clip)
         self.handle_update_request(text)
         event.Skip()
 

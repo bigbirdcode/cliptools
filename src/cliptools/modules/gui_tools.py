@@ -9,8 +9,6 @@ import pyperclip
 import wx
 import wx.adv
 
-from cliptools.config import USE_PY_PER_CLIP
-
 
 def show_info():
     """Display program info"""
@@ -44,9 +42,9 @@ def show_error(msg):
     dlg.Destroy()
 
 
-def get_clip_content():
+def get_clip_content(use_py_per_clip: bool = True):
     """Checking clipboard content, return text is available"""
-    if USE_PY_PER_CLIP:
+    if use_py_per_clip:
         try:
             return pyperclip.paste()
         except Exception:
@@ -75,9 +73,9 @@ def get_clip_content():
     return ""
 
 
-def set_clip_content(text):
+def set_clip_content(text, use_py_per_clip: bool = True):
     """Copy a processed text to the clipboard"""
-    if USE_PY_PER_CLIP:
+    if use_py_per_clip:
         try:
             pyperclip.copy(text)
         except Exception:

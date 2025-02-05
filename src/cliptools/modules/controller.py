@@ -185,7 +185,7 @@ class Controller:
             self.selected_text = text
             self.get_processed()
             # self.text_to_clipboard = text
-            # gui_tools.set_clip_content(text)
+            # gui_tools.set_clip_content(text, self.config.use_py_per_clip)
             self.update_app()
 
     def handle_update_request(self, text):
@@ -205,7 +205,7 @@ class Controller:
                 self.selected_text = text
                 self.get_processed()
                 self.text_to_clipboard = self.processed_text
-                gui_tools.set_clip_content(self.processed_text)
+                gui_tools.set_clip_content(self.processed_text, self.config.use_py_per_clip)
             if self.step == TEXT and self.actual == self.data.clip:
                 # clips are shown, update needed
                 if self.data.clip.is_first_selected():
@@ -282,7 +282,7 @@ class Controller:
             self.step = TEXT
             self.get_processed()  # extra processing before copying
             self.text_to_clipboard = self.processed_text
-            gui_tools.set_clip_content(self.processed_text)
+            gui_tools.set_clip_content(self.processed_text, self.config.use_py_per_clip)
             self.app.minimize()
 
     def get_processed(self):
@@ -349,7 +349,7 @@ class Controller:
     def command_copy_selected_text(self):
         """Action to copy the selected text and minimize"""
         self.text_to_clipboard = self.selected_text
-        gui_tools.set_clip_content(self.selected_text)
+        gui_tools.set_clip_content(self.selected_text, self.config.use_py_per_clip)
         self.actual = self.selected_text_data  # go back to selected text collection
         self.step = TEXT
         self.app.minimize()
@@ -357,7 +357,7 @@ class Controller:
     def command_copy_processed_text(self):
         """Action to copy the processed text and minimize"""
         self.text_to_clipboard = self.processed_text
-        gui_tools.set_clip_content(self.processed_text)
+        gui_tools.set_clip_content(self.processed_text, self.config.use_py_per_clip)
         self.actual = self.selected_text_data  # go back to selected text collection
         self.step = TEXT
         self.app.minimize()
