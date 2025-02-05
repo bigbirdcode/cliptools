@@ -93,6 +93,7 @@ class Controller:
         self.data = data_struct.DataCollections()
         self.data.set_config(self.config)
         self.data.load_data(self.user_folder)
+        self.data.load_functions(self.user_folder)
         # Create the app instance
         # usually call it directly, the only exception is the app.frame
         self.app = gui_app.GuiLinesApp(config=config)

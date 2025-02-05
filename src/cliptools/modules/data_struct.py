@@ -5,7 +5,9 @@ with a lines based GUI interface
 Definition of data structures used to store text and action data
 """
 
+import importlib
 import pathlib
+import sys
 from collections.abc import Callable, Iterable
 from functools import wraps
 
@@ -221,6 +223,14 @@ class DataCollections:
             new_data = strictyaml.load(content).data
             for name, data_part in new_data.items():
                 self.texts.add_content(TextData(name, data_part))
+
+    def load_functions(self, user_folder: pathlib.Path) -> None:
+        """Load available personal or sample text functions"""
+        sys.path.append(str(user_folder.absolute()))
+        for f in user_folder.glob("*.py"):
+            user_mod = f.stem
+            # TODO: error handling...
+            importlib.import_module(user_mod)
 
 
 # data collection instance to hold action data
