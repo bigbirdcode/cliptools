@@ -33,6 +33,8 @@ Handling a string with Greek and Latin accented characters:
 
 """
 
+# ruff: noqa: RUF001, RUF002 - ambiguous characters
+
 # BEGIN SHAVE_MARKS
 import string
 import unicodedata

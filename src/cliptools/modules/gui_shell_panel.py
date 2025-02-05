@@ -23,8 +23,10 @@ class ShellPanel(gui_show_hide_panel.ShowHidePanel):
         super().__init__(parent, wx.HORIZONTAL, "M")
 
     def create_content_and_sizer(self):
-        """Override: Add a shell
-        panels are given, only sizer is needed"""
+        """
+        Override: Add a shell
+        panels are given, only sizer is needed
+        """
         shared_locals = {
             "dc": data_struct.data_collections,
             "clips": data_struct.data_collections.clip,
@@ -41,17 +43,20 @@ class ShellPanel(gui_show_hide_panel.ShowHidePanel):
         return self.shell
 
     def on_editor_kill_focus(self, event):
-        """Override: shell lost focus on auto complete, so need to skip this.
+        """
+        Override: shell lost focus on auto complete, so need to skip this.
         THIS IS A LIMITATION!
         Called when editor gets the focus
         """
         event.Skip()
 
     def on_editor_done(self, event):
-        """Override: copy result not possible!!!
+        """
+        Override: copy result not possible!!!
         Use selection then Ctrl+C in the shell window.
         Cliptools will collect these texts too.
-        Called when user is done with the edit, i.e. pressed escape or focus lost"""
+        Called when user is done with the edit, i.e. pressed escape or focus lost
+        """
         self.GetParent().edit_mode = False
         # Safe solution, select the show-hide button
         self.show_hide_btn.SetFocus()

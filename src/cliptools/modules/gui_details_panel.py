@@ -11,15 +11,19 @@ from cliptools.modules import gui_show_hide_panel
 
 
 class DetailsPanel(gui_show_hide_panel.ShowHidePanel):
-    """Details panel with 3 multi line text to show
-    the selected text, function help and processed text"""
+    """
+    Details panel with 3 multi line text to show
+    the selected text, function help and processed text
+    """
 
     def __init__(self, parent):
         super().__init__(parent, wx.VERTICAL, "Z")
 
     def create_content_and_sizer(self):
-        """Override: Add 3 multi-line text for the details
-        panels are given, only sizer is needed"""
+        """
+        Override: Add 3 multi-line text for the details
+        panels are given, only sizer is needed
+        """
         details_sizer = wx.BoxSizer(wx.VERTICAL)
         self.selected_text = wx.TextCtrl(
             self.show_hide_panel, -1, "Selected text", size=(200, 100), style=wx.TE_MULTILINE
@@ -60,13 +64,17 @@ class DetailsPanel(gui_show_hide_panel.ShowHidePanel):
         self.processed_text.SetInsertionPoint(0)
 
     def on_editor_set_focus(self, event):
-        """Override: add color,
-        Called when editor gets the focus"""
+        """
+        Override: add color,
+        Called when editor gets the focus
+        """
         self.editor.SetBackgroundColour(self.GetParent().active_color)
         super().on_editor_set_focus(event)
 
     def on_editor_done(self, event):
-        """Override: add color,
-        Called when user is done with the edit, i.e. pressed escape or focus lost"""
+        """
+        Override: add color,
+        Called when user is done with the edit, i.e. pressed escape or focus lost
+        """
         self.editor.SetBackgroundColour(self.GetParent().normal_color)
         super().on_editor_done(event)

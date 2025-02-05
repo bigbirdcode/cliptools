@@ -23,7 +23,8 @@ TRANSLATE_TO_HUN = str.maketrans(";:'\"\\|[{]}0)-_=+`~!@#$%^&*(", "éÉáÁűŰ�
 
 @register_function
 def case_upper(text: str) -> str:
-    """Text in UPPERCASE
+    """
+    Text in UPPERCASE
 
     >>> case_upper('foO')
     'FOO'
@@ -33,7 +34,8 @@ def case_upper(text: str) -> str:
 
 @register_function
 def case_lower(text: str) -> str:
-    """Text in lowercase
+    """
+    Text in lowercase
 
     >>> case_lower('FOo')
     'foo'
@@ -43,7 +45,8 @@ def case_lower(text: str) -> str:
 
 @register_function
 def case_title(text: str) -> str:
-    """Text in Title Case
+    """
+    Text in Title Case
 
     >>> case_title('foO BAr')
     'Foo Bar'
@@ -53,7 +56,8 @@ def case_title(text: str) -> str:
 
 @register_function
 def accents_to_hun(text: str) -> str:
-    """Correct accents if you forgot to change to Hungarian keyboard
+    """
+    Correct accents if you forgot to change to Hungarian keyboard
     Note: I use Hungarian 101 key and US keyboards in parallel. But
     several times I forgot to change ad I type some garbage. These
     functions help correct the texts. Expect ű and í as they are
@@ -67,7 +71,8 @@ def accents_to_hun(text: str) -> str:
 
 @register_function
 def accents_to_en(text: str) -> str:
-    """Correct accents if you forgot to change to English keyboard
+    """
+    Correct accents if you forgot to change to English keyboard
     Note: I use Hungarian 101 key and US keyboards in parallel. But
     several times I forgot to change ad I type some garbage. These
     functions help correct the texts. Expect ű and í as they are
@@ -81,7 +86,8 @@ def accents_to_en(text: str) -> str:
 
 @register_function
 def accents_shave_marks(text: str) -> str:
-    """Remove all diacritic marks
+    """
+    Remove all diacritic marks
     From the book "Fluent Python" by Luciano Ramalho (O'Reilly, 2015)
 
     >>> accents_shave_marks('ÁRVÍZTŰRŐ TÜKÖRFÚRÓGÉP')
@@ -94,7 +100,8 @@ def accents_shave_marks(text: str) -> str:
 
 @register_function
 def accents_asciize(text: str) -> str:
-    """Remove all unicode to be plain ascii
+    """
+    Remove all unicode to be plain ascii
     so that you can safely used to avoid the special characters.
     Be careful, still only useful only in Latin content.
     From the book "Fluent Python" by Luciano Ramalho (O'Reilly, 2015)
@@ -107,7 +114,8 @@ def accents_asciize(text: str) -> str:
 
 @register_function
 def accents_dewinize(text: str) -> str:
-    """Replace Win1252 symbols with ASCII chars or sequences
+    """
+    Replace Win1252 symbols with ASCII chars or sequences
     needed when copying code parts from MS Office, like Word...
     From the book "Fluent Python" by Luciano Ramalho (O'Reilly, 2015)
 
@@ -119,7 +127,8 @@ def accents_dewinize(text: str) -> str:
 
 @register_function
 def filename_linux(text: str) -> str:
-    r"""Represent filenames with Linux/Unix stile forward slashes
+    r"""
+    Represent filenames with Linux/Unix stile forward slashes
 
     >>> filename_linux('c:\\my documents\\bigbird')
     'c:/my documents/bigbird'
@@ -129,7 +138,8 @@ def filename_linux(text: str) -> str:
 
 @register_function
 def filename_win(text: str) -> str:
-    r"""Represent filenames with Linux/Unix stile forward slashes
+    r"""
+    Represent filenames with Linux/Unix stile forward slashes
 
     >>> filename_win('c:/my documents/bigbird')
     'c:\\my documents\\bigbird'
@@ -139,7 +149,8 @@ def filename_win(text: str) -> str:
 
 @register_function
 def filename_double(text: str) -> str:
-    r"""Represent filenames with double backslashes
+    r"""
+    Represent filenames with double backslashes
 
     >>> filename_double('c:\\my documents\\bigbird')
     'c:\\\\my documents\\\\bigbird'
@@ -149,7 +160,8 @@ def filename_double(text: str) -> str:
 
 @register_function
 def filename_content(text: str) -> str:
-    r"""Get the context of a full filename given as text
+    r"""
+    Get the context of a full filename given as text
 
     >>> filename_content('tests/test_resources/test_text.txt')
     'This is a test file.\n'
@@ -162,10 +174,11 @@ def filename_content(text: str) -> str:
 
 @register_function
 def split_semicolon(text: str) -> str:
-    """Split lines by semicolon
+    r"""
+    Split lines by semicolon
     Useful to manage path in windows or email names
 
     >>> split_semicolon('Jean;Jane; John')
-    'Jean\\nJane\\nJohn'
+    'Jean\nJane\nJohn'
     """
     return text.replace("; ", "\n").replace(";", "\n")

@@ -81,8 +81,10 @@ class LinesPanel(wx.Panel):
                 entry.SetBackgroundColour(self.GetParent().normal_color)
 
     def on_mouse_click(self, event):
-        """Mouse clicks on the text lines.
-        Task delegated to controller based on name"""
+        """
+        Mouse clicks on the text lines.
+        Task delegated to controller based on name
+        """
         obj_name = event.GetEventObject().GetName()
         try:
             if int(obj_name) > 0:

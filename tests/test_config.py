@@ -6,9 +6,11 @@ Test
 
 Config file reading test
 """
+
 import pathlib
 
 from cliptools.modules import config
+
 
 def test_sample_config():
     samples_folder = pathlib.Path(__file__).parent.parent / "src" / "cliptools" / "samples"

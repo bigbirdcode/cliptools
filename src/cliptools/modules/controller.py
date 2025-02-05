@@ -35,7 +35,7 @@ ACTION = 4
 
 
 def _handle_socket_request(client_socket, server_queue, server_success) -> None:
-    """handle each connection, runs in separate thread"""
+    """Handle each connection, runs in separate thread"""
     # read the request
     data = bytes()
     while True:
@@ -56,7 +56,8 @@ def _handle_socket_request(client_socket, server_queue, server_success) -> None:
 
 
 def _init_server_loop(server_socket, server_queue, server_success) -> None:
-    """Socket will listen requests from newer instances,
+    """
+    Socket will listen requests from newer instances,
     which try to delegate commands to older instance
     """
 
@@ -144,8 +145,10 @@ class Controller:
     ###########################################################
 
     def handle_keyboard_events(self, key):
-        """Function to handle commands, main source are GUI keyboard events,
-        but it handles command line commands too"""
+        """
+        Function to handle commands, main source are GUI keyboard events,
+        but it handles command line commands too
+        """
         if key in self.keyboard_commands:
             self.keyboard_commands[key]()  # call the command
         elif key.isdecimal():
@@ -160,8 +163,10 @@ class Controller:
         self.update_app()
 
     def handle_focus_event(self, num_text):
-        """Function to handle focus changes on the GUI
-        it is a helper for the user to show the details of selected items"""
+        """
+        Function to handle focus changes on the GUI
+        it is a helper for the user to show the details of selected items
+        """
         try:
             number = int(num_text) - 1
             self.actual.set_focus(number)
@@ -171,8 +176,10 @@ class Controller:
         self.update_app()
 
     def handle_new_text(self, text):
-        """Function to handle texts changed by the user
-        User can change the selected text or work with the shell"""
+        """
+        Function to handle texts changed by the user
+        User can change the selected text or work with the shell
+        """
         if text and text != self.selected_text:
             self.data.clip.add_content(text)
             self.selected_text = text
@@ -182,12 +189,13 @@ class Controller:
             self.update_app()
 
     def handle_update_request(self, text):
-        """Function to handle texts coming from the clipboard and checking delegation requests
+        """
+        Function to handle texts coming from the clipboard and checking delegation requests
         Right now GUI mainloop is checking periodically the clipboard.
         This function is then called.
         It was easier to handle delegation checks here too.
-        May have a better implementation in the future."""
-
+        May have a better implementation in the future.
+        """
         # Part 1: Handling text
         if text and text != self.last_clip and text != self.text_to_clipboard:
             # new text arrived
@@ -216,8 +224,10 @@ class Controller:
     ###########################################################
 
     def update_app(self):
-        """Function to push updates to GUI
-        sources can be keyboard events, delegation requests or clipboard changes"""
+        """
+        Function to push updates to GUI
+        sources can be keyboard events, delegation requests or clipboard changes
+        """
         title = "Select from " + self.actual.name
         self.app.frame.update_data(
             title,
@@ -247,9 +257,11 @@ class Controller:
         self.get_processed()
 
     def get_next(self, number):
-        """Step to the next state, select the n-th item for that
+        """
+        Step to the next state, select the n-th item for that
         If number is out of possible range this will raise IndexError
-        Usually get_focus should follow this function to finish the updates"""
+        Usually get_focus should follow this function to finish the updates
+        """
         item = self.actual.get_content(number)
         self.actual.set_focus(number)
         if self.step == TEXTS:
@@ -278,8 +290,10 @@ class Controller:
         self.processed_text = utils.safe_action(self.selected_text, self.selected_action)
 
     def get_prev(self):
-        """Step back one state
-        Usually get_focus should follow this function to finish the updates"""
+        """
+        Step back one state
+        Usually get_focus should follow this function to finish the updates
+        """
         if self.step == ACTION:
             self.actual = self.data.actions
             self.step = ACTIONS

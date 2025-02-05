@@ -16,6 +16,7 @@ class Config:
     """
     Configurations for ClipTools
     """
+
     # configurable values
     port: int = 5555
     number_of_rows: int = 9
@@ -26,18 +27,24 @@ class Config:
     server_success: str = "CLIP-OK."
 
 
-schema = strictyaml.Map({
-    "Configurations": strictyaml.Map({
-        strictyaml.Optional("port"): strictyaml.Int(),
-        strictyaml.Optional("number_of_rows"): strictyaml.Int(),
-        strictyaml.Optional("max_number_of_data"): strictyaml.Int(),
-        strictyaml.Optional("string_length"): strictyaml.Int(),
-        strictyaml.Optional("use_py_per_clip"): strictyaml.Bool(),
-    })
-})
+schema = strictyaml.Map(
+    {
+        "Configurations": strictyaml.Map(
+            {
+                strictyaml.Optional("port"): strictyaml.Int(),
+                strictyaml.Optional("number_of_rows"): strictyaml.Int(),
+                strictyaml.Optional("max_number_of_data"): strictyaml.Int(),
+                strictyaml.Optional("string_length"): strictyaml.Int(),
+                strictyaml.Optional("use_py_per_clip"): strictyaml.Bool(),
+            }
+        )
+    }
+)
 
 
-def read_config(user_folder: pathlib.Path, *, config_file: pathlib.Path | None = None) -> Config | str:
+def read_config(
+    user_folder: pathlib.Path, *, config_file: pathlib.Path | None = None
+) -> Config | str:
     """
     Read the user configurations from config.yaml in the user folder.
 

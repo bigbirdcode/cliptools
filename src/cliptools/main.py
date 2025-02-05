@@ -14,7 +14,7 @@ from typing import Never
 
 import platformdirs
 
-from cliptools.modules.config import read_config, Config
+from cliptools.modules.config import Config, read_config
 
 
 def error_and_exit(msg: str) -> Never:

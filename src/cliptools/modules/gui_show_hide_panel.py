@@ -10,14 +10,16 @@ import wx
 
 
 class ShowHidePanel(wx.Panel):
-    """An abstract panel that can show the content or hide with a button.
+    """
+    An abstract panel that can show the content or hide with a button.
 
     Children should define the contents in a sizer and
     define the editor if there is one.
     """
 
     def __init__(self, parent, layout, key_code):
-        """A panel that can show the content or hide with a button.
+        """
+        A panel that can show the content or hide with a button.
 
         layout is either wx.VERTICAL or wx.HORIZONTAL
         key_code is the code name for the main button
@@ -54,9 +56,11 @@ class ShowHidePanel(wx.Panel):
         self.SetSizer(sizer)
 
     def create_content_and_sizer(self):
-        """Abstract function, children should overwrite
+        """
+        Abstract function, children should overwrite
         Below is an example how it should look
-        widgets should have self.show_hide_panel as the parent"""
+        widgets should have self.show_hide_panel as the parent
+        """
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.my_text = wx.TextCtrl(
             self.show_hide_panel, -1, "My text", size=(100, 100), style=wx.TE_MULTILINE
@@ -93,8 +97,10 @@ class ShowHidePanel(wx.Panel):
         event.Skip()
 
     def on_editor_kill_focus(self, event):
-        """Called when editor lost the focus
-        Default focus lost is done editing. You can override."""
+        """
+        Called when editor lost the focus
+        Default focus lost is done editing. You can override.
+        """
         self.on_editor_done(event)
         event.Skip()
 

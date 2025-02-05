@@ -9,8 +9,10 @@ from collections.abc import Callable
 
 
 def limit_text(text: str, length: int) -> str:
-    """Limit the text to display in the GUI
-    result will be like: 'start of text [...]'"""
+    """
+    Limit the text to display in the GUI
+    result will be like: 'start of text [...]'
+    """
     text = text.strip()
     text = text.replace("\n", " ")
     if len(text) <= length:

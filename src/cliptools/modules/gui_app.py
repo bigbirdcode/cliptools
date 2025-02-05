@@ -19,7 +19,7 @@ class GuiLinesApp(wx.App):
         self.config = config
 
     def OnInit(self):
-        """wxPython calls OnInit to create widgets"""
+        """The wxPython calls OnInit to create widgets"""
         self.frame = gui_frame.GuiLinesFrame(parent=None, title="Clip Tools", config=self.config)
         self.SetTopWindow(self.frame)
         self.frame.Show(True)
@@ -30,8 +30,10 @@ class GuiLinesApp(wx.App):
         self.frame.Iconize(True)
 
     def bring_to_front(self):
-        """When needed window should pop up to front
-        Note: popping windows are annoying, but here user pressed a hotkey to trigger it"""
+        """
+        When needed window should pop up to front
+        Note: popping windows are annoying, but here user pressed a hotkey to trigger it
+        """
         self.frame.Show()
         self.frame.Raise()
         self.frame.Iconize(False)
