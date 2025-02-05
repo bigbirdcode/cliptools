@@ -15,8 +15,8 @@ class GuiLinesApp(wx.App):
     """Main GUI App"""
 
     def __init__(self, config: Config) -> None:
-        super().__init__()
         self.config = config
+        super().__init__()
 
     def OnInit(self):
         """The wxPython calls OnInit to create widgets"""
