@@ -46,13 +46,13 @@ def read_config(
     user_folder: pathlib.Path, *, config_file: pathlib.Path | None = None
 ) -> Config | str:
     """
-    Read the user configurations from config.yaml in the user folder.
+    Read the user configurations from config.yml in the user folder.
 
     config_file can be given directly, but that is only for testing.
     """
     config = Config()
     if config_file is None:
-        config_file = user_folder / "config.yaml"
+        config_file = user_folder / "config.yml"
     if not config_file.is_file():
         return f"Config file {config_file} not found"
     try:

@@ -14,14 +14,14 @@ from cliptools.modules import config
 
 def test_sample_config():
     samples_folder = pathlib.Path(__file__).parent.parent / "src" / "cliptools" / "samples"
-    sample_config = samples_folder / "config.yaml"
+    sample_config = samples_folder / "config.yml"
     c = config.read_config(pathlib.Path(), config_file=sample_config)
     assert not isinstance(c, str), c
     assert c.port == 5555
 
 
 def test_partial_config_can_be_read_with_values():
-    partial_config = pathlib.Path(__file__).parent / "test_resources" / "config_partial.yaml"
+    partial_config = pathlib.Path(__file__).parent / "test_resources" / "config_partial.yml"
     c = config.read_config(pathlib.Path(), config_file=partial_config)
     assert not isinstance(c, str), c
     assert c.port == 9999
@@ -30,7 +30,7 @@ def test_partial_config_can_be_read_with_values():
 
 
 def test_cannot_read_wrong_config():
-    wrong_config = pathlib.Path(__file__).parent / "test_resources" / "config_wrong.yaml"
+    wrong_config = pathlib.Path(__file__).parent / "test_resources" / "config_wrong.yml"
     c = config.read_config(pathlib.Path(), config_file=wrong_config)
     assert isinstance(c, str), "No error reported"
     assert "unexpected key not in schema" in c, f"Wrong error in {c}"
