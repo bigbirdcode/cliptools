@@ -20,7 +20,7 @@ class LinesPanel(wx.Panel):
         self.config = config
 
         # List of textboxes for easier reference
-        self.texts = list()
+        self.texts = []
 
         # Use a sizer to layout the controls, stacked vertically
         # lines and the details panel are the main parts of it

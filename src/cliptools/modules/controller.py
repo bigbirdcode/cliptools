@@ -37,7 +37,7 @@ ACTION = 4
 def _handle_socket_request(client_socket, server_queue, server_success) -> None:
     """Handle each connection, runs in separate thread"""
     # read the request
-    data = bytes()
+    data = b""
     while True:
         new_data = client_socket.recv(64)
         if new_data:

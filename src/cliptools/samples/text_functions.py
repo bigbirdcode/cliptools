@@ -11,7 +11,7 @@ Function naming: <action_group_name>_<action_name>(text)
 Note: using doctest to show the usage of all functions.
 """
 
-import os
+import pathlib
 
 from cliptools.modules import sanitize
 from cliptools.modules.data_struct import register_function
@@ -166,7 +166,7 @@ def filename_content(text: str) -> str:
     >>> filename_content('tests/test_resources/test_text.txt')
     'This is a test file.\n'
     """
-    if not os.path.isfile(text):
+    if not pathlib.Path(text).is_file():
         return "ERROR: not a file"
     with open(text) as f:
         return f.read()

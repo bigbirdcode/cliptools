@@ -96,6 +96,7 @@ def dewinize(txt):
 
 
 def asciize(txt):
+    """Ascii result"""
     no_marks = shave_marks_latin(dewinize(txt))  # <5>
     no_marks = no_marks.replace("ß", "ss")  # <6>
     return unicodedata.normalize("NFKC", no_marks)  # <7>

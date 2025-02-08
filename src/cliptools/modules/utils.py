@@ -26,6 +26,6 @@ def safe_action(text: str, action: Callable[[str], str]) -> str:
     """Apply an action on a text and suppress exceptions"""
     try:
         result = action(text)
-    except Exception as exc:  # pylint: disable=broad-except
-        result = "ERROR: {}".format(exc)
+    except Exception as exc:  # noqa: BLE001 - broad-except
+        result = f"ERROR: {exc}"
     return result

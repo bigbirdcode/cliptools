@@ -47,9 +47,18 @@ def get_clip_content(use_py_per_clip: bool = True):
     if use_py_per_clip:
         try:
             return pyperclip.paste()
-        except Exception:
+        except Exception:  # noqa: BLE001 - broad-except
             return ""
     # Use the wx-python clipboard
+    return get_clip_content_wx()
+
+
+def get_clip_content_wx():
+    """
+    The wxPython version of clipboard getter.
+
+    Separate function because of complexity.
+    """
     success_text = False
     success_file = False
     tdo_text = wx.TextDataObject()
@@ -63,7 +72,7 @@ def get_clip_content(use_py_per_clip: bool = True):
         else:
             # print("Unable to open the clipboard")
             return ""
-    except Exception:  # pylint: disable=broad-except
+    except Exception:  # noqa: BLE001 - broad-except
         # print("Unable to open the clipboard")
         return ""
     if success_text:
@@ -78,7 +87,7 @@ def set_clip_content(text, use_py_per_clip: bool = True):
     if use_py_per_clip:
         try:
             pyperclip.copy(text)
-        except Exception:
+        except Exception:  # noqa: BLE001 - broad-except
             show_error("Unable to open the clipboard, try again.")
         return
     # Use the wx-python clipboard

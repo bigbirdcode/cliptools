@@ -5,7 +5,7 @@ with a lines based GUI interface
 Main frame of the GUI App. It will contains the lines, the details and the shell panels
 """
 
-import os
+import pathlib
 from typing import Any
 
 import wx
@@ -40,10 +40,8 @@ class GuiLinesFrame(wx.Frame):
         self.normal_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
 
         # Icon
-        iconfile = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "..", "resources", "cliptools.png"
-        )
-        icon = wx.Icon(iconfile, wx.BITMAP_TYPE_ANY)
+        icon_file = pathlib.Path(__file__).parent.parent / "resources" / "cliptools.png"
+        icon = wx.Icon(str(icon_file), wx.BITMAP_TYPE_ANY)
         self.SetIcon(icon)
 
         # Periodic timer events

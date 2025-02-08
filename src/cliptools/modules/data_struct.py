@@ -110,7 +110,7 @@ class BaseData:
         # Check if line is valid, list index will check content
         if 0 <= number < self.number_of_rows:
             return self.contents[self.location + number]
-        raise IndexError()
+        raise IndexError
 
     def get_name(self, number, text=""):
         """
