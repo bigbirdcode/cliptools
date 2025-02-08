@@ -208,8 +208,10 @@ class DataCollections:
 
     def set_config(self, config: Config) -> None:
         """Set a config to all collections"""
+        self.texts.set_config(config)
         for text_collection in self.texts.contents:
             text_collection.set_config(config)
+        self.actions.set_config(config)
         for action_collection in self.actions.contents:
             action_collection.set_config(config)
         self.clip.set_config(config, need_max=True)
