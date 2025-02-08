@@ -17,7 +17,7 @@ def show_info():
     info = wx.adv.AboutDialogInfo()
     info.Name = "cliptools"
     info.Version = "1.0"
-    info.Copyright = "(c) 2019-2019 BigBirdCode"
+    info.Copyright = "(c) 2019-2025 BigBirdCode"
     info.Description = str(
         '"ClipTools" is a clipboard manager with text processing tools.\n\n'
         "App is listening to keyboard and collecting texts copied to the clipboard. It can\n"
