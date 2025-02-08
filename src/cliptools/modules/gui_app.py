@@ -1,4 +1,5 @@
-"""ClipTools clipboard manager and text processing tools
+"""
+ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
 GUI App as a wx.App
@@ -7,14 +8,23 @@ GUI App as a wx.App
 import wx
 
 from cliptools.modules import gui_frame
+from cliptools.modules.config import Config
+from cliptools.modules.data_struct import DataCollections
 
 
 class GuiLinesApp(wx.App):
     """Main GUI App"""
 
+    def __init__(self, config: Config, data: DataCollections) -> None:
+        self.config = config
+        self.data = data
+        super().__init__()
+
     def OnInit(self):
-        """wxPython calls OnInit to create widgets"""
-        self.frame = gui_frame.GuiLinesFrame(None, "Clip Tools")
+        """The wxPython calls OnInit to create widgets"""
+        self.frame = gui_frame.GuiLinesFrame(
+            parent=None, title="Clip Tools", config=self.config, data=self.data
+        )
         self.SetTopWindow(self.frame)
         self.frame.Show(True)
         return True
@@ -24,8 +34,10 @@ class GuiLinesApp(wx.App):
         self.frame.Iconize(True)
 
     def bring_to_front(self):
-        """When needed window should pop up to front
-        Note: popping windows are annoying, but here user pressed a hotkey to trigger it"""
+        """
+        When needed window should pop up to front
+        Note: popping windows are annoying, but here user pressed a hotkey to trigger it
+        """
         self.frame.Show()
         self.frame.Raise()
         self.frame.Iconize(False)

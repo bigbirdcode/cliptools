@@ -1,10 +1,12 @@
-"""ClipTools clipboard manager and text processing tools
+"""
+ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
 Main frame of the GUI App. It will contains the lines, the details and the shell panels
 """
 
-import os
+import pathlib
+from typing import Any
 
 import wx
 
@@ -15,12 +17,16 @@ from cliptools.modules import (
     gui_shell_panel,
     gui_tools,
 )
+from cliptools.modules.config import Config
+from cliptools.modules.data_struct import DataCollections
 
 
 class GuiLinesFrame(wx.Frame):
     """Main frame with the lines, details, shell"""
 
-    def __init__(self, parent, title):
+    def __init__(self, parent: Any, title: str, config: Config, data: DataCollections):
+        self.config = config
+        self.data = data
         wx.Frame.__init__(self, parent, -1, title)
 
         # Callbacks that will be registered by the Controller
@@ -34,10 +40,8 @@ class GuiLinesFrame(wx.Frame):
         self.normal_color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
 
         # Icon
-        iconfile = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "..", "resources", "cliptools.png"
-        )
-        icon = wx.Icon(iconfile, wx.BITMAP_TYPE_ANY)
+        icon_file = pathlib.Path(__file__).parent.parent / "resources" / "cliptools.png"
+        icon = wx.Icon(str(icon_file), wx.BITMAP_TYPE_ANY)
         self.SetIcon(icon)
 
         # Periodic timer events
@@ -58,7 +62,7 @@ class GuiLinesFrame(wx.Frame):
         sizer_v = wx.BoxSizer(wx.VERTICAL)
 
         # Create the main panel with the lines
-        self.lines_panel = gui_lines_panel.LinesPanel(self)
+        self.lines_panel = gui_lines_panel.LinesPanel(parent=self, config=self.config)
         sizer_v.Add(self.lines_panel, 0, wx.EXPAND)
 
         # Create the details panel with the multi-line texts
@@ -68,7 +72,7 @@ class GuiLinesFrame(wx.Frame):
         sizer_h.Add(sizer_v, 0, wx.EXPAND)
 
         # Create the shell panel
-        self.shell_panel = gui_shell_panel.ShellPanel(self)
+        self.shell_panel = gui_shell_panel.ShellPanel(self, data=self.data)
         sizer_h.Add(self.shell_panel, 1, wx.EXPAND)
 
         # Set and fit everything
@@ -87,15 +91,17 @@ class GuiLinesFrame(wx.Frame):
 
     def on_update_timer(self, event):
         """Periodic clipboard check and trigger controller checks"""
-        text = gui_tools.get_clip_content()
+        text = gui_tools.get_clip_content(self.config.use_py_per_clip)
         self.handle_update_request(text)
         event.Skip()
 
     def on_key_press(self, event):
-        """Function to respond to key press events.
+        """
+        Function to respond to key press events.
         Number key press will select the actual line.
         Letters do various tasks.
-        Actual tasks delegated to the controller"""
+        Actual tasks delegated to the controller
+        """
         if self.edit_mode:
             # editor will handle the key-press
             event.Skip()
@@ -128,11 +134,13 @@ class GuiLinesFrame(wx.Frame):
         # event.Skip()
 
     def on_button_click(self, event):
-        """Function to respond to button clicks.
+        """
+        Function to respond to button clicks.
         Button names define the actions as keys.
         Number button click will select the actual line.
         Other buttons do various tasks.
-        Actual tasks delegated to the controller based on button name"""
+        Actual tasks delegated to the controller based on button name
+        """
         btn_name = event.GetEventObject().GetName()
         self.handle_keyboard_events(btn_name)
         event.Skip()
@@ -140,7 +148,9 @@ class GuiLinesFrame(wx.Frame):
     def update_data(
         self, title, data_iter, focus_number, selected_text, action_doc, processed_text, auto_proc
     ):
-        """Update the line data from the provided generator/iterator
-        Beside also update details texts and line focus"""
+        """
+        Update the line data from the provided generator/iterator
+        Beside also update details texts and line focus
+        """
         self.lines_panel.update_data(title, data_iter, focus_number, auto_proc)
         self.details_panel.update_data(selected_text, action_doc, processed_text)

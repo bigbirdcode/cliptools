@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "platformdirs",
     "pyperclip",
     "strictyaml",
     "wxPython",
@@ -32,6 +33,9 @@ cliptools = "cliptools.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.txt", "*.yml", "*.ico", "*.png"]
 
 
 [tool.ruff]

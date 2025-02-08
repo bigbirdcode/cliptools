@@ -1,23 +1,23 @@
-"""ClipTools clipboard manager and text processing tools
+"""
+ClipTools clipboard manager and text processing tools
 with a lines based GUI interface
 
 Controller part, driving the GUI and the Data
 """
 
 import ast
+import pathlib
 import queue
 import socket
 from threading import Thread
 
-from cliptools import config
 from cliptools.modules import (
-    data_loader,
     data_struct,
     gui_app,
     gui_tools,
-    text_functions,  # pylint: disable=unused-import
     utils,
 )
+from cliptools.modules.config import Config
 
 
 # states of the app
@@ -34,10 +34,10 @@ ACTION = 4
 ###########################################################
 
 
-def _handle_socket_request(client_socket, server_queue) -> None:
-    """handle each connection, runs in separate thread"""
+def _handle_socket_request(client_socket, server_queue, server_success) -> None:
+    """Handle each connection, runs in separate thread"""
     # read the request
-    data = bytes()
+    data = b""
     while True:
         new_data = client_socket.recv(64)
         if new_data:
@@ -51,19 +51,20 @@ def _handle_socket_request(client_socket, server_queue) -> None:
     for item in args:
         server_queue.put(item)
     # respond OK
-    client_socket.sendall(config.SERVER_SUCCESS.encode(encoding="utf-8"))
+    client_socket.sendall(server_success.encode(encoding="utf-8"))
     client_socket.shutdown(socket.SHUT_WR)
 
 
-def _init_server_loop(server_socket, server_queue) -> None:
-    """Socket will listen requests from newer instances,
+def _init_server_loop(server_socket, server_queue, server_success) -> None:
+    """
+    Socket will listen requests from newer instances,
     which try to delegate commands to older instance
     """
 
     def server_loop():
         while True:
             (client_socket, _) = server_socket.accept()
-            _handle_socket_request(client_socket, server_queue)
+            _handle_socket_request(client_socket, server_queue, server_success)
 
     Thread(target=server_loop, daemon=True).start()
 
@@ -78,18 +79,24 @@ def _init_server_loop(server_socket, server_queue) -> None:
 class Controller:
     """Controller class, driving the GUI and the Data"""
 
-    def __init__(self, server_socket, init_args):
+    def __init__(
+        self, server_socket: socket.socket, user_folder: pathlib.Path, config: Config, init_args
+    ):
         self.server_socket = server_socket
+        self.user_folder = user_folder
+        self.config = config
         self.server_queue = queue.Queue()
         for item in init_args:
             self.server_queue.put(item)
         self.last_clip = ""
 
-        self.data = data_struct.data_collections
-        self.load_data()
+        self.data = data_struct.DataCollections()
+        self.data.set_config(self.config)
+        self.data.load_data(self.user_folder)
+        self.data.load_functions(self.user_folder)
         # Create the app instance
         # usually call it directly, the only exception is the app.frame
-        self.app = gui_app.GuiLinesApp()
+        self.app = gui_app.GuiLinesApp(config=self.config, data=self.data)
         self.app.frame.register_callbacks(
             self.handle_keyboard_events,
             self.handle_focus_event,
@@ -102,7 +109,7 @@ class Controller:
         self.selected_text_data = None
         self.selected_text = ""  # default text is empty text
         self.selected_action_data = None
-        self.selected_action = text_functions.paste_paste
+        self.selected_action = data_struct.paste_paste
         self.auto_proc = False
         self.processed_text = ""
         self.text_to_clipboard = ""
@@ -130,22 +137,19 @@ class Controller:
 
     def start(self):
         """Start the thread for delegation check and the mainloop of the GUI"""
-        _init_server_loop(self.server_socket, self.server_queue)
+        _init_server_loop(self.server_socket, self.server_queue, self.config.server_success)
         self.update_app()
         self.app.MainLoop()
-
-    def load_data(self):
-        """Load available personal or sample text data"""
-        for name, data in data_loader.load_data().items():
-            self.data.texts.add_content(data_struct.TextData(name, data))
 
     ###########################################################
     # Handlers are callbacks, GUI app will call them
     ###########################################################
 
     def handle_keyboard_events(self, key):
-        """Function to handle commands, main source are GUI keyboard events,
-        but it handles command line commands too"""
+        """
+        Function to handle commands, main source are GUI keyboard events,
+        but it handles command line commands too
+        """
         if key in self.keyboard_commands:
             self.keyboard_commands[key]()  # call the command
         elif key.isdecimal():
@@ -160,8 +164,10 @@ class Controller:
         self.update_app()
 
     def handle_focus_event(self, num_text):
-        """Function to handle focus changes on the GUI
-        it is a helper for the user to show the details of selected items"""
+        """
+        Function to handle focus changes on the GUI
+        it is a helper for the user to show the details of selected items
+        """
         try:
             number = int(num_text) - 1
             self.actual.set_focus(number)
@@ -171,23 +177,26 @@ class Controller:
         self.update_app()
 
     def handle_new_text(self, text):
-        """Function to handle texts changed by the user
-        User can change the selected text or work with the shell"""
+        """
+        Function to handle texts changed by the user
+        User can change the selected text or work with the shell
+        """
         if text and text != self.selected_text:
             self.data.clip.add_content(text)
             self.selected_text = text
             self.get_processed()
             # self.text_to_clipboard = text
-            # gui_tools.set_clip_content(text)
+            # gui_tools.set_clip_content(text, self.config.use_py_per_clip)
             self.update_app()
 
     def handle_update_request(self, text):
-        """Function to handle texts coming from the clipboard and checking delegation requests
+        """
+        Function to handle texts coming from the clipboard and checking delegation requests
         Right now GUI mainloop is checking periodically the clipboard.
         This function is then called.
         It was easier to handle delegation checks here too.
-        May have a better implementation in the future."""
-
+        May have a better implementation in the future.
+        """
         # Part 1: Handling text
         if text and text != self.last_clip and text != self.text_to_clipboard:
             # new text arrived
@@ -197,7 +206,7 @@ class Controller:
                 self.selected_text = text
                 self.get_processed()
                 self.text_to_clipboard = self.processed_text
-                gui_tools.set_clip_content(self.processed_text)
+                gui_tools.set_clip_content(self.processed_text, self.config.use_py_per_clip)
             if self.step == TEXT and self.actual == self.data.clip:
                 # clips are shown, update needed
                 if self.data.clip.is_first_selected():
@@ -216,8 +225,10 @@ class Controller:
     ###########################################################
 
     def update_app(self):
-        """Function to push updates to GUI
-        sources can be keyboard events, delegation requests or clipboard changes"""
+        """
+        Function to push updates to GUI
+        sources can be keyboard events, delegation requests or clipboard changes
+        """
         title = "Select from " + self.actual.name
         self.app.frame.update_data(
             title,
@@ -247,9 +258,11 @@ class Controller:
         self.get_processed()
 
     def get_next(self, number):
-        """Step to the next state, select the n-th item for that
+        """
+        Step to the next state, select the n-th item for that
         If number is out of possible range this will raise IndexError
-        Usually get_focus should follow this function to finish the updates"""
+        Usually get_focus should follow this function to finish the updates
+        """
         item = self.actual.get_content(number)
         self.actual.set_focus(number)
         if self.step == TEXTS:
@@ -270,7 +283,7 @@ class Controller:
             self.step = TEXT
             self.get_processed()  # extra processing before copying
             self.text_to_clipboard = self.processed_text
-            gui_tools.set_clip_content(self.processed_text)
+            gui_tools.set_clip_content(self.processed_text, self.config.use_py_per_clip)
             self.app.minimize()
 
     def get_processed(self):
@@ -278,8 +291,10 @@ class Controller:
         self.processed_text = utils.safe_action(self.selected_text, self.selected_action)
 
     def get_prev(self):
-        """Step back one state
-        Usually get_focus should follow this function to finish the updates"""
+        """
+        Step back one state
+        Usually get_focus should follow this function to finish the updates
+        """
         if self.step == ACTION:
             self.actual = self.data.actions
             self.step = ACTIONS
@@ -335,7 +350,7 @@ class Controller:
     def command_copy_selected_text(self):
         """Action to copy the selected text and minimize"""
         self.text_to_clipboard = self.selected_text
-        gui_tools.set_clip_content(self.selected_text)
+        gui_tools.set_clip_content(self.selected_text, self.config.use_py_per_clip)
         self.actual = self.selected_text_data  # go back to selected text collection
         self.step = TEXT
         self.app.minimize()
@@ -343,7 +358,7 @@ class Controller:
     def command_copy_processed_text(self):
         """Action to copy the processed text and minimize"""
         self.text_to_clipboard = self.processed_text
-        gui_tools.set_clip_content(self.processed_text)
+        gui_tools.set_clip_content(self.processed_text, self.config.use_py_per_clip)
         self.actual = self.selected_text_data  # go back to selected text collection
         self.step = TEXT
         self.app.minimize()
