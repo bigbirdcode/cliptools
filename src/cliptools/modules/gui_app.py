@@ -9,18 +9,22 @@ import wx
 
 from cliptools.modules import gui_frame
 from cliptools.modules.config import Config
+from cliptools.modules.data_struct import DataCollections
 
 
 class GuiLinesApp(wx.App):
     """Main GUI App"""
 
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, data: DataCollections) -> None:
         self.config = config
+        self.data = data
         super().__init__()
 
     def OnInit(self):
         """The wxPython calls OnInit to create widgets"""
-        self.frame = gui_frame.GuiLinesFrame(parent=None, title="Clip Tools", config=self.config)
+        self.frame = gui_frame.GuiLinesFrame(
+            parent=None, title="Clip Tools", config=self.config, data=self.data
+        )
         self.SetTopWindow(self.frame)
         self.frame.Show(True)
         return True

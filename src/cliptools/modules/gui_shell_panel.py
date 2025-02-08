@@ -9,6 +9,7 @@ import wx
 import wx.py.shell
 
 from cliptools.modules import data_struct, gui_show_hide_panel
+from cliptools.modules.data_struct import DataCollections
 
 
 INTRO = '''*** Cliptools Shell ***
@@ -19,7 +20,8 @@ To reach the entire data collection type "dc"'''
 class ShellPanel(gui_show_hide_panel.ShowHidePanel):
     """Shell panel"""
 
-    def __init__(self, parent):
+    def __init__(self, parent, data: DataCollections):
+        self.data = data
         super().__init__(parent, wx.HORIZONTAL, "M")
 
     def create_content_and_sizer(self):
@@ -28,8 +30,9 @@ class ShellPanel(gui_show_hide_panel.ShowHidePanel):
         panels are given, only sizer is needed
         """
         shared_locals = {
-            "dc": data_struct.data_collections,
-            "clips": data_struct.data_collections.clip,
+            "dc": self.data,
+            "actions": self.data.actions,
+            "clips": self.data.clip.contents,
         }
         shell_sizer = wx.BoxSizer(wx.VERTICAL)
         self.shell = wx.py.shell.Shell(

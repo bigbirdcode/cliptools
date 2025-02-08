@@ -18,14 +18,16 @@ from cliptools.modules import (
     gui_tools,
 )
 from cliptools.modules.config import Config
+from cliptools.modules.data_struct import DataCollections
 
 
 class GuiLinesFrame(wx.Frame):
     """Main frame with the lines, details, shell"""
 
-    def __init__(self, parent: Any, title: str, config: Config):
-        wx.Frame.__init__(self, parent, -1, title)
+    def __init__(self, parent: Any, title: str, config: Config, data: DataCollections):
         self.config = config
+        self.data = data
+        wx.Frame.__init__(self, parent, -1, title)
 
         # Callbacks that will be registered by the Controller
         self.handle_keyboard_events = None
@@ -72,7 +74,7 @@ class GuiLinesFrame(wx.Frame):
         sizer_h.Add(sizer_v, 0, wx.EXPAND)
 
         # Create the shell panel
-        self.shell_panel = gui_shell_panel.ShellPanel(self)
+        self.shell_panel = gui_shell_panel.ShellPanel(self, data=self.data)
         sizer_h.Add(self.shell_panel, 1, wx.EXPAND)
 
         # Set and fit everything

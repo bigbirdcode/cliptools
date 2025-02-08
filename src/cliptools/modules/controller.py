@@ -96,7 +96,7 @@ class Controller:
         self.data.load_functions(self.user_folder)
         # Create the app instance
         # usually call it directly, the only exception is the app.frame
-        self.app = gui_app.GuiLinesApp(config=config)
+        self.app = gui_app.GuiLinesApp(config=self.config, data=self.data)
         self.app.frame.register_callbacks(
             self.handle_keyboard_events,
             self.handle_focus_event,
